@@ -140,7 +140,7 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": sk-ant-api03-6NlUyPdHRTIqQVUUE80pWNzqpt6kIoRaUC8dEQR6bMwA2EXsLn-Av_6xR1b5UWQj1Nh251ptC7hsOm1wSm3b3w-Y5eOPQAA 
+                        "x-api-key": "sk-ant-api03-6NlUyPdHRTIqQVUUE80pWNzqpt6kIoRaUC8dEQR6bMwA2EXsLn-Av_6xR1b5UWQj1Nh251ptC7hsOm1wSm3b3w-Y5eOPQAA"
                     },
                     body: JSON.stringify({
                         model: "claude-opus-4-1-20250805",
