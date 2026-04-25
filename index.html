@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TruthCheck</title>
+</head>
+<body style="text-align:center; font-family:sans-serif;">
+
+  <h1>TruthCheck</h1>
+  <p>Check if any text is real or fake instantly</p>
+
+  <textarea id="input" placeholder="Paste your text here..." rows="5" cols="40"></textarea><br><br>
+
+  <button onclick="checkText()">Check Now</button>
+
+  <p id="result">Result will appear here</p>
+
+  <p style="font-size:12px;">We do not store your data</p>
+
+  <script>
+    function checkText() {
+      let text = document.getElementById("input").value;
+      if(text.length < 10){
+        document.getElementById("result").innerText = "Enter more text";
+      } else {
+        document.getElementById("result").innerText = "Checking... (AI coming soon)";
+      }
+    }
+  </script>
+
+</body>
+    </html>
