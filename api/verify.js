@@ -18,22 +18,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'llama3-8b-8192',
         max_tokens: 500,
         messages: [
           {
             role: 'user',
             content: `Fact-check this text: "${text}"
             
-Reply ONLY in this JSON format:
+Reply ONLY in this JSON format (no other text, no markdown):
 {
   "verdict": "TRUE or FALSE or UNCERTAIN",
   "confidence": 85,
@@ -51,7 +50,7 @@ Reply ONLY in this JSON format:
       return res.status(500).json({ error: data.error.message });
     }
 
-    const resultText = data.content[0].text;
+    const resultText = data.choices[0].message.content;
     
     let result;
     try {
