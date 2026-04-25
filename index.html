@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifyPulse - AI Fact Checker</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
@@ -25,77 +21,49 @@
             padding: 20px;
             border: 1px solid #2d3748;
         }
-        h1 {
-            text-align: center;
-            color: #00d4ff;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-        .tagline {
-            text-align: center;
-            color: #a0aec0;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+        h1 { text-align: center; color: #00d4ff; margin-bottom: 10px; font-size: 28px; }
+        .tagline { text-align: center; color: #a0aec0; margin-bottom: 25px; font-size: 14px; }
         textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #2d3748;
-            border-radius: 10px;
-            background: rgba(0, 212, 255, 0.05);
-            color: #fff;
-            font-size: 16px;
-            min-height: 120px;
-            font-family: Arial, sans-serif;
-            margin-bottom: 15px;
+            width: 100%; padding: 15px;
+            border: 2px solid #2d3748; border-radius: 10px;
+            background: rgba(0,212,255,0.05); color: #fff;
+            font-size: 16px; min-height: 120px;
+            font-family: Arial, sans-serif; margin-bottom: 15px;
         }
-        textarea:focus {
-            outline: none;
-            border-color: #00d4ff;
-        }
+        textarea:focus { outline: none; border-color: #00d4ff; }
         button {
-            width: 100%;
-            padding: 15px;
+            width: 100%; padding: 15px;
             background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0a0e27;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 10px;
+            color: #0a0e27; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
         }
-        button:hover {
-            opacity: 0.9;
+        .btn-clear {
+            background: transparent; border: 2px solid #00d4ff; color: #00d4ff;
         }
-        .result {
-            display: none;
-            margin-top: 20px;
-            background: rgba(0, 212, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #00d4ff;
+        .loading { display: none; text-align: center; color: #a0aec0; padding: 15px; }
+        .result { display: none; margin-top: 20px; }
+        .verdict-box {
+            padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;
         }
-        .result.show {
-            display: block;
+        .verdict-true { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; }
+        .verdict-false { background: rgba(244,67,54,0.2); border: 2px solid #f44336; }
+        .verdict-uncertain { background: rgba(255,193,7,0.2); border: 2px solid #ffc107; }
+        .verdict-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+        .confidence { font-size: 14px; color: #a0aec0; }
+        .analysis-box {
+            background: rgba(0,212,255,0.05); padding: 15px;
+            border-radius: 10px; border-left: 4px solid #00d4ff; margin-bottom: 10px;
         }
-        .loading {
-            display: none;
-            text-align: center;
-            color: #a0aec0;
-        }
-        .loading.show {
-            display: block;
-        }
+        .analysis-box h4 { color: #00d4ff; margin-bottom: 8px; }
+        .analysis-box p { color: #a0aec0; font-size: 14px; line-height: 1.5; }
         .privacy {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid #00d4ff;
-            border-radius: 10px;
-            text-align: center;
-            color: #a0aec0;
-            font-size: 13px;
+            margin-top: 20px; padding: 12px;
+            background: rgba(0,212,255,0.1); border: 1px solid #00d4ff;
+            border-radius: 10px; text-align: center; color: #a0aec0; font-size: 13px;
+        }
+        .error-box {
+            background: rgba(244,67,54,0.2); border: 1px solid #f44336;
+            color: #ff6b6b; padding: 15px; border-radius: 10px; margin-top: 15px;
         }
     </style>
 </head>
@@ -103,80 +71,83 @@
     <div class="container">
         <h1>⚡ VerifyPulse</h1>
         <p class="tagline">AI-Powered Fact Checking</p>
-        
         <textarea id="textInput" placeholder="Enter text to verify..."></textarea>
-        
         <button onclick="verifyText()">✨ Verify Now</button>
-        <button onclick="clearInput()" style="background: transparent; border: 2px solid #00d4ff; color: #00d4ff;">Clear</button>
-        
-        <div class="loading" id="loading">
-            <p>⏳ Analyzing...</p>
-        </div>
-        
+        <button class="btn-clear" onclick="clearInput()">Clear</button>
+        <div class="loading" id="loading">⏳ AI Analyzing...</div>
         <div class="result" id="result">
-            <h3 id="resultTitle">Result</h3>
-            <p id="resultText">---</p>
+            <div class="verdict-box" id="verdictBox">
+                <div class="verdict-title" id="verdictTitle"></div>
+                <div class="confidence" id="confidence"></div>
+            </div>
+            <div class="analysis-box">
+                <h4>🔍 Analysis</h4>
+                <p id="analysisText"></p>
+            </div>
+            <div class="analysis-box">
+                <h4>💡 Key Findings</h4>
+                <p id="findingsText"></p>
+            </div>
+            <button class="btn-clear" onclick="resetVerify()">← Check Another</button>
         </div>
-        
         <div class="privacy">
             🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.
         </div>
     </div>
-
     <script>
         async function verifyText() {
             const text = document.getElementById('textInput').value.trim();
-            
-            if (!text) {
-                alert('Please enter some text!');
-                return;
-            }
-            
-            document.getElementById('loading').classList.add('show');
-            document.getElementById('result').classList.remove('show');
-            
+            if (!text) { alert('Please enter some text!'); return; }
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
             try {
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-api-key": "sk-ant-api03-6NlUyPdHRTIqQVUUE80pWNzqpt6kIoRaUC8dEQR6bMwA2EXsLn-Av_6xR1b5UWQj1Nh251ptC7hsOm1wSm3b3w-Y5eOPQAA"
-                    },
-                    body: JSON.stringify({
-                        model: "claude-opus-4-1-20250805",
-                        max_tokens: 500,
-                        messages: [
-                            {
-                                role: "user",
-                                content: `Fact-check this: "${text}" - Reply with: VERDICT (TRUE/FALSE/UNCERTAIN), CONFIDENCE (%), ANALYSIS (2-3 lines)`
-                            }
-                        ]
-                    })
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
                 });
-                
                 const data = await response.json();
-                
-                if (data.error) {
-                    document.getElementById('resultTitle').textContent = '❌ Error';
-                    document.getElementById('resultText').textContent = 'API Key missing or invalid. Add your API key to the code.';
-                } else {
-                    const result = data.content[0].text;
-                    document.getElementById('resultTitle').textContent = '✅ Result';
-                    document.getElementById('resultText').textContent = result;
-                }
+                if (data.error) { showError(data.error); return; }
+                displayResult(data);
             } catch (error) {
-                document.getElementById('resultTitle').textContent = '❌ Error';
-                document.getElementById('resultText').textContent = 'Connection error. Check your internet.';
+                showError('Connection error: ' + error.message);
             } finally {
-                document.getElementById('loading').classList.remove('show');
-                document.getElementById('result').classList.add('show');
+                document.getElementById('loading').style.display = 'none';
             }
         }
-        
+        function displayResult(result) {
+            const verdict = result.verdict.toUpperCase();
+            const box = document.getElementById('verdictBox');
+            box.className = 'verdict-box';
+            if (verdict === 'TRUE') {
+                box.classList.add('verdict-true');
+                document.getElementById('verdictTitle').textContent = '✅ Likely True';
+            } else if (verdict === 'FALSE') {
+                box.classList.add('verdict-false');
+                document.getElementById('verdictTitle').textContent = '❌ Likely False';
+            } else {
+                box.classList.add('verdict-uncertain');
+                document.getElementById('verdictTitle').textContent = '❓ Uncertain';
+            }
+            document.getElementById('confidence').textContent = 'Confidence: ' + result.confidence + '%';
+            document.getElementById('analysisText').textContent = result.analysis;
+            document.getElementById('findingsText').textContent = result.findings;
+            document.getElementById('result').style.display = 'block';
+        }
+        function showError(msg) {
+            document.getElementById('loading').style.display = 'none';
+            const r = document.getElementById('result');
+            r.innerHTML = '<div class="error-box">❌ Error: ' + msg + '</div>';
+            r.style.display = 'block';
+        }
         function clearInput() {
             document.getElementById('textInput').value = '';
             document.getElementById('textInput').focus();
         }
+        function resetVerify() {
+            clearInput();
+            document.getElementById('result').style.display = 'none';
+        }
     </script>
 </body>
-</html>
+    </html>
