@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyPulse - AI Fact Checker</title>
+    <title>VerifyPulse - Cybersecurity & Fact Check</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -14,140 +14,385 @@
             padding: 20px;
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #00d4ff;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        .tagline {
+            color: #a0aec0;
+            font-size: 14px;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            color: #a0aec0;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: rgba(0,212,255,0.3);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+        .card {
             background: #1a1f3a;
+            border: 1px solid #2d3748;
             border-radius: 15px;
             padding: 20px;
-            border: 1px solid #2d3748;
+            margin-bottom: 15px;
         }
-        h1 { text-align: center; color: #00d4ff; margin-bottom: 10px; font-size: 28px; }
-        .tagline { text-align: center; color: #a0aec0; margin-bottom: 25px; font-size: 14px; }
-        textarea {
-            width: 100%; padding: 15px;
-            border: 2px solid #2d3748; border-radius: 10px;
-            background: rgba(0,212,255,0.05); color: #fff;
-            font-size: 16px; min-height: 120px;
-            font-family: Arial, sans-serif; margin-bottom: 15px;
+        .section { display: none; }
+        .section.active { display: block; }
+        textarea, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #2d3748;
+            border-radius: 10px;
+            background: rgba(0,212,255,0.05);
+            color: #fff;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            margin-bottom: 15px;
         }
-        textarea:focus { outline: none; border-color: #00d4ff; }
+        textarea { min-height: 100px; resize: vertical; }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
         button {
-            width: 100%; padding: 15px;
+            width: 100%;
+            padding: 15px;
             background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0a0e27; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
+            color: #0a0e27;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
         }
         .btn-clear {
-            background: transparent; border: 2px solid #00d4ff; color: #00d4ff;
+            background: transparent;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
         }
         .loading { display: none; text-align: center; color: #a0aec0; padding: 15px; }
-        .result { display: none; margin-top: 20px; }
+        .result { display: none; margin-top: 15px; }
         .verdict-box {
-            padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
         }
         .verdict-true { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; }
         .verdict-false { background: rgba(244,67,54,0.2); border: 2px solid #f44336; }
         .verdict-uncertain { background: rgba(255,193,7,0.2); border: 2px solid #ffc107; }
+        .verdict-safe { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; }
+        .verdict-dangerous { background: rgba(244,67,54,0.2); border: 2px solid #f44336; }
+        .verdict-suspicious { background: rgba(255,193,7,0.2); border: 2px solid #ffc107; }
         .verdict-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
         .confidence { font-size: 14px; color: #a0aec0; }
         .analysis-box {
-            background: rgba(0,212,255,0.05); padding: 15px;
-            border-radius: 10px; border-left: 4px solid #00d4ff; margin-bottom: 10px;
+            background: rgba(0,212,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+            margin-bottom: 10px;
         }
         .analysis-box h4 { color: #00d4ff; margin-bottom: 8px; }
         .analysis-box p { color: #a0aec0; font-size: 14px; line-height: 1.5; }
         .privacy {
-            margin-top: 20px; padding: 12px;
-            background: rgba(0,212,255,0.1); border: 1px solid #00d4ff;
-            border-radius: 10px; text-align: center; color: #a0aec0; font-size: 13px;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            text-align: center;
+            color: #a0aec0;
+            font-size: 13px;
         }
         .error-box {
-            background: rgba(244,67,54,0.2); border: 1px solid #f44336;
-            color: #ff6b6b; padding: 15px; border-radius: 10px; margin-top: 15px;
+            background: rgba(244,67,54,0.2);
+            border: 1px solid #f44336;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
         }
+        .password-strength {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .strength-weak { background: rgba(244,67,54,0.2); border: 1px solid #f44336; color: #ff6b6b; }
+        .strength-medium { background: rgba(255,193,7,0.2); border: 1px solid #ffc107; color: #ffc107; }
+        .strength-strong { background: rgba(76,175,80,0.2); border: 1px solid #4caf50; color: #4caf50; }
+        .tips {
+            background: rgba(0,212,255,0.05);
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .tips h4 { color: #00d4ff; margin-bottom: 10px; }
+        .tip-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #2d3748;
+            color: #a0aec0;
+            font-size: 13px;
+        }
+        .tip-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚡ VerifyPulse</h1>
-        <p class="tagline">AI-Powered Fact Checking</p>
-        <textarea id="textInput" placeholder="Enter text to verify..."></textarea>
-        <button onclick="verifyText()">✨ Verify Now</button>
-        <button class="btn-clear" onclick="clearInput()">Clear</button>
-        <div class="loading" id="loading">⏳ AI Analyzing...</div>
-        <div class="result" id="result">
-            <div class="verdict-box" id="verdictBox">
-                <div class="verdict-title" id="verdictTitle"></div>
-                <div class="confidence" id="confidence"></div>
-            </div>
-            <div class="analysis-box">
-                <h4>🔍 Analysis</h4>
-                <p id="analysisText"></p>
-            </div>
-            <div class="analysis-box">
-                <h4>💡 Key Findings</h4>
-                <p id="findingsText"></p>
-            </div>
-            <button class="btn-clear" onclick="resetVerify()">← Check Another</button>
+        <header>
+            <h1>⚡ VerifyPulse</h1>
+            <p class="tagline">AI-Powered Cybersecurity & Fact Checking</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('news')">📰 Fake News</div>
+            <div class="tab" onclick="switchTab('url')">🔗 URL Scanner</div>
+            <div class="tab" onclick="switchTab('phishing')">📧 Phishing</div>
+            <div class="tab" onclick="switchTab('password')">🔐 Password</div>
+            <div class="tab" onclick="switchTab('scam')">⚠️ Scam Detector</div>
         </div>
-        <div class="privacy">
-            🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.
+
+        <!-- Fake News Section -->
+        <div class="section active" id="news-section">
+            <div class="card">
+                <textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea>
+                <button onclick="checkNews()">✨ Check News</button>
+                <button class="btn-clear" onclick="clearInput('newsInput', 'newsResult')">Clear</button>
+                <div class="loading" id="newsLoading">⏳ AI Analyzing...</div>
+                <div class="result" id="newsResult"></div>
+                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
+            </div>
+        </div>
+
+        <!-- URL Scanner Section -->
+        <div class="section" id="url-section">
+            <div class="card">
+                <input type="text" id="urlInput" placeholder="Enter URL or link to scan... (e.g. http://example.com)">
+                <button onclick="checkURL()">🔍 Scan URL</button>
+                <button class="btn-clear" onclick="clearInput('urlInput', 'urlResult')">Clear</button>
+                <div class="loading" id="urlLoading">⏳ Scanning...</div>
+                <div class="result" id="urlResult"></div>
+                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
+            </div>
+        </div>
+
+        <!-- Phishing Section -->
+        <div class="section" id="phishing-section">
+            <div class="card">
+                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS message here..."></textarea>
+                <button onclick="checkPhishing()">🛡️ Check for Phishing</button>
+                <button class="btn-clear" onclick="clearInput('phishingInput', 'phishingResult')">Clear</button>
+                <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
+                <div class="result" id="phishingResult"></div>
+                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
+            </div>
+        </div>
+
+        <!-- Password Section -->
+        <div class="section" id="password-section">
+            <div class="card">
+                <input type="password" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPassword()">
+                <div id="passwordResult"></div>
+                <div class="tips">
+                    <h4>💡 Password Tips</h4>
+                    <div class="tip-item">✅ Use at least 12 characters</div>
+                    <div class="tip-item">✅ Mix UPPERCASE and lowercase</div>
+                    <div class="tip-item">✅ Add numbers (1,2,3...)</div>
+                    <div class="tip-item">✅ Add symbols (!,@,#,$...)</div>
+                    <div class="tip-item">❌ Never use your name or birthday</div>
+                    <div class="tip-item">❌ Never reuse passwords</div>
+                </div>
+                <div class="privacy" style="margin-top:15px;">🔐 Password is checked locally. Never sent to server.</div>
+            </div>
+        </div>
+
+        <!-- Scam Detector Section -->
+        <div class="section" id="scam-section">
+            <div class="card">
+                <textarea id="scamInput" placeholder="Paste any suspicious message, offer, or content here..."></textarea>
+                <button onclick="checkScam()">⚠️ Detect Scam</button>
+                <button class="btn-clear" onclick="clearInput('scamInput', 'scamResult')">Clear</button>
+                <div class="loading" id="scamLoading">⏳ Analyzing...</div>
+                <div class="result" id="scamResult"></div>
+                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
+            </div>
         </div>
     </div>
+
     <script>
-        async function verifyText() {
-            const text = document.getElementById('textInput').value.trim();
-            if (!text) { alert('Please enter some text!'); return; }
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('result').style.display = 'none';
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + '-section').classList.add('active');
+        }
+
+        function clearInput(inputId, resultId) {
+            document.getElementById(inputId).value = '';
+            const result = document.getElementById(resultId);
+            if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+        }
+
+        function displayResult(resultId, loadingId, data, type) {
+            document.getElementById(loadingId).style.display = 'none';
+            const container = document.getElementById(resultId);
+
+            let verdictClass = '';
+            let verdictText = '';
+
+            if (type === 'news') {
+                if (data.verdict === 'TRUE') { verdictClass = 'verdict-true'; verdictText = '✅ Likely True'; }
+                else if (data.verdict === 'FALSE') { verdictClass = 'verdict-false'; verdictText = '❌ Likely False'; }
+                else { verdictClass = 'verdict-uncertain'; verdictText = '❓ Uncertain'; }
+            } else {
+                if (data.verdict === 'SAFE') { verdictClass = 'verdict-safe'; verdictText = '✅ Safe'; }
+                else if (data.verdict === 'DANGEROUS') { verdictClass = 'verdict-dangerous'; verdictText = '🚨 Dangerous!'; }
+                else if (data.verdict === 'PHISHING') { verdictClass = 'verdict-dangerous'; verdictText = '🎣 Phishing Detected!'; }
+                else if (data.verdict === 'SCAM') { verdictClass = 'verdict-dangerous'; verdictText = '⚠️ Scam Detected!'; }
+                else { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Suspicious'; }
+            }
+
+            container.innerHTML = `
+                <div class="verdict-box ${verdictClass}">
+                    <div class="verdict-title">${verdictText}</div>
+                    <div class="confidence">Confidence: ${data.confidence}%</div>
+                </div>
+                <div class="analysis-box">
+                    <h4>🔍 Analysis</h4>
+                    <p>${data.analysis}</p>
+                </div>
+                <div class="analysis-box">
+                    <h4>💡 Key Findings</h4>
+                    <p>${data.findings}</p>
+                </div>
+                <button class="btn-clear" onclick="this.parentElement.style.display='none'" style="width:100%;">← Check Another</button>
+            `;
+            container.style.display = 'block';
+        }
+
+        async function callAPI(text, checkType, loadingId) {
+            document.getElementById(loadingId).style.display = 'block';
             try {
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
+                    body: JSON.stringify({ text, checkType })
                 });
-                const data = await response.json();
-                if (data.error) { showError(data.error); return; }
-                displayResult(data);
+                return await response.json();
             } catch (error) {
-                showError('Connection error: ' + error.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+                return { error: error.message };
             }
         }
-        function displayResult(result) {
-            const verdict = result.verdict.toUpperCase();
-            const box = document.getElementById('verdictBox');
-            box.className = 'verdict-box';
-            if (verdict === 'TRUE') {
-                box.classList.add('verdict-true');
-                document.getElementById('verdictTitle').textContent = '✅ Likely True';
-            } else if (verdict === 'FALSE') {
-                box.classList.add('verdict-false');
-                document.getElementById('verdictTitle').textContent = '❌ Likely False';
-            } else {
-                box.classList.add('verdict-uncertain');
-                document.getElementById('verdictTitle').textContent = '❓ Uncertain';
-            }
-            document.getElementById('confidence').textContent = 'Confidence: ' + result.confidence + '%';
-            document.getElementById('analysisText').textContent = result.analysis;
-            document.getElementById('findingsText').textContent = result.findings;
-            document.getElementById('result').style.display = 'block';
+
+        async function checkNews() {
+            const text = document.getElementById('newsInput').value.trim();
+            if (!text) { alert('Please enter news to check!'); return; }
+            const data = await callAPI(text, 'news', 'newsLoading');
+            if (data.error) {
+                document.getElementById('newsLoading').style.display = 'none';
+                document.getElementById('newsResult').innerHTML = `<div class="error-box">❌ Error: ${data.error}</div>`;
+                document.getElementById('newsResult').style.display = 'block';
+            } else { displayResult('newsResult', 'newsLoading', data, 'news'); }
         }
-        function showError(msg) {
-            document.getElementById('loading').style.display = 'none';
-            const r = document.getElementById('result');
-            r.innerHTML = '<div class="error-box">❌ Error: ' + msg + '</div>';
-            r.style.display = 'block';
+
+        async function checkURL() {
+            const text = document.getElementById('urlInput').value.trim();
+            if (!text) { alert('Please enter a URL!'); return; }
+            const data = await callAPI(text, 'url', 'urlLoading');
+            if (data.error) {
+                document.getElementById('urlLoading').style.display = 'none';
+                document.getElementById('urlResult').innerHTML = `<div class="error-box">❌ Error: ${data.error}</div>`;
+                document.getElementById('urlResult').style.display = 'block';
+            } else { displayResult('urlResult', 'urlLoading', data, 'security'); }
         }
-        function clearInput() {
-            document.getElementById('textInput').value = '';
-            document.getElementById('textInput').focus();
+
+        async function checkPhishing() {
+            const text = document.getElementById('phishingInput').value.trim();
+            if (!text) { alert('Please enter message to check!'); return; }
+            const data = await callAPI(text, 'phishing', 'phishingLoading');
+            if (data.error) {
+                document.getElementById('phishingLoading').style.display = 'none';
+                document.getElementById('phishingResult').innerHTML = `<div class="error-box">❌ Error: ${data.error}</div>`;
+                document.getElementById('phishingResult').style.display = 'block';
+            } else { displayResult('phishingResult', 'phishingLoading', data, 'security'); }
         }
-        function resetVerify() {
-            clearInput();
-            document.getElementById('result').style.display = 'none';
+
+        async function checkScam() {
+            const text = document.getElementById('scamInput').value.trim();
+            if (!text) { alert('Please enter message to check!'); return; }
+            const data = await callAPI(text, 'scam', 'scamLoading');
+            if (data.error) {
+                document.getElementById('scamLoading').style.display = 'none';
+                document.getElementById('scamResult').innerHTML = `<div class="error-box">❌ Error: ${data.error}</div>`;
+                document.getElementById('scamResult').style.display = 'block';
+            } else { displayResult('scamResult', 'scamLoading', data, 'security'); }
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const result = document.getElementById('passwordResult');
+            if (!password) { result.innerHTML = ''; return; }
+
+            let strength = 0;
+            let feedback = [];
+
+            if (password.length >= 12) strength++;
+            else feedback.push('Use at least 12 characters');
+
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('Add uppercase letters');
+
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('Add lowercase letters');
+
+            if (/[0-9]/.test(password)) strength++;
+            else feedback.push('Add numbers');
+
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            else feedback.push('Add symbols (!@#$)');
+
+            let strengthClass, strengthText;
+            if (strength <= 2) { strengthClass = 'strength-weak'; strengthText = '❌ Weak Password'; }
+            else if (strength <= 3) { strengthClass = 'strength-medium'; strengthText = '⚠️ Medium Password'; }
+            else { strengthClass = 'strength-strong'; strengthText = '✅ Strong Password'; }
+
+            result.innerHTML = `
+                <div class="password-strength ${strengthClass}">
+                    <strong>${strengthText}</strong>
+                    ${feedback.length > 0 ? '<br>Tips: ' + feedback.join(', ') : '<br>Great password!'}
+                </div>
+            `;
         }
     </script>
 </body>
-    </html>
+                </html>
