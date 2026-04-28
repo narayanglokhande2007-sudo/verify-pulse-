@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,27 +16,10 @@
             min-height: 100vh;
             color: #fff;
         }
-        .lang-btn {
-            background: #2d3748;
-            border: 1px solid #4a5568;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-        .lang-btn:hover {
-            background: #4a5568;
-        }
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            padding-top: 70px;
         }
         header {
             text-align: center;
@@ -52,6 +35,23 @@
         .tagline {
             color: #a0aec0;
             margin-top: 8px;
+        }
+        /* Language Toggle - positioned top right */
+        .lang-wrapper {
+            text-align: right;
+            margin-bottom: 5px;
+        }
+        .lang-btn {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .lang-btn:hover {
+            background: #4a5568;
         }
         .tabs {
             display: flex;
@@ -170,21 +170,23 @@
             font-size: 14px;
         }
         @media (max-width: 600px) {
-            .container { padding: 15px; padding-top: 70px; }
+            .container { padding: 15px; }
             h1 { font-size: 1.8rem; }
             .tab { padding: 8px 12px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
-    <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
     <div class="container">
+        <div class="lang-wrapper">
+            <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
+        </div>
         <header>
             <h1>VerifyPulse</h1>
-            <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
+            <p class="tagline" id="taglineText">AI-Powered Cybersecurity & Fact Checking</p>
         </header>
 
-        <div class="tabs" id="tabs">
+        <div class="tabs">
             <button class="tab active" data-tab="news">📰 News</button>
             <button class="tab" data-tab="url">🔗 URL</button>
             <button class="tab" data-tab="phishing">📧 Phishing</button>
@@ -225,7 +227,7 @@
     </div>
 
     <script>
-        // Translations (English + Hindi)
+        // ---------- TRANSLATIONS (English & Hindi) ----------
         const translations = {
             en: {
                 tagline: "AI-Powered Cybersecurity & Fact Checking",
@@ -241,7 +243,7 @@
                 confidenceLabel: "Confidence:",
                 analysisLabel: "Analysis:",
                 findingsLabel: "Key Findings:",
-                loading: "Analyzing with AI...",
+                loading: "Analyzing... Please wait.",
                 error: "Error occurred. Please try again."
             },
             hi: {
@@ -258,18 +260,18 @@
                 confidenceLabel: "विश्वस्तता:",
                 analysisLabel: "विश्लेषण:",
                 findingsLabel: "मुख्य निष्कर्ष:",
-                loading: "AI विश्लेषण कर रहा है...",
+                loading: "विश्लेषण हो रहा है... कृपया प्रतीक्षा करें।",
                 error: "त्रुटि हुई। कृपया पुनः प्रयास करें।"
             }
         };
 
         let currentLang = 'en';
 
-        function updateLanguage() {
-            document.getElementById('tagline').innerText = translations[currentLang].tagline;
-            const tabBtns = document.querySelectorAll('.tab');
-            tabBtns.forEach((btn, idx) => {
-                btn.innerText = translations[currentLang].tabs[idx];
+        function updateUI() {
+            document.getElementById('taglineText').innerText = translations[currentLang].tagline;
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach((tab, idx) => {
+                tab.innerText = translations[currentLang].tabs[idx];
             });
             document.getElementById('newsInput').placeholder = translations[currentLang].newsPlaceholder;
             document.getElementById('urlInput').placeholder = translations[currentLang].urlPlaceholder;
@@ -283,9 +285,9 @@
         document.getElementById('langToggle').addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'hi' : 'en';
             document.getElementById('langToggle').innerText = currentLang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English';
-            updateLanguage();
+            updateUI();
         });
-        updateLanguage();
+        updateUI();
 
         // Tab switching
         const tabs = document.querySelectorAll('.tab');
@@ -295,7 +297,7 @@
                 const tabId = tab.getAttribute('data-tab');
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                contents.forEach(content => content.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
                 document.getElementById(tabId).classList.add('active');
                 document.getElementById('result').style.display = 'none';
             });
@@ -358,4 +360,4 @@
         });
     </script>
 </body>
-    </html>
+                </html>
