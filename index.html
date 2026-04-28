@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +25,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            margin-bottom: 10px;
         }
         .lang-btn:hover {
             background: #4a5568;
@@ -57,7 +58,7 @@
             border-bottom: 1px solid #2d3748;
             padding-bottom: 10px;
         }
-        .tab-btn {
+        .tab {
             background: transparent;
             border: none;
             color: #a0aec0;
@@ -67,11 +68,11 @@
             border-radius: 8px;
             transition: all 0.3s;
         }
-        .tab-btn.active {
+        .tab.active {
             background: #4a5568;
             color: white;
         }
-        .tab-btn:hover:not(.active) {
+        .tab:hover:not(.active) {
             background: #2d3748;
             color: #e2e8f0;
         }
@@ -96,7 +97,12 @@
             outline: none;
             border-color: #667eea;
         }
-        button[type="submit"] {
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .btn-verify {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
@@ -104,10 +110,19 @@
             border-radius: 30px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 15px;
             transition: transform 0.2s;
         }
-        button[type="submit"]:hover {
+        .btn-clear {
+            background: #2d3748;
+            color: white;
+            border: 1px solid #4a5568;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-verify:hover, .btn-clear:hover {
             transform: scale(1.02);
         }
         .result-box {
@@ -153,13 +168,13 @@
         @media (max-width: 600px) {
             .container { padding: 15px; }
             h1 { font-size: 1.8rem; }
-            .tab-btn { padding: 8px 12px; font-size: 14px; }
+            .tab { padding: 8px 12px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="text-align: right; margin-bottom: 10px;">
+        <div style="text-align: right;">
             <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
         </div>
         <header>
@@ -167,31 +182,34 @@
             <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
         </header>
 
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="news">📰 News</button>
-            <button class="tab-btn" data-tab="url">🔗 URL</button>
-            <button class="tab-btn" data-tab="phishing">📧 Phishing</button>
-            <button class="tab-btn" data-tab="password">🔐 Password</button>
-            <button class="tab-btn" data-tab="scam">⚠️ Scam</button>
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="news">📰 News</button>
+            <button class="tab" data-tab="url">🔗 URL</button>
+            <button class="tab" data-tab="phishing">📧 Phishing</button>
+            <button class="tab" data-tab="password">🔐 Password</button>
+            <button class="tab" data-tab="scam">⚠️ Scam</button>
         </div>
 
         <div id="news" class="tab-content active">
-            <textarea id="newsInput" rows="3" placeholder="Enter news or claim to verify..."></textarea>
+            <textarea id="newsInput" rows="4" placeholder="Enter news or claim to verify..."></textarea>
         </div>
         <div id="url" class="tab-content">
             <input type="text" id="urlInput" placeholder="Enter URL to check...">
         </div>
         <div id="phishing" class="tab-content">
-            <textarea id="phishInput" rows="3" placeholder="Enter email or SMS content..."></textarea>
+            <textarea id="phishInput" rows="4" placeholder="Enter email or SMS content..."></textarea>
         </div>
         <div id="password" class="tab-content">
             <input type="password" id="passInput" placeholder="Enter password to check strength...">
         </div>
         <div id="scam" class="tab-content">
-            <textarea id="scamInput" rows="3" placeholder="Enter message to check for scam..."></textarea>
+            <textarea id="scamInput" rows="4" placeholder="Enter message to check for scam..."></textarea>
         </div>
 
-        <button id="checkBtn">Verify</button>
+        <div class="button-group">
+            <button id="verifyBtn" class="btn-verify">Verify</button>
+            <button id="clearBtn" class="btn-clear">Clear</button>
+        </div>
 
         <div id="result" class="result-box" style="display: none;">
             <div class="verdict" id="verdict"></div>
@@ -203,7 +221,7 @@
     </div>
 
     <script>
-        // ---------- TRANSLATIONS ----------
+        // ---------- TRANSLATIONS (Hindi Support) ----------
         const translations = {
             en: {
                 tagline: "AI-Powered Cybersecurity & Fact Checking",
@@ -213,11 +231,12 @@
                 phishPlaceholder: "Enter email or SMS content...",
                 passPlaceholder: "Enter password to check strength...",
                 scamPlaceholder: "Enter message to check for scam...",
-                checkBtn: "Verify",
+                verifyBtn: "Verify",
+                clearBtn: "Clear",
                 verdict: "Verdict:",
                 confidence: "Confidence:",
                 analysis: "Analysis:",
-                findings: "Findings:",
+                findings: "Key Findings:",
                 loading: "Analyzing... Please wait.",
                 error: "Error occurred. Please try again."
             },
@@ -229,11 +248,12 @@
                 phishPlaceholder: "ईमेल या एसएमएस कंटेंट लिखें...",
                 passPlaceholder: "पासवर्ड की सुरक्षा जांचने के लिए लिखें...",
                 scamPlaceholder: "स्कैम जांचने के लिए संदेश लिखें...",
-                checkBtn: "जांच करें",
+                verifyBtn: "जांच करें",
+                clearBtn: "साफ़ करें",
                 verdict: "परिणाम:",
                 confidence: "विश्वस्तता:",
                 analysis: "विश्लेषण:",
-                findings: "निष्कर्ष:",
+                findings: "मुख्य निष्कर्ष:",
                 loading: "विश्लेषण हो रहा है... कृपया प्रतीक्षा करें।",
                 error: "त्रुटि हुई। कृपया पुनः प्रयास करें।"
             }
@@ -243,7 +263,7 @@
 
         function updateLanguage() {
             document.getElementById('tagline').innerText = translations[currentLang].tagline;
-            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabBtns = document.querySelectorAll('.tab');
             tabBtns.forEach((btn, idx) => {
                 if(translations[currentLang].tabs[idx]) btn.innerText = translations[currentLang].tabs[idx];
             });
@@ -252,12 +272,8 @@
             document.getElementById('phishInput').placeholder = translations[currentLang].phishPlaceholder;
             document.getElementById('passInput').placeholder = translations[currentLang].passPlaceholder;
             document.getElementById('scamInput').placeholder = translations[currentLang].scamPlaceholder;
-            document.getElementById('checkBtn').innerText = translations[currentLang].checkBtn;
-            
-            const resultDiv = document.getElementById('result');
-            if(resultDiv.style.display !== 'none') {
-                // If result is showing, we don't change dynamic content
-            }
+            document.getElementById('verifyBtn').innerText = translations[currentLang].verifyBtn;
+            document.getElementById('clearBtn').innerText = translations[currentLang].clearBtn;
         }
 
         document.getElementById('langToggle').addEventListener('click', () => {
@@ -269,7 +285,7 @@
         updateLanguage();
 
         // ---------- TAB SWITCHING ----------
-        const tabs = document.querySelectorAll('.tab-btn');
+        const tabs = document.querySelectorAll('.tab');
         const contents = document.querySelectorAll('.tab-content');
 
         tabs.forEach(tab => {
@@ -283,9 +299,19 @@
             });
         });
 
-        // ---------- CHECK FUNCTION ----------
-        document.getElementById('checkBtn').addEventListener('click', async () => {
-            const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
+        // ---------- CLEAR BUTTON ----------
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('newsInput').value = '';
+            document.getElementById('urlInput').value = '';
+            document.getElementById('phishInput').value = '';
+            document.getElementById('passInput').value = '';
+            document.getElementById('scamInput').value = '';
+            document.getElementById('result').style.display = 'none';
+        });
+
+        // ---------- VERIFY FUNCTION ----------
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
             let text = '';
             
             if(activeTab === 'news') text = document.getElementById('newsInput').value;
@@ -331,4 +357,4 @@
         });
     </script>
 </body>
-                </html>
+                                                                                                 </html>                                  
