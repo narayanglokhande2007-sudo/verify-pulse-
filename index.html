@@ -5,16 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifyPulse - AI Security Suite</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8fafc;
             color: #0f172a;
-            line-height: 1.5;
         }
         .lang-btn {
             position: fixed;
@@ -25,425 +20,239 @@
             padding: 8px 16px;
             border-radius: 40px;
             cursor: pointer;
-            font-weight: 500;
             z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .container {
-            max-width: 1100px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 80px 20px 40px;
         }
-        .hero {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .hero h1 {
-            font-size: 2.8rem;
-            color: #0f172a;
-        }
-        .hero .tagline {
-            font-size: 1.2rem;
-            color: #334155;
-            margin: 10px 0;
-        }
-        .hero .description {
-            color: #475569;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .badges {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .badge {
-            background: #e2e8f0;
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-        }
-        .cards {
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.5rem; color: #0f172a; }
+        .tagline { color: #334155; margin-top: 8px; }
+        .tabs {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin: 30px 0;
-        }
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-            min-width: 140px;
-        }
-        .card.active {
-            border: 2px solid #3b82f6;
-            background: #eff6ff;
-        }
-        .card-icon {
-            font-size: 28px;
-        }
-        .input-area {
-            margin: 30px 0;
-        }
-        textarea {
-            width: 100%;
-            padding: 16px;
-            border-radius: 20px;
-            border: 1px solid #cbd5e1;
-            font-size: 1rem;
-            background: white;
-        }
-        .buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
+            gap: 10px;
             margin: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
         }
-        .btn-verify, .btn-clear {
-            padding: 12px 32px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
+        .tab {
+            background: transparent;
             border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 30px;
+            color: #475569;
+        }
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .tab-content { display: none; margin-top: 20px; }
+        .tab-content.active { display: block; }
+        textarea, input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            background: white;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
         }
         .btn-verify {
             background: #3b82f6;
             color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
         }
         .btn-clear {
             background: #f1f5f9;
-            color: #1e293b;
             border: 1px solid #cbd5e1;
+            padding: 12px 32px;
+            border-radius: 40px;
+            cursor: pointer;
         }
-        .result-card {
+        .result-box {
             background: white;
             border-radius: 24px;
-            padding: 24px;
-            margin: 20px 0;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             display: none;
         }
-        .scam-badge {
-            background: #fee2e2;
-            color: #991b1b;
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-weight: bold;
-        }
+        .verdict { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
+        .confidence { margin: 10px 0; }
         .confidence-bar {
             background: #e2e8f0;
             height: 8px;
             border-radius: 10px;
-            margin: 10px 0;
+            margin: 8px 0;
         }
         .confidence-fill {
             background: #3b82f6;
             height: 100%;
-            border-radius: 10px;
             width: 0%;
+            border-radius: 10px;
         }
-        .risk-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .risk-High { background: #fee2e2; color: #b91c1c; }
-        .risk-Medium { background: #fed7aa; color: #9a3412; }
-        .risk-Low { background: #dcfce7; color: #166534; }
-        .bullet-list {
-            margin: 15px 0;
-            padding-left: 20px;
-        }
-        .bullet-list li {
-            margin: 8px 0;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .btn-link {
-            background: none;
-            border: none;
-            color: #3b82f6;
-            cursor: pointer;
-            font-weight: 500;
-            text-decoration: underline;
-        }
-        .btn-report {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        .examples {
-            margin-top: 40px;
-        }
-        .examples h3 {
-            margin-bottom: 15px;
-        }
-        .example-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .example-chip {
-            background: #f1f5f9;
-            padding: 8px 18px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            border: 1px solid #e2e8f0;
+        .analysis, .findings {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid #e9eef3;
         }
         footer {
             text-align: center;
             margin-top: 50px;
             padding: 20px;
             color: #64748b;
-            border-top: 1px solid #e2e8f0;
-        }
-        @media (max-width: 700px) {
-            .container { padding: 70px 15px 20px; }
-            .hero h1 { font-size: 2rem; }
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
     <div class="container">
-        <div class="hero">
+        <header>
             <h1>VerifyPulse</h1>
-            <p class="tagline" id="tagline">AI-Powered Cybersecurity & Scam Detector</p>
-            <p class="description" id="description">Stay Safe. Stay Ahead. Detect scams, phishing links, fake messages and online threats with the power of AI.</p>
-            <div class="badges" id="badges">
-                <span class="badge">✅ 100% Free</span>
-                <span class="badge">⚡ Instant Results</span>
-                <span class="badge">🔒 No Data Stored</span>
-            </div>
+            <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
+        </header>
+        <div class="tabs">
+            <button class="tab active" data-tab="news">📰 News</button>
+            <button class="tab" data-tab="url">🔗 URL</button>
+            <button class="tab" data-tab="phishing">📧 Phishing</button>
+            <button class="tab" data-tab="password">🔐 Password</button>
+            <button class="tab" data-tab="scam">⚠️ Scam</button>
         </div>
-
-        <div class="cards" id="cards">
-            <div class="card" data-tab="scam">
-                <div class="card-icon">⚠️</div>
-                <div class="card-title">Scam Detector</div>
-            </div>
-            <div class="card" data-tab="url">
-                <div class="card-icon">🔗</div>
-                <div class="card-title">URL Scanner</div>
-            </div>
-            <div class="card" data-tab="phishing">
-                <div class="card-icon">📧</div>
-                <div class="card-title">Phishing Check</div>
-            </div>
-            <div class="card" data-tab="password">
-                <div class="card-icon">🔐</div>
-                <div class="card-title">Password Check</div>
-            </div>
-            <div class="card" data-tab="news">
-                <div class="card-icon">📰</div>
-                <div class="card-title">Fake News</div>
-            </div>
+        <div id="news" class="tab-content active">
+            <textarea id="newsInput" rows="4" placeholder="Enter news or claim to verify..."></textarea>
         </div>
-
-        <div class="input-area">
-            <textarea id="userInput" rows="4" placeholder="Paste any message, link, email or claim here..."></textarea>
-            <div class="buttons">
-                <button id="verifyBtn" class="btn-verify">Verify</button>
-                <button id="clearBtn" class="btn-clear">Clear</button>
-            </div>
+        <div id="url" class="tab-content">
+            <input type="text" id="urlInput" placeholder="Enter URL to check...">
         </div>
-
-        <!-- Result Card (exact design like image) -->
-        <div id="resultCard" class="result-card">
-            <div id="verdictDisplay" style="font-size: 1.8rem; font-weight: bold;"></div>
-            <div style="margin: 10px 0;"><span id="confidenceText"></span></div>
-            <div class="confidence-bar"><div id="confidenceFill" class="confidence-fill"></div></div>
-            <div style="margin: 15px 0;">
-                <strong>Type:</strong> <span id="typeValue"></span><br>
-                <strong>Risk Level:</strong> <span id="riskValue" class="risk-tag"></span>
-            </div>
-            <div>
-                <strong id="whyHeading">Why this is a scam</strong>
-                <ul id="whyList" class="bullet-list"></ul>
-            </div>
-            <div>
-                <strong id="whatHeading">What should you do?</strong>
-                <ul id="whatList" class="bullet-list"></ul>
-            </div>
-            <div class="action-buttons">
-                <button id="fullAnalysisBtn" class="btn-link">View Full Analysis</button>
-                <button id="reportBtn" class="btn-report">Report This Scam</button>
-            </div>
-            <div id="fullAnalysisDiv" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                <strong>Detailed Analysis:</strong> <span id="analysisText"></span><br>
-                <strong>Key Findings:</strong> <span id="findingsText"></span>
-            </div>
+        <div id="phishing" class="tab-content">
+            <textarea id="phishInput" rows="4" placeholder="Enter email or SMS content..."></textarea>
         </div>
-
-        <div class="examples">
-            <h3 id="examplesTitle">Try Example Scams</h3>
-            <div class="example-chips" id="exampleChips">
-                <span class="example-chip" data-example="WhatsApp scam: You won $1000, click here">WhatsApp Scam</span>
-                <span class="example-chip" data-example="Bank alert: Your SBI account will be blocked. Update now: sbi-secure.com">Bank Scam</span>
-                <span class="example-chip" data-example="Congratulations! You've won iPhone 15. Claim now: free-gift.xyz">Fake Reward</span>
-                <span class="example-chip" data-example="Urgent: Job offer with 1 lakh salary. Join now with 5000 registration fee">Job Scam</span>
-                <span class="example-chip" data-example="Your OTP is 123456. Do not share with anyone. Wait, this is a scam">OTP Scam</span>
-                <span class="example-chip" data-example="Dear customer, your Netflix subscription expired. Update payment: netflix-help.com">Netflix Scam</span>
-                <span class="example-chip" data-example="Your parcel is on hold. Click to pay customs: dhl-delivery.xyz">Parcel Scam</span>
-                <span class="example-chip" data-example="I'm an investor, send $500 to get $5000 back">Investment Scam</span>
-            </div>
+        <div id="password" class="tab-content">
+            <input type="password" id="passInput" placeholder="Enter password to check strength...">
         </div>
-        <footer>
-            <p>© 2025 VerifyPulse - AI Security Suite</p>
-        </footer>
+        <div id="scam" class="tab-content">
+            <textarea id="scamInput" rows="4" placeholder="Enter message to check for scam..."></textarea>
+        </div>
+        <div class="button-group">
+            <button id="verifyBtn" class="btn-verify">Verify</button>
+            <button id="clearBtn" class="btn-clear">Clear</button>
+        </div>
+        <div id="result" class="result-box">
+            <div class="verdict" id="verdict"></div>
+            <div class="confidence" id="confidence"></div>
+            <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill"></div></div>
+            <div class="analysis" id="analysis"></div>
+            <div class="findings" id="findings"></div>
+        </div>
+        <footer>© 2025 VerifyPulse - AI Security Suite</footer>
     </div>
-
     <script>
-        // ---------- TRANSLATIONS (exact match to image) ----------
         const translations = {
             en: {
-                tagline: "AI-Powered Cybersecurity & Scam Detector",
-                description: "Stay Safe. Stay Ahead. Detect scams, phishing links, fake messages and online threats with the power of AI.",
-                badges: ["✅ 100% Free", "⚡ Instant Results", "🔒 No Data Stored"],
-                cards: ["⚠️ Scam Detector", "🔗 URL Scanner", "📧 Phishing Check", "🔐 Password Check", "📰 Fake News"],
-                placeholder: "Paste any message, link, email or claim here...",
+                tagline: "AI-Powered Cybersecurity & Fact Checking",
+                tabs: ["📰 News", "🔗 URL", "📧 Phishing", "🔐 Password", "⚠️ Scam"],
+                newsPlaceholder: "Enter news or claim to verify...",
+                urlPlaceholder: "Enter URL to check...",
+                phishPlaceholder: "Enter email or SMS content...",
+                passPlaceholder: "Enter password to check strength...",
+                scamPlaceholder: "Enter message to check for scam...",
                 verifyBtn: "Verify",
                 clearBtn: "Clear",
-                examplesTitle: "Try Example Scams",
-                whyHeading: "Why this is a scam",
-                whatHeading: "What should you do?",
-                fullAnalysisBtn: "View Full Analysis",
-                reportBtn: "Report This Scam",
-                analysisLabel: "Detailed Analysis:",
-                findingsLabel: "Key Findings:",
-                loading: "Analyzing with AI...",
-                error: "Error occurred. Please try again."
+                verdictLabel: "Verdict:",
+                confidenceLabel: "Confidence:",
+                analysisLabel: "Analysis:",
+                findingsLabel: "Key Findings:"
             },
             hi: {
-                tagline: "AI-संचालित साइबर सुरक्षा और स्कैम डिटेक्टर",
-                description: "सुरक्षित रहें, आगे रहें। AI की मदद से स्कैम, फ़िशिंग लिंक, फर्जी संदेश और ऑनलाइन खतरों का पता लगाएं।",
-                badges: ["✅ 100% मुफ्त", "⚡ तुरंत परिणाम", "🔒 कोई डेटा सेव नहीं"],
-                cards: ["⚠️ स्कैम डिटेक्टर", "🔗 यूआरएल स्कैनर", "📧 फ़िशिंग जांच", "🔐 पासवर्ड जांच", "📰 फर्जी खबर"],
-                placeholder: "कोई भी संदेश, लिंक, ईमेल या दावा यहाँ पेस्ट करें...",
+                tagline: "AI-संचालित साइबर सुरक्षा और तथ्य जांच",
+                tabs: ["📰 समाचार", "🔗 लिंक", "📧 फ़िशिंग", "🔐 पासवर्ड", "⚠️ स्कैम"],
+                newsPlaceholder: "जांचने के लिए समाचार या दावा लिखें...",
+                urlPlaceholder: "जांचने के लिए URL लिखें...",
+                phishPlaceholder: "ईमेल या एसएमएस कंटेंट लिखें...",
+                passPlaceholder: "पासवर्ड की सुरक्षा जांचने के लिए लिखें...",
+                scamPlaceholder: "स्कैम जांचने के लिए संदेश लिखें...",
                 verifyBtn: "जांच करें",
                 clearBtn: "साफ़ करें",
-                examplesTitle: "उदाहरण स्कैम ट्राई करें",
-                whyHeading: "यह स्कैम क्यों है",
-                whatHeading: "आपको क्या करना चाहिए?",
-                fullAnalysisBtn: "पूरा विश्लेषण देखें",
-                reportBtn: "इस स्कैम की रिपोर्ट करें",
-                analysisLabel: "विस्तृत विश्लेषण:",
-                findingsLabel: "मुख्य निष्कर्ष:",
-                loading: "AI विश्लेषण कर रहा है...",
-                error: "त्रुटि हुई। कृपया पुनः प्रयास करें।"
+                verdictLabel: "परिणाम:",
+                confidenceLabel: "विश्वस्तता:",
+                analysisLabel: "विश्लेषण:",
+                findingsLabel: "मुख्य निष्कर्ष:"
             }
         };
-
         let currentLang = 'en';
-        let activeTab = 'scam';
-
-        // DOM elements
-        const langToggle = document.getElementById('langToggle');
-        const cards = document.querySelectorAll('.card');
-        const userInput = document.getElementById('userInput');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const resultCard = document.getElementById('resultCard');
-        const verdictDisplay = document.getElementById('verdictDisplay');
-        const confidenceTextSpan = document.getElementById('confidenceText');
-        const confidenceFill = document.getElementById('confidenceFill');
-        const typeValueSpan = document.getElementById('typeValue');
-        const riskValueSpan = document.getElementById('riskValue');
-        const whyList = document.getElementById('whyList');
-        const whatList = document.getElementById('whatList');
-        const fullAnalysisBtn = document.getElementById('fullAnalysisBtn');
-        const reportBtn = document.getElementById('reportBtn');
-        const fullAnalysisDiv = document.getElementById('fullAnalysisDiv');
-        const analysisTextSpan = document.getElementById('analysisText');
-        const findingsTextSpan = document.getElementById('findingsText');
-
         function updateLanguage() {
             document.getElementById('tagline').innerText = translations[currentLang].tagline;
-            document.getElementById('description').innerText = translations[currentLang].description;
-            const badges = document.querySelectorAll('.badge');
-            badges.forEach((b, i) => { if(translations[currentLang].badges[i]) b.innerText = translations[currentLang].badges[i]; });
-            const cardTitles = document.querySelectorAll('.card-title');
-            cardTitles.forEach((ct, i) => { if(translations[currentLang].cards[i]) ct.innerText = translations[currentLang].cards[i]; });
-            userInput.placeholder = translations[currentLang].placeholder;
-            verifyBtn.innerText = translations[currentLang].verifyBtn;
-            clearBtn.innerText = translations[currentLang].clearBtn;
-            document.getElementById('examplesTitle').innerText = translations[currentLang].examplesTitle;
-            document.getElementById('whyHeading').innerText = translations[currentLang].whyHeading;
-            document.getElementById('whatHeading').innerText = translations[currentLang].whatHeading;
-            fullAnalysisBtn.innerText = translations[currentLang].fullAnalysisBtn;
-            reportBtn.innerText = translations[currentLang].reportBtn;
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach((btn, i) => { btn.innerText = translations[currentLang].tabs[i]; });
+            document.getElementById('newsInput').placeholder = translations[currentLang].newsPlaceholder;
+            document.getElementById('urlInput').placeholder = translations[currentLang].urlPlaceholder;
+            document.getElementById('phishInput').placeholder = translations[currentLang].phishPlaceholder;
+            document.getElementById('passInput').placeholder = translations[currentLang].passPlaceholder;
+            document.getElementById('scamInput').placeholder = translations[currentLang].scamPlaceholder;
+            document.getElementById('verifyBtn').innerText = translations[currentLang].verifyBtn;
+            document.getElementById('clearBtn').innerText = translations[currentLang].clearBtn;
         }
-
-        langToggle.addEventListener('click', () => {
+        document.getElementById('langToggle').addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'hi' : 'en';
-            langToggle.innerText = currentLang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English';
+            document.getElementById('langToggle').innerText = currentLang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English';
             updateLanguage();
         });
         updateLanguage();
-
-        // Card selection
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                cards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                activeTab = card.getAttribute('data-tab');
-                resultCard.style.display = 'none';
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const contents = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                contents.forEach(c => c.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                document.getElementById('result').style.display = 'none';
             });
         });
-        document.querySelector('.card[data-tab="scam"]').classList.add('active');
-
         // Clear button
-        clearBtn.addEventListener('click', () => {
-            userInput.value = '';
-            resultCard.style.display = 'none';
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('newsInput').value = '';
+            document.getElementById('urlInput').value = '';
+            document.getElementById('phishInput').value = '';
+            document.getElementById('passInput').value = '';
+            document.getElementById('scamInput').value = '';
+            document.getElementById('result').style.display = 'none';
         });
-
-        // Example chips
-        document.querySelectorAll('.example-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                userInput.value = chip.getAttribute('data-example');
-                resultCard.style.display = 'none';
-            });
-        });
-
-        // Verify button
-        verifyBtn.addEventListener('click', async () => {
-            const text = userInput.value.trim();
-            if (!text) {
-                alert(currentLang === 'en' ? 'Please enter something to verify.' : 'कृपया कुछ लिखें।');
+        // Verify
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            let text = '';
+            if(activeTab === 'news') text = document.getElementById('newsInput').value;
+            else if(activeTab === 'url') text = document.getElementById('urlInput').value;
+            else if(activeTab === 'phishing') text = document.getElementById('phishInput').value;
+            else if(activeTab === 'password') text = document.getElementById('passInput').value;
+            else if(activeTab === 'scam') text = document.getElementById('scamInput').value;
+            if(!text.trim()) {
+                alert(currentLang === 'en' ? 'Please enter something.' : 'कृपया कुछ लिखें.');
                 return;
             }
-            resultCard.style.display = 'block';
-            verdictDisplay.innerHTML = translations[currentLang].loading;
-            confidenceTextSpan.innerHTML = '';
-            confidenceFill.style.width = '0%';
-            typeValueSpan.innerHTML = '';
-            riskValueSpan.innerHTML = '';
-            whyList.innerHTML = '';
-            whatList.innerHTML = '';
-            fullAnalysisDiv.style.display = 'none';
-            analysisTextSpan.innerHTML = '';
-            findingsTextSpan.innerHTML = '';
-
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            document.getElementById('verdict').innerHTML = "Analyzing...";
+            document.getElementById('confidence').innerHTML = '';
+            document.getElementById('analysis').innerHTML = '';
+            document.getElementById('findings').innerHTML = '';
+            document.getElementById('confidenceFill').style.width = '0%';
             try {
                 const response = await fetch('/api/verify', {
                     method: 'POST',
@@ -451,42 +260,16 @@
                     body: JSON.stringify({ text, checkType: activeTab, language: currentLang })
                 });
                 const data = await response.json();
-
-                // Verdict color
-                let verdictColor = '#0f172a';
-                if (data.verdict === 'DANGEROUS' || data.verdict === 'SCAM') verdictColor = '#b91c1c';
-                else if (data.verdict === 'SAFE') verdictColor = '#166534';
-                verdictDisplay.style.color = verdictColor;
-                verdictDisplay.innerHTML = `${translations[currentLang].verdictLabel || 'Verdict:'} ${data.verdict || 'UNCERTAIN'}`;
-                confidenceTextSpan.innerHTML = `${translations[currentLang].confidenceLabel || 'Confidence:'} ${data.confidence || 0}%`;
-                confidenceFill.style.width = `${data.confidence || 0}%`;
-
-                typeValueSpan.innerHTML = data.type || 'General Threat';
-                const risk = (data.riskLevel || 'Medium').toLowerCase();
-                riskValueSpan.innerHTML = data.riskLevel || 'Medium';
-                riskValueSpan.className = `risk-tag risk-${risk.charAt(0).toUpperCase() + risk.slice(1)}`;
-
-                // Why list
-                whyList.innerHTML = '';
-                (data.whyScam || []).forEach(point => {
-                    const li = document.createElement('li');
-                    li.innerText = point;
-                    whyList.appendChild(li);
-                });
-                whatList.innerHTML = '';
-                (data.whatToDo || []).forEach(advice => {
-                    const li = document.createElement('li');
-                    li.innerText = advice;
-                    whatList.appendChild(li);
-                });
-
-                analysisTextSpan.innerHTML = data.analysis || 'N/A';
-                findingsTextSpan.innerHTML = data.findings || 'N/A';
-            } catch (err) {
-                verdictDisplay.innerHTML = translations[currentLang].error;
+                document.getElementById('verdict').innerHTML = `${translations[currentLang].verdictLabel} ${data.verdict || 'UNCERTAIN'}`;
+                document.getElementById('confidence').innerHTML = `${translations[currentLang].confidenceLabel} ${data.confidence || 0}%`;
+                document.getElementById('confidenceFill').style.width = `${data.confidence || 0}%`;
+                document.getElementById('analysis').innerHTML = `<strong>${translations[currentLang].analysisLabel}</strong><br>${data.analysis || 'N/A'}`;
+                document.getElementById('findings').innerHTML = `<strong>${translations[currentLang].findingsLabel}</strong><br>${data.findings || 'N/A'}`;
+            } catch(err) {
+                document.getElementById('verdict').innerHTML = "Error. Try again.";
                 console.error(err);
             }
         });
-
-        // Toggle full analysis
-        fullAnalysisBtn
+    </script>
+</body>
+                </html>
