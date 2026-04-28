@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,269 +11,359 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
-            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fc;
+            color: #1a2a3a;
+            line-height: 1.6;
+        }
+        /* Language Toggle */
+        .lang-container {
+            text-align: right;
+            padding: 15px 30px;
+            background: white;
+            border-bottom: 1px solid #e0e7ff;
         }
         .lang-btn {
-            background: #2d3748;
-            border: 1px solid #4a5568;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
+            background: #f0f2f5;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
             font-size: 14px;
-            transition: all 0.3s;
-            margin-bottom: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #2c3e66;
+            transition: all 0.2s;
         }
         .lang-btn:hover {
-            background: #4a5568;
+            background: #e2e8f0;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
+        /* Hero Section */
+        .hero {
             text-align: center;
-            padding: 20px 0;
+            padding: 40px 20px;
+            background: white;
         }
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .hero h1 {
+            font-size: 2.8rem;
+            color: #1e3a8a;
+            margin-bottom: 10px;
         }
-        .tagline {
-            color: #a0aec0;
-            margin-top: 8px;
+        .hero .tagline {
+            font-size: 1.2rem;
+            color: #4b5563;
+            margin-bottom: 15px;
         }
-        .tabs {
+        .hero .sub {
+            color: #6c7283;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .badge-group {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            border-bottom: 1px solid #2d3748;
-            padding-bottom: 10px;
-        }
-        .tab {
-            background: transparent;
-            border: none;
-            color: #a0aec0;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-        .tab.active {
-            background: #4a5568;
-            color: white;
-        }
-        .tab:hover:not(.active) {
-            background: #2d3748;
-            color: #e2e8f0;
-        }
-        .tab-content {
-            display: none;
+            justify-content: center;
+            gap: 20px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
-        .tab-content.active {
-            display: block;
+        .badge {
+            background: #eef2ff;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e3a8a;
+        }
+        /* Cards Section */
+        .cards-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 18px 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            flex: 1;
+            min-width: 160px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        .card.active {
+            border: 2px solid #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 8px 20px rgba(59,130,246,0.15);
+        }
+        .card:hover {
+            transform: translateY(-3px);
+        }
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        /* Input Box */
+        .input-area {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
         textarea, input {
             width: 100%;
-            padding: 15px;
-            border: 1px solid #4a5568;
-            background: #1a202c;
-            color: white;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
             font-size: 16px;
+            background: white;
             resize: vertical;
+            font-family: inherit;
         }
         textarea:focus, input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
         }
         .button-group {
             display: flex;
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
+            justify-content: center;
         }
         .btn-verify {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #3b82f6;
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
+            padding: 12px 32px;
+            border-radius: 40px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: background 0.2s;
+        }
+        .btn-verify:hover {
+            background: #2563eb;
         }
         .btn-clear {
-            background: #2d3748;
-            color: white;
-            border: 1px solid #4a5568;
-            padding: 12px 30px;
-            border-radius: 30px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 12px 32px;
+            border-radius: 40px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
         }
-        .btn-verify:hover, .btn-clear:hover {
-            transform: scale(1.02);
+        .btn-clear:hover {
+            background: #e2e8f0;
         }
+        /* Result Box */
         .result-box {
-            margin-top: 25px;
-            padding: 20px;
-            background: #1a202c;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin: 20px auto;
+            max-width: 900px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border-left: 5px solid #3b82f6;
         }
         .verdict {
-            font-size: 20px;
+            font-size: 1.6rem;
             font-weight: bold;
             margin-bottom: 10px;
         }
         .confidence {
-            margin: 10px 0;
+            margin-top: 12px;
         }
         .confidence-bar {
-            background: #2d3748;
+            background: #e2e8f0;
             height: 8px;
-            border-radius: 4px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-top: 5px;
+            margin: 8px 0;
         }
         .confidence-fill {
-            background: linear-gradient(90deg, #48bb78, #38a169);
+            background: #3b82f6;
             height: 100%;
             width: 0%;
-            transition: width 0.5s;
         }
         .analysis, .findings {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #2d3748;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9eef3;
         }
-        .loading {
+        /* Example scams */
+        .examples {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        .example-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .example-chip {
+            background: #f1f5f9;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        .example-chip:hover {
+            background: #e2e8f0;
+            transform: scale(1.02);
+        }
+        footer {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
+            color: #6c7283;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 40px;
         }
-        .error {
-            color: #fc8181;
-        }
-        @media (max-width: 600px) {
-            .container { padding: 15px; }
-            h1 { font-size: 1.8rem; }
-            .tab { padding: 8px 12px; font-size: 14px; }
+        @media (max-width: 700px) {
+            .hero h1 { font-size: 2rem; }
+            .card { min-width: 130px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div style="text-align: right;">
-            <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
-        </div>
-        <header>
-            <h1>VerifyPulse</h1>
-            <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
-        </header>
+    <div class="lang-container">
+        <button id="langToggle" class="lang-btn">🇮🇳 हिन्दी</button>
+    </div>
 
-        <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="news">📰 News</button>
-            <button class="tab" data-tab="url">🔗 URL</button>
-            <button class="tab" data-tab="phishing">📧 Phishing</button>
-            <button class="tab" data-tab="password">🔐 Password</button>
-            <button class="tab" data-tab="scam">⚠️ Scam</button>
+    <div class="hero">
+        <h1>VerifyPulse</h1>
+        <p class="tagline" id="mainTagline">AI-Powered Cybersecurity & Scam Detector</p>
+        <p class="sub" id="subText">Stay Safe. Stay Ahead. Detect scams, phishing links, fake messages and online threats with the power of AI.</p>
+        <div class="badge-group" id="badges">
+            <span class="badge">✅ 100% Free</span>
+            <span class="badge">⚡ Instant Results</span>
+            <span class="badge">🔒 No Data Stored</span>
         </div>
+    </div>
 
-        <div id="news" class="tab-content active">
-            <textarea id="newsInput" rows="4" placeholder="Enter news or claim to verify..."></textarea>
+    <div class="cards-section" id="cardsSection">
+        <div class="card" data-tab="scam">
+            <div class="card-icon">⚠️</div>
+            <div class="card-title">Scam Detector</div>
         </div>
-        <div id="url" class="tab-content">
-            <input type="text" id="urlInput" placeholder="Enter URL to check...">
+        <div class="card" data-tab="url">
+            <div class="card-icon">🔗</div>
+            <div class="card-title">URL Scanner</div>
         </div>
-        <div id="phishing" class="tab-content">
-            <textarea id="phishInput" rows="4" placeholder="Enter email or SMS content..."></textarea>
+        <div class="card" data-tab="phishing">
+            <div class="card-icon">📧</div>
+            <div class="card-title">Phishing Check</div>
         </div>
-        <div id="password" class="tab-content">
-            <input type="password" id="passInput" placeholder="Enter password to check strength...">
+        <div class="card" data-tab="password">
+            <div class="card-icon">🔐</div>
+            <div class="card-title">Password Check</div>
         </div>
-        <div id="scam" class="tab-content">
-            <textarea id="scamInput" rows="4" placeholder="Enter message to check for scam..."></textarea>
+        <div class="card" data-tab="news">
+            <div class="card-icon">📰</div>
+            <div class="card-title">Fake News</div>
         </div>
+    </div>
 
+    <div class="input-area">
+        <textarea id="userInput" rows="4" placeholder="Paste any message, link, email or claim here..."></textarea>
         <div class="button-group">
             <button id="verifyBtn" class="btn-verify">Verify</button>
             <button id="clearBtn" class="btn-clear">Clear</button>
         </div>
+    </div>
 
-        <div id="result" class="result-box" style="display: none;">
-            <div class="verdict" id="verdict"></div>
-            <div class="confidence" id="confidence"></div>
-            <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill"></div></div>
-            <div class="analysis" id="analysis"></div>
-            <div class="findings" id="findings"></div>
+    <div id="result" class="result-box" style="display: none;">
+        <div class="verdict" id="verdict"></div>
+        <div class="confidence" id="confidence"></div>
+        <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill"></div></div>
+        <div class="analysis" id="analysis"></div>
+        <div class="findings" id="findings"></div>
+    </div>
+
+    <div class="examples">
+        <h3 id="examplesTitle">Try Example Scams</h3>
+        <div class="example-grid" id="exampleGrid">
+            <span class="example-chip" data-example="WhatsApp scam: You won $1000, click here">WhatsApp Scam</span>
+            <span class="example-chip" data-example="Bank alert: Your SBI account will be blocked. Update now: sbi-secure.com">Bank Scam</span>
+            <span class="example-chip" data-example="Congratulations! You've won iPhone 15. Claim now: free-gift.xyz">Fake Reward</span>
+            <span class="example-chip" data-example="Urgent: Job offer with 1 lakh salary. Join now with 5000 registration fee">Job Scam</span>
+            <span class="example-chip" data-example="Your OTP is 123456. Do not share with anyone. Wait, this is a scam">OTP Scam</span>
         </div>
     </div>
 
+    <footer>
+        <p>© 2025 VerifyPulse - AI Security Suite</p>
+    </footer>
+
     <script>
-        // ---------- TRANSLATIONS (Hindi Support) ----------
+        // Translations for Hindi Support
         const translations = {
             en: {
-                tagline: "AI-Powered Cybersecurity & Fact Checking",
-                tabs: ["📰 News", "🔗 URL", "📧 Phishing", "🔐 Password", "⚠️ Scam"],
-                newsPlaceholder: "Enter news or claim to verify...",
-                urlPlaceholder: "Enter URL to check...",
-                phishPlaceholder: "Enter email or SMS content...",
-                passPlaceholder: "Enter password to check strength...",
-                scamPlaceholder: "Enter message to check for scam...",
+                tagline: "AI-Powered Cybersecurity & Scam Detector",
+                sub: "Stay Safe. Stay Ahead. Detect scams, phishing links, fake messages and online threats with the power of AI.",
+                badges: ["✅ 100% Free", "⚡ Instant Results", "🔒 No Data Stored"],
+                cards: ["⚠️ Scam Detector", "🔗 URL Scanner", "📧 Phishing Check", "🔐 Password Check", "📰 Fake News"],
+                placeholder: "Paste any message, link, email or claim here...",
                 verifyBtn: "Verify",
                 clearBtn: "Clear",
+                examplesTitle: "Try Example Scams",
                 verdict: "Verdict:",
                 confidence: "Confidence:",
                 analysis: "Analysis:",
                 findings: "Key Findings:",
-                loading: "Analyzing... Please wait.",
+                loading: "Analyzing with AI...",
                 error: "Error occurred. Please try again."
             },
             hi: {
-                tagline: "AI-संचालित साइबर सुरक्षा और तथ्य जांच",
-                tabs: ["📰 समाचार", "🔗 लिंक", "📧 फ़िशिंग", "🔐 पासवर्ड", "⚠️ स्कैम"],
-                newsPlaceholder: "जांचने के लिए समाचार या दावा लिखें...",
-                urlPlaceholder: "जांचने के लिए URL लिखें...",
-                phishPlaceholder: "ईमेल या एसएमएस कंटेंट लिखें...",
-                passPlaceholder: "पासवर्ड की सुरक्षा जांचने के लिए लिखें...",
-                scamPlaceholder: "स्कैम जांचने के लिए संदेश लिखें...",
+                tagline: "AI-संचालित साइबर सुरक्षा और स्कैम डिटेक्टर",
+                sub: "सुरक्षित रहें, आगे रहें। AI की मदद से स्कैम, फ़िशिंग लिंक, फर्जी संदेश और ऑनलाइन खतरों का पता लगाएं।",
+                badges: ["✅ 100% मुफ्त", "⚡ तुरंत परिणाम", "🔒 कोई डेटा सेव नहीं"],
+                cards: ["⚠️ स्कैम डिटेक्टर", "🔗 यूआरएल स्कैनर", "📧 फ़िशिंग जांच", "🔐 पासवर्ड जांच", "📰 फर्जी खबर"],
+                placeholder: "कोई भी संदेश, लिंक, ईमेल या दावा यहाँ पेस्ट करें...",
                 verifyBtn: "जांच करें",
                 clearBtn: "साफ़ करें",
+                examplesTitle: "उदाहरण स्कैम ट्राई करें",
                 verdict: "परिणाम:",
                 confidence: "विश्वस्तता:",
                 analysis: "विश्लेषण:",
                 findings: "मुख्य निष्कर्ष:",
-                loading: "विश्लेषण हो रहा है... कृपया प्रतीक्षा करें।",
+                loading: "AI विश्लेषण कर रहा है...",
                 error: "त्रुटि हुई। कृपया पुनः प्रयास करें।"
             }
         };
 
         let currentLang = 'en';
+        let activeTab = 'scam';  // default
 
         function updateLanguage() {
-            document.getElementById('tagline').innerText = translations[currentLang].tagline;
-            const tabBtns = document.querySelectorAll('.tab');
-            tabBtns.forEach((btn, idx) => {
-                if(translations[currentLang].tabs[idx]) btn.innerText = translations[currentLang].tabs[idx];
-            });
-            document.getElementById('newsInput').placeholder = translations[currentLang].newsPlaceholder;
-            document.getElementById('urlInput').placeholder = translations[currentLang].urlPlaceholder;
-            document.getElementById('phishInput').placeholder = translations[currentLang].phishPlaceholder;
-            document.getElementById('passInput').placeholder = translations[currentLang].passPlaceholder;
-            document.getElementById('scamInput').placeholder = translations[currentLang].scamPlaceholder;
+            document.getElementById('mainTagline').innerText = translations[currentLang].tagline;
+            document.getElementById('subText').innerText = translations[currentLang].sub;
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach((b, i) => { if(translations[currentLang].badges[i]) b.innerText = translations[currentLang].badges[i]; });
+            const cards = document.querySelectorAll('.card-title');
+            cards.forEach((c, i) => { if(translations[currentLang].cards[i]) c.innerText = translations[currentLang].cards[i]; });
+            document.getElementById('userInput').placeholder = translations[currentLang].placeholder;
             document.getElementById('verifyBtn').innerText = translations[currentLang].verifyBtn;
             document.getElementById('clearBtn').innerText = translations[currentLang].clearBtn;
+            document.getElementById('examplesTitle').innerText = translations[currentLang].examplesTitle;
+            // Update result box if visible? Not needed text will be overwritten on new verify.
         }
 
         document.getElementById('langToggle').addEventListener('click', () => {
@@ -281,50 +371,43 @@
             document.getElementById('langToggle').innerText = currentLang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English';
             updateLanguage();
         });
-
         updateLanguage();
 
-        // ---------- TAB SWITCHING ----------
-        const tabs = document.querySelectorAll('.tab');
-        const contents = document.querySelectorAll('.tab-content');
+        // Card selection
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                cards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                activeTab = card.getAttribute('data-tab');
+                document.getElementById('result').style.display = 'none';
+            });
+        });
+        // Set default active card
+        document.querySelector('.card[data-tab="scam"]').classList.add('active');
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                contents.forEach(content => content.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
+        // Clear button
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('userInput').value = '';
+            document.getElementById('result').style.display = 'none';
+        });
+
+        // Example chips
+        document.querySelectorAll('.example-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const exampleText = chip.getAttribute('data-example');
+                document.getElementById('userInput').value = exampleText;
                 document.getElementById('result').style.display = 'none';
             });
         });
 
-        // ---------- CLEAR BUTTON ----------
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            document.getElementById('newsInput').value = '';
-            document.getElementById('urlInput').value = '';
-            document.getElementById('phishInput').value = '';
-            document.getElementById('passInput').value = '';
-            document.getElementById('scamInput').value = '';
-            document.getElementById('result').style.display = 'none';
-        });
-
-        // ---------- VERIFY FUNCTION ----------
+        // Verify function
         document.getElementById('verifyBtn').addEventListener('click', async () => {
-            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
-            let text = '';
-            
-            if(activeTab === 'news') text = document.getElementById('newsInput').value;
-            else if(activeTab === 'url') text = document.getElementById('urlInput').value;
-            else if(activeTab === 'phishing') text = document.getElementById('phishInput').value;
-            else if(activeTab === 'password') text = document.getElementById('passInput').value;
-            else if(activeTab === 'scam') text = document.getElementById('scamInput').value;
-
-            if(!text.trim()) {
+            const text = document.getElementById('userInput').value.trim();
+            if(!text) {
                 alert(currentLang === 'en' ? 'Please enter something to verify.' : 'कृपया कुछ लिखें।');
                 return;
             }
-
             const resultDiv = document.getElementById('result');
             resultDiv.style.display = 'block';
             document.getElementById('verdict').innerHTML = translations[currentLang].loading;
@@ -344,7 +427,6 @@
                     })
                 });
                 const data = await response.json();
-                
                 document.getElementById('verdict').innerHTML = `${translations[currentLang].verdict} ${data.verdict || 'UNCERTAIN'}`;
                 document.getElementById('confidence').innerHTML = `${translations[currentLang].confidence} ${data.confidence || 0}%`;
                 document.getElementById('confidenceFill').style.width = `${data.confidence || 0}%`;
@@ -357,4 +439,4 @@
         });
     </script>
 </body>
-                                                                                                 </html>                                  
+  </html>
