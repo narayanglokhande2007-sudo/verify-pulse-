@@ -5,115 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifyPulse - AI Security Suite</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8fafc;
-            color: #0f172a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
         }
         .lang-btn {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            border: 1px solid #cbd5e1;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
             z-index: 100;
+        }
+        .lang-btn:hover {
+            background: #4a5568;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 80px 20px 40px;
+            padding: 20px;
+            padding-top: 70px;
         }
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { font-size: 2.5rem; color: #0f172a; }
-        .tagline { color: #334155; margin-top: 8px; }
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .tagline {
+            color: #a0aec0;
+            margin-top: 8px;
+        }
         .tabs {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
+            flex-wrap: wrap;
             margin: 20px 0;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #2d3748;
             padding-bottom: 10px;
         }
         .tab {
             background: transparent;
             border: none;
+            color: #a0aec0;
             padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
-            border-radius: 30px;
-            color: #475569;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
         .tab.active {
-            background: #3b82f6;
+            background: #4a5568;
             color: white;
         }
-        .tab-content { display: none; margin-top: 20px; }
-        .tab-content.active { display: block; }
+        .tab:hover:not(.active) {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        .tab-content {
+            display: none;
+            margin-top: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
         textarea, input {
             width: 100%;
             padding: 15px;
-            border: 1px solid #cbd5e1;
-            border-radius: 16px;
-            background: white;
+            border: 1px solid #4a5568;
+            background: #1a202c;
+            color: white;
+            border-radius: 12px;
             font-size: 16px;
+            resize: vertical;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
         }
         .button-group {
             display: flex;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         .btn-verify {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 32px;
-            border-radius: 40px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
             cursor: pointer;
-            font-weight: 600;
+            transition: transform 0.2s;
         }
         .btn-clear {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 12px 32px;
-            border-radius: 40px;
+            background: #2d3748;
+            color: white;
+            border: 1px solid #4a5568;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-verify:hover, .btn-clear:hover {
+            transform: scale(1.02);
         }
         .result-box {
-            background: white;
-            border-radius: 24px;
-            padding: 20px;
             margin-top: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px;
+            background: #1a202c;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
             display: none;
         }
-        .verdict { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
-        .confidence { margin: 10px 0; }
+        .verdict {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .confidence {
+            margin: 10px 0;
+        }
         .confidence-bar {
-            background: #e2e8f0;
+            background: #2d3748;
             height: 8px;
-            border-radius: 10px;
-            margin: 8px 0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
         }
         .confidence-fill {
-            background: #3b82f6;
+            background: linear-gradient(90deg, #48bb78, #38a169);
             height: 100%;
             width: 0%;
-            border-radius: 10px;
+            transition: width 0.5s;
         }
         .analysis, .findings {
             margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid #e9eef3;
+            padding-top: 10px;
+            border-top: 1px solid #2d3748;
         }
         footer {
             text-align: center;
-            margin-top: 50px;
+            margin-top: 40px;
             padding: 20px;
-            color: #64748b;
+            color: #a0aec0;
             font-size: 14px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 15px; padding-top: 70px; }
+            h1 { font-size: 1.8rem; }
+            .tab { padding: 8px 12px; font-size: 14px; }
         }
     </style>
 </head>
@@ -124,13 +183,15 @@
             <h1>VerifyPulse</h1>
             <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
         </header>
-        <div class="tabs">
+
+        <div class="tabs" id="tabs">
             <button class="tab active" data-tab="news">📰 News</button>
             <button class="tab" data-tab="url">🔗 URL</button>
             <button class="tab" data-tab="phishing">📧 Phishing</button>
             <button class="tab" data-tab="password">🔐 Password</button>
             <button class="tab" data-tab="scam">⚠️ Scam</button>
         </div>
+
         <div id="news" class="tab-content active">
             <textarea id="newsInput" rows="4" placeholder="Enter news or claim to verify..."></textarea>
         </div>
@@ -146,10 +207,12 @@
         <div id="scam" class="tab-content">
             <textarea id="scamInput" rows="4" placeholder="Enter message to check for scam..."></textarea>
         </div>
+
         <div class="button-group">
             <button id="verifyBtn" class="btn-verify">Verify</button>
             <button id="clearBtn" class="btn-clear">Clear</button>
         </div>
+
         <div id="result" class="result-box">
             <div class="verdict" id="verdict"></div>
             <div class="confidence" id="confidence"></div>
@@ -157,9 +220,12 @@
             <div class="analysis" id="analysis"></div>
             <div class="findings" id="findings"></div>
         </div>
+
         <footer>© 2025 VerifyPulse - AI Security Suite</footer>
     </div>
+
     <script>
+        // Translations (English + Hindi)
         const translations = {
             en: {
                 tagline: "AI-Powered Cybersecurity & Fact Checking",
@@ -174,7 +240,9 @@
                 verdictLabel: "Verdict:",
                 confidenceLabel: "Confidence:",
                 analysisLabel: "Analysis:",
-                findingsLabel: "Key Findings:"
+                findingsLabel: "Key Findings:",
+                loading: "Analyzing with AI...",
+                error: "Error occurred. Please try again."
             },
             hi: {
                 tagline: "AI-संचालित साइबर सुरक्षा और तथ्य जांच",
@@ -189,14 +257,20 @@
                 verdictLabel: "परिणाम:",
                 confidenceLabel: "विश्वस्तता:",
                 analysisLabel: "विश्लेषण:",
-                findingsLabel: "मुख्य निष्कर्ष:"
+                findingsLabel: "मुख्य निष्कर्ष:",
+                loading: "AI विश्लेषण कर रहा है...",
+                error: "त्रुटि हुई। कृपया पुनः प्रयास करें।"
             }
         };
+
         let currentLang = 'en';
+
         function updateLanguage() {
             document.getElementById('tagline').innerText = translations[currentLang].tagline;
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach((btn, i) => { btn.innerText = translations[currentLang].tabs[i]; });
+            const tabBtns = document.querySelectorAll('.tab');
+            tabBtns.forEach((btn, idx) => {
+                btn.innerText = translations[currentLang].tabs[idx];
+            });
             document.getElementById('newsInput').placeholder = translations[currentLang].newsPlaceholder;
             document.getElementById('urlInput').placeholder = translations[currentLang].urlPlaceholder;
             document.getElementById('phishInput').placeholder = translations[currentLang].phishPlaceholder;
@@ -205,12 +279,14 @@
             document.getElementById('verifyBtn').innerText = translations[currentLang].verifyBtn;
             document.getElementById('clearBtn').innerText = translations[currentLang].clearBtn;
         }
+
         document.getElementById('langToggle').addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'hi' : 'en';
             document.getElementById('langToggle').innerText = currentLang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English';
             updateLanguage();
         });
         updateLanguage();
+
         // Tab switching
         const tabs = document.querySelectorAll('.tab');
         const contents = document.querySelectorAll('.tab-content');
@@ -219,11 +295,12 @@
                 const tabId = tab.getAttribute('data-tab');
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                contents.forEach(c => c.classList.remove('active'));
+                contents.forEach(content => content.classList.remove('active'));
                 document.getElementById(tabId).classList.add('active');
                 document.getElementById('result').style.display = 'none';
             });
         });
+
         // Clear button
         document.getElementById('clearBtn').addEventListener('click', () => {
             document.getElementById('newsInput').value = '';
@@ -233,43 +310,52 @@
             document.getElementById('scamInput').value = '';
             document.getElementById('result').style.display = 'none';
         });
-        // Verify
+
+        // Verify button
         document.getElementById('verifyBtn').addEventListener('click', async () => {
             const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
             let text = '';
-            if(activeTab === 'news') text = document.getElementById('newsInput').value;
-            else if(activeTab === 'url') text = document.getElementById('urlInput').value;
-            else if(activeTab === 'phishing') text = document.getElementById('phishInput').value;
-            else if(activeTab === 'password') text = document.getElementById('passInput').value;
-            else if(activeTab === 'scam') text = document.getElementById('scamInput').value;
-            if(!text.trim()) {
-                alert(currentLang === 'en' ? 'Please enter something.' : 'कृपया कुछ लिखें.');
+            if (activeTab === 'news') text = document.getElementById('newsInput').value;
+            else if (activeTab === 'url') text = document.getElementById('urlInput').value;
+            else if (activeTab === 'phishing') text = document.getElementById('phishInput').value;
+            else if (activeTab === 'password') text = document.getElementById('passInput').value;
+            else if (activeTab === 'scam') text = document.getElementById('scamInput').value;
+
+            if (!text.trim()) {
+                alert(currentLang === 'en' ? 'Please enter something to verify.' : 'कृपया कुछ लिखें।');
                 return;
             }
+
             const resultDiv = document.getElementById('result');
             resultDiv.style.display = 'block';
-            document.getElementById('verdict').innerHTML = "Analyzing...";
+            document.getElementById('verdict').innerHTML = translations[currentLang].loading;
             document.getElementById('confidence').innerHTML = '';
             document.getElementById('analysis').innerHTML = '';
             document.getElementById('findings').innerHTML = '';
             document.getElementById('confidenceFill').style.width = '0%';
+
             try {
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, checkType: activeTab, language: currentLang })
+                    body: JSON.stringify({
+                        text: text,
+                        checkType: activeTab,
+                        language: currentLang
+                    })
                 });
                 const data = await response.json();
+
                 document.getElementById('verdict').innerHTML = `${translations[currentLang].verdictLabel} ${data.verdict || 'UNCERTAIN'}`;
                 document.getElementById('confidence').innerHTML = `${translations[currentLang].confidenceLabel} ${data.confidence || 0}%`;
                 document.getElementById('confidenceFill').style.width = `${data.confidence || 0}%`;
                 document.getElementById('analysis').innerHTML = `<strong>${translations[currentLang].analysisLabel}</strong><br>${data.analysis || 'N/A'}`;
                 document.getElementById('findings').innerHTML = `<strong>${translations[currentLang].findingsLabel}</strong><br>${data.findings || 'N/A'}`;
-            } catch(err) {
-                document.getElementById('verdict').innerHTML = "Error. Try again.";
-                console.error(err);
+            } catch (err) {
+                document.getElementById('verdict').innerHTML = translations[currentLang].error;
+                document.getElementById('analysis').innerHTML = err.message;
             }
         });
     </script>
 </body>
-                </html>
+    </html>
