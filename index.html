@@ -7,16 +7,16 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #fff;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #ffffff;
+            color: #1e293b;
             min-height: 100vh;
             padding: 20px;
         }
         .container { max-width: 600px; margin: 0 auto; }
         header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
-        h1 { color: #00d4ff; font-size: 32px; margin-bottom: 5px; }
-        .tagline { color: #a0aec0; font-size: 14px; }
+        h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
+        .tagline { color: #475569; font-size: 14px; }
         .lang-toggle {
             display: flex;
             justify-content: center;
@@ -26,34 +26,34 @@
         .lang-btn {
             padding: 8px 20px;
             border-radius: 20px;
-            border: 2px solid #00d4ff;
+            border: 2px solid #2563eb;
             background: transparent;
-            color: #00d4ff;
+            color: #2563eb;
             cursor: pointer;
             font-size: 14px;
             width: auto;
             margin: 0;
         }
         .lang-btn.active {
-            background: #00d4ff;
-            color: #0a0e27;
+            background: #2563eb;
+            color: #ffffff;
         }
 
         .scam-alert {
-            background: rgba(244,67,54,0.1);
-            border: 1px solid #f44336;
+            background: rgba(37,99,235,0.05);
+            border: 1px solid #2563eb;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
         }
-        .scam-alert h3 { color: #f44336; margin-bottom: 10px; font-size: 14px; }
+        .scam-alert h3 { color: #1e40af; margin-bottom: 10px; font-size: 14px; }
         .scam-item {
-            background: rgba(244,67,54,0.1);
+            background: rgba(37,99,235,0.05);
             padding: 8px;
             border-radius: 5px;
             margin-bottom: 5px;
             font-size: 12px;
-            color: #a0aec0;
+            color: #334155;
         }
 
         .stats {
@@ -63,14 +63,14 @@
             margin-bottom: 15px;
         }
         .stat-card {
-            background: #1a1f3a;
-            border: 1px solid #2d3748;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
             border-radius: 10px;
             padding: 15px;
             text-align: center;
         }
-        .stat-number { font-size: 24px; font-weight: bold; color: #00d4ff; }
-        .stat-label { font-size: 11px; color: #a0aec0; margin-top: 5px; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
+        .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
 
         .tabs {
             display: flex;
@@ -82,47 +82,48 @@
             flex: 1;
             min-width: 80px;
             padding: 8px 5px;
-            background: rgba(0,212,255,0.1);
-            border: 1px solid #2d3748;
+            background: rgba(37,99,235,0.05);
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
-            color: #a0aec0;
+            color: #475569;
             cursor: pointer;
             text-align: center;
             font-size: 11px;
             transition: all 0.3s;
         }
         .tab.active {
-            background: rgba(0,212,255,0.3);
-            border-color: #00d4ff;
-            color: #00d4ff;
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
         }
         .card {
-            background: #1a1f3a;
-            border: 1px solid #2d3748;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .section { display: none; }
         .section.active { display: block; }
         textarea, input[type="text"], input[type="password"] {
             width: 100%;
             padding: 15px;
-            border: 2px solid #2d3748;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
-            background: rgba(0,212,255,0.05);
-            color: #fff;
+            background: #f8fafc;
+            color: #1e293b;
             font-size: 16px;
-            font-family: Arial, sans-serif;
+            font-family: inherit;
             margin-bottom: 15px;
         }
         textarea { min-height: 100px; resize: vertical; }
-        textarea:focus, input:focus { outline: none; border-color: #00d4ff; }
+        textarea:focus, input:focus { outline: none; border-color: #2563eb; }
         button {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0a0e27;
+            background: #2563eb;
+            color: #ffffff;
             border: none;
             border-radius: 10px;
             font-size: 16px;
@@ -130,56 +131,62 @@
             cursor: pointer;
             margin-bottom: 10px;
         }
+        button:hover {
+            background: #1d4ed8;
+        }
         .btn-clear {
             background: transparent;
-            border: 2px solid #00d4ff;
-            color: #00d4ff;
+            border: 2px solid #2563eb;
+            color: #2563eb;
         }
-        .loading { display: none; text-align: center; color: #a0aec0; padding: 15px; }
+        .btn-clear:hover {
+            background: rgba(37,99,235,0.1);
+        }
+        .loading { display: none; text-align: center; color: #475569; padding: 15px; }
         .result { display: none; margin-top: 15px; }
         .verdict-box { padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center; }
-        .verdict-true { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; }
-        .verdict-false { background: rgba(244,67,54,0.2); border: 2px solid #f44336; }
-        .verdict-uncertain { background: rgba(255,193,7,0.2); border: 2px solid #ffc107; }
-        .verdict-safe { background: rgba(76,175,80,0.2); border: 2px solid #4caf50; }
-        .verdict-dangerous { background: rgba(244,67,54,0.2); border: 2px solid #f44336; }
-        .verdict-suspicious { background: rgba(255,193,7,0.2); border: 2px solid #ffc107; }
+        .verdict-true { background: #f0fdf4; border: 2px solid #22c55e; }
+        .verdict-false { background: #fef2f2; border: 2px solid #ef4444; }
+        .verdict-uncertain { background: #fffbeb; border: 2px solid #f59e0b; }
+        .verdict-safe { background: #f0fdf4; border: 2px solid #22c55e; }
+        .verdict-dangerous { background: #fef2f2; border: 2px solid #ef4444; }
+        .verdict-suspicious { background: #fffbeb; border: 2px solid #f59e0b; }
         .verdict-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
-        .confidence { font-size: 14px; color: #a0aec0; }
+        .confidence { font-size: 14px; color: #475569; }
         .analysis-box {
-            background: rgba(0,212,255,0.05);
+            background: #f8fafc;
             padding: 15px;
             border-radius: 10px;
-            border-left: 4px solid #00d4ff;
+            border-left: 4px solid #2563eb;
             margin-bottom: 10px;
         }
-        .analysis-box h4 { color: #00d4ff; margin-bottom: 8px; }
-        .analysis-box p { color: #a0aec0; font-size: 14px; line-height: 1.5; }
+        .analysis-box h4 { color: #1e40af; margin-bottom: 8px; }
+        .analysis-box p { color: #334155; font-size: 14px; line-height: 1.5; }
         .privacy {
             margin-top: 15px;
             padding: 12px;
-            background: rgba(0,212,255,0.1);
-            border: 1px solid #00d4ff;
+            background: rgba(37,99,235,0.05);
+            border: 1px solid #2563eb;
             border-radius: 10px;
             text-align: center;
-            color: #a0aec0;
+            color: #475569;
             font-size: 13px;
         }
         .error-box {
-            background: rgba(244,67,54,0.2);
-            border: 1px solid #f44336;
-            color: #ff6b6b;
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
         }
         .password-strength { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 14px; }
-        .strength-weak { background: rgba(244,67,54,0.2); border: 1px solid #f44336; color: #ff6b6b; }
-        .strength-medium { background: rgba(255,193,7,0.2); border: 1px solid #ffc107; color: #ffc107; }
-        .strength-strong { background: rgba(76,175,80,0.2); border: 1px solid #4caf50; color: #4caf50; }
-        .tips { background: rgba(0,212,255,0.05); border: 1px solid #2d3748; border-radius: 10px; padding: 15px; margin-top: 15px; }
-        .tips h4 { color: #00d4ff; margin-bottom: 10px; }
-        .tip-item { padding: 8px 0; border-bottom: 1px solid #2d3748; color: #a0aec0; font-size: 13px; }
+        .strength-weak { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; }
+        .strength-medium { background: #fffbeb; border: 1px solid #f59e0b; color: #b45309; }
+        .strength-strong { background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; }
+        .tips { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-top: 15px; }
+        .tips h4 { color: #1e40af; margin-bottom: 10px; }
+        .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
     </style>
 </head>
@@ -362,7 +369,7 @@
             document.getElementById('statLabel3').textContent = t.statLabel3;
         }
 
-        // ================= STATS =================
+        // Stats
         let totalChecks = parseInt(localStorage.getItem('totalChecks') || '0');
         let scamsFound = parseInt(localStorage.getItem('scamsFound') || '0');
         let safeItems = parseInt(localStorage.getItem('safeItems') || '0');
@@ -385,7 +392,7 @@
             updateStats();
         }
 
-        // ================= TAB SWITCHING =================
+        // Tabs
         function switchTab(tabName, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -399,7 +406,7 @@
             if (res) { res.style.display = 'none'; res.innerHTML = ''; }
         }
 
-        // ================= API CALL HELPER =================
+        // API call
         async function callAPI(checkType, inputText, loadingId) {
             try {
                 const response = await fetch('/api/verify', {
@@ -445,145 +452,4 @@
                 </div>
                 <div class="analysis-box">
                     <h4>💡 Findings</h4>
-                    <p>${data.findings || 'No specific findings'}</p>
-                </div>
-            `;
-            container.style.display = 'block';
-        }
-
-        function showError(containerId, message) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div class="error-box">❌ ${message}</div>`;
-            container.style.display = 'block';
-        }
-
-        // ================= TOOL HANDLERS =================
-        async function checkNews() {
-            const text = document.getElementById('newsInput').value.trim();
-            if (!text) return alert('Please enter text');
-            document.getElementById('newsLoading').style.display = 'block';
-            document.getElementById('newsResult').style.display = 'none';
-            try {
-                const data = await callAPI('news', text, 'newsLoading');
-                showResult('newsResult', data, 'news');
-            } catch (e) {
-                showError('newsResult', e.message);
-            } finally {
-                document.getElementById('newsLoading').style.display = 'none';
-            }
-        }
-
-        async function checkURL() {
-            const url = document.getElementById('urlInput').value.trim();
-            if (!url) return alert('Enter URL');
-            document.getElementById('urlLoading').style.display = 'block';
-            document.getElementById('urlResult').style.display = 'none';
-            try {
-                const data = await callAPI('url', url, 'urlLoading');
-                showResult('urlResult', data, 'url');
-            } catch (e) {
-                showError('urlResult', e.message);
-            } finally {
-                document.getElementById('urlLoading').style.display = 'none';
-            }
-        }
-
-        async function checkPhishing() {
-            const text = document.getElementById('phishingInput').value.trim();
-            if (!text) return alert('Paste email content');
-            document.getElementById('phishingLoading').style.display = 'block';
-            document.getElementById('phishingResult').style.display = 'none';
-            try {
-                const data = await callAPI('phishing', text, 'phishingLoading');
-                showResult('phishingResult', data, 'phishing');
-            } catch (e) {
-                showError('phishingResult', e.message);
-            } finally {
-                document.getElementById('phishingLoading').style.display = 'none';
-            }
-        }
-
-        async function checkScam() {
-            const text = document.getElementById('scamInput').value.trim();
-            if (!text) return alert('Paste scam message');
-            document.getElementById('scamLoading').style.display = 'block';
-            document.getElementById('scamResult').style.display = 'none';
-            try {
-                const data = await callAPI('scam', text, 'scamLoading');
-                showResult('scamResult', data, 'scam');
-            } catch (e) {
-                showError('scamResult', e.message);
-            } finally {
-                document.getElementById('scamLoading').style.display = 'none';
-            }
-        }
-
-        async function checkPhone() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            if (!phone) return alert('Enter phone number');
-            document.getElementById('phoneLoading').style.display = 'block';
-            document.getElementById('phoneResult').style.display = 'none';
-            try {
-                const data = await callAPI('phone', phone, 'phoneLoading');
-                showResult('phoneResult', data, 'phone');
-            } catch (e) {
-                showError('phoneResult', e.message);
-            } finally {
-                document.getElementById('phoneLoading').style.display = 'none';
-            }
-        }
-
-        async function checkUPI() {
-            const upi = document.getElementById('upiInput').value.trim();
-            if (!upi) return alert('Enter UPI ID');
-            document.getElementById('upiLoading').style.display = 'block';
-            document.getElementById('upiResult').style.display = 'none';
-            try {
-                const data = await callAPI('upi', upi, 'upiLoading');
-                showResult('upiResult', data, 'upi');
-            } catch (e) {
-                showError('upiResult', e.message);
-            } finally {
-                document.getElementById('upiLoading').style.display = 'none';
-            }
-        }
-
-        async function checkGmail() {
-            const msg = document.getElementById('gmailInput').value.trim();
-            if (!msg) return alert('Paste Gmail message');
-            document.getElementById('gmailLoading').style.display = 'block';
-            document.getElementById('gmailResult').style.display = 'none';
-            try {
-                const data = await callAPI('gmail', msg, 'gmailLoading');
-                showResult('gmailResult', data, 'gmail');
-            } catch (e) {
-                showError('gmailResult', e.message);
-            } finally {
-                document.getElementById('gmailLoading').style.display = 'none';
-            }
-        }
-
-        // ================= PASSWORD STRENGTH (LOCAL) =================
-        function checkPasswordLive() {
-            const pwd = document.getElementById('passwordInput').value;
-            const result = document.getElementById('passwordResult');
-            if (!pwd) { result.innerHTML = ''; return; }
-            let strength = 0;
-            if (pwd.length >= 9) strength++;
-            if (pwd.length >= 12) strength++;
-            if (/[A-Z]/.test(pwd)) strength++;
-            if (/[a-z]/.test(pwd)) strength++;
-            if (/[0-9]/.test(pwd)) strength++;
-            if (/[^A-Za-z0-9]/.test(pwd)) strength++;
-            let cls, txt;
-            if (strength <= 2) { cls = 'strength-weak'; txt = 'Weak'; }
-            else if (strength <= 4) { cls = 'strength-medium'; txt = 'Moderate'; }
-            else { cls = 'strength-strong'; txt = 'Strong'; }
-            result.innerHTML = `<div class="password-strength ${cls}">🔐 ${txt} (score ${strength}/6)</div>`;
-        }
-
-        // ================= PRIVACY NOTICE =================
-        // Already present in HTML
-    </script>
-</body>
-</html>
+                    <p>${data.findings || 'No specific findi
