@@ -17,13 +17,10 @@
         header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
         h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
         .tagline { color: #475569; font-size: 14px; }
-        .lang-toggle {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-        }
+        .lang-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
         .lang-btn {
             padding: 8px 20px; border-radius: 20px; border: 2px solid #2563eb;
-            background: transparent; color: #2563eb; cursor: pointer; font-size: 14px;
-            width: auto; margin: 0;
+            background: transparent; color: #2563eb; cursor: pointer; font-size: 14px; width: auto; margin: 0;
         }
         .lang-btn.active { background: #2563eb; color: #ffffff; }
 
@@ -37,9 +34,7 @@
             margin-bottom: 5px; font-size: 12px; color: #334155;
         }
 
-        .stats {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;
-        }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-card {
             background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px;
             padding: 15px; text-align: center;
@@ -47,9 +42,7 @@
         .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
         .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
 
-        .tabs {
-            display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap;
-        }
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
             flex: 1; min-width: 80px; padding: 8px 5px;
             background: rgba(37,99,235,0.05); border: 1px solid #cbd5e1;
@@ -76,9 +69,7 @@
             cursor: pointer; margin-bottom: 10px;
         }
         button:hover { background: #1d4ed8; }
-        .btn-clear {
-            background: transparent; border: 2px solid #2563eb; color: #2563eb;
-        }
+        .btn-clear { background: transparent; border: 2px solid #2563eb; color: #2563eb; }
         .btn-clear:hover { background: rgba(37,99,235,0.1); }
         .loading { display: none; text-align: center; color: #475569; padding: 15px; }
         .result { display: none; margin-top: 15px; }
@@ -153,7 +144,7 @@
             <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
         </div>
 
-        <!-- Tools sections unchanged -->
+        <!-- Sections identical to original working code -->
         <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
         <div class="section" id="url-section"><div class="card"><input type="text" id="urlInput" placeholder="Enter URL to scan..."><button onclick="checkURL()">🔍 Scan URL</button><button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button><div class="loading" id="urlLoading">⏳ Scanning...</div><div class="result" id="urlResult"></div></div></div>
         <div class="section" id="phishing-section"><div class="card"><textarea id="phishingInput" placeholder="Paste suspicious email or SMS..."></textarea><button onclick="checkPhishing()">🛡️ Check Phishing</button><button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button><div class="loading" id="phishingLoading">⏳ Analyzing...</div><div class="result" id="phishingResult"></div></div></div>
@@ -248,4 +239,4 @@
         async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); showResult('phishingResult', data, 'phishing'); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
         async function checkScam() { const text = document.getElementById('scamInput').value.trim(); if (!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display = 'block'; document.getElementById('scamResult').style.display = 'none'; try { const data = await callAPI('scam', text); showResult('scamResult', data, 'scam'); } catch (e) { showError('scamResult', e.message); } finally { document.getElementById('scamLoading').style.display = 'none'; } }
         async function checkPhone() { const phone = document.getElementById('phoneInput').value.trim(); if (!phone) return alert('Enter phone number'); document.getElementById('phoneLoading').style.display = 'block'; document.getElementById('phoneResult').style.display = 'none'; try { const data = await callAPI('phone', phone); showResult('phoneResult', data, 'phone'); } catch (e) { showError('phoneResult', e.message); } finally { document.getElementById('phoneLoading').style.display = 'none'; } }
-        async function checkUPI() { const upi = document.getElementById('upiInput').value.trim(); if (!upi) return alert('Enter UPI ID'); document.getElem
+        async function checkUPI() { const upi = document.getElementById('upiInput').value.trim(); if (!upi) return alert('Enter UPI ID'); document.getElementById('upiLoading').style.display = 'block'; document.getElementById('u
