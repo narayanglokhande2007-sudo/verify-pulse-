@@ -70,7 +70,9 @@
             cursor: pointer; margin-bottom: 10px;
         }
         button:hover { background: #1d4ed8; }
-        .btn-clear { background: transparent; border: 2px solid #2563eb; color: #2563eb; }
+        .btn-clear {
+            background: transparent; border: 2px solid #2563eb; color: #2563eb;
+        }
         .btn-clear:hover { background: rgba(37,99,235,0.1); }
         .loading { display: none; text-align: center; color: #475569; padding: 15px; }
         .result { display: none; margin-top: 15px; }
@@ -106,13 +108,42 @@
         .tips h4 { color: #1e40af; margin-bottom: 10px; }
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
-    .main-card {
-    margin-bottom: 15px;
-}
-.main-card .card {
-    background: #f0f4ff;
-    border: 2px solid #2563eb;
-                             }</style>
+
+        /* BADE CARDS (URL & Phishing) */
+        .main-card {
+            margin-bottom: 15px;
+        }
+        .main-card .card {
+            background: #f0f4ff;
+            border: 2px solid #2563eb;
+            padding: 25px;
+        }
+        .main-card h2 {
+            font-size: 22px;
+        }
+        .main-card input, .main-card textarea {
+            font-size: 18px;
+            padding: 20px;
+        }
+        .main-card button {
+            font-size: 18px;
+            padding: 18px;
+        }
+
+        /* MORE TOOLS BUTTON */
+        #moreBtn {
+            font-size: 16px;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -132,38 +163,30 @@
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
 
-        <div style="text-align:center; padding:25px 15px; margin-bottom:15px;">
-    <p style="font-size:22px; font-weight:bold; color:#1e40af; margin-bottom:10px;">
-        Check links, messages, and scams before you trust them.
-    </p>
-    <p style="font-size:14px; color:#475569;">
-        Fast. Private. Easy to use.
-    </p>
-</div>
-
-        <div class="tabs" id="mainTabs">
-    <button class="tab active" onclick="switchMain('url')">🔗 URL Scanner</button>
-    <button class="tab" onclick="switchMain('phishing')">📧 Phishing Detector</button>
-    <button class="tab" onclick="toggleMoreTools()" id="moreBtn">🔽 More Tools</button>
+        <div class="scam-alert">
+            <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
+            <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
+            <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
+            <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
+            <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
         </div>
-
-        <!-- MAIN CARDS: URL & Phishing (larger) -->
+        <!-- MAIN CARDS: URL & Phishing (bade boxes) -->
 <div id="mainCardsContainer">
     <div class="main-card active" id="main-url-card">
-        <div class="card" style="padding: 25px;">
-            <h2 style="color:#1e40af; margin-bottom:15px;">🔗 URL Scanner</h2>
-            <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe..." style="font-size:18px; padding:20px;">
-            <button onclick="checkURL()" style="font-size:18px; padding:18px;">🔍 Scan URL</button>
+        <div class="card">
+            <h2>🔗 URL Scanner</h2>
+            <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
+            <button onclick="checkURL()">🔍 Scan URL</button>
             <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
             <div class="loading" id="urlLoading">⏳ Scanning...</div>
             <div class="result" id="urlResult"></div>
         </div>
     </div>
     <div class="main-card" id="main-phishing-card" style="display:none;">
-        <div class="card" style="padding: 25px;">
-            <h2 style="color:#1e40af; margin-bottom:15px;">📧 Phishing Detector</h2>
-            <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..." style="font-size:18px; padding:20px; min-height:150px;"></textarea>
-            <button onclick="checkPhishing()" style="font-size:18px; padding:18px;">🛡️ Check Phishing</button>
+        <div class="card">
+            <h2>📧 Phishing Detector</h2>
+            <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+            <button onclick="checkPhishing()">🛡️ Check Phishing</button>
             <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
             <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
             <div class="result" id="phishingResult"></div>
@@ -171,7 +194,10 @@
     </div>
 </div>
 
-<!-- MORE TOOLS (hidden by default) -->
+<!-- Toggle button for more tools -->
+<button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
+
+<!-- Hidden container for remaining 6 tools (normal size) -->
 <div id="moreToolsContainer" style="display:none;">
     <div class="tabs" style="margin-top:15px;">
         <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
@@ -181,7 +207,8 @@
         <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
         <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
     </div>
-    <!-- Sections for the 6 tools (unchanged but inside this container) -->
+
+    <!-- Sections for the 6 tools (existing design) -->
     <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
     <div class="section" id="password-section"><div class="card"><input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
     <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div></div></div>
@@ -189,18 +216,12 @@
     <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
     <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
 </div>
-                                                                                                                                                                                                                                                                                          
-
-        <div class="scam-alert">
-    <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
-    <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
-    <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
-    <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
-    <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
-</div>
 
 <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
+<div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">
+    🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse
     </div>
+        </div> <!-- container close -->
 
     <script>
         const translations = {
@@ -239,17 +260,44 @@
             try { localStorage.setItem('totalChecks', totalChecks); localStorage.setItem('scamsFound', scamsFound); localStorage.setItem('safeItems', safeItems); } catch(e) {}
             updateStats();
         }
+
+        // Regular tabs (inside More Tools)
         function switchTab(tabName, el) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            const container = document.getElementById('moreToolsContainer');
+            container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            container.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             el.classList.add('active');
             document.getElementById(tabName + '-section').classList.add('active');
         }
+
+        // Main tab toggle (URL vs Phishing)
+        function switchMain(type) {
+            document.getElementById('main-url-card').style.display = (type === 'url') ? 'block' : 'none';
+            document.getElementById('main-phishing-card').style.display = (type === 'phishing') ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            switchMain('url'); // Show URL card by default
+        });
+
+        function toggleMoreTools() {
+            const more = document.getElementById('moreToolsContainer');
+            const btn = document.getElementById('moreBtn');
+            if (more.style.display === 'none' || !more.style.display) {
+                more.style.display = 'block';
+                btn.textContent = '🔼 Hide Tools';
+            } else {
+                more.style.display = 'none';
+                btn.textContent = '🔽 More Tools';
+            }
+        }
+
         function clearField(inputId, resultId) {
             document.getElementById(inputId).value = '';
             const res = document.getElementById(resultId);
             if (res) { res.style.display = 'none'; res.innerHTML = ''; }
         }
+
         async function callAPI(checkType, inputText) {
             const response = await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: inputText, checkType: checkType }) });
             const data = await response.json();
@@ -279,7 +327,8 @@
             container.innerHTML = `<div class="error-box">❌ ${message}</div>`;
             container.style.display = 'block';
         }
-                async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); showResult('newsResult', data, 'news'); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
+
+        async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); showResult('newsResult', data, 'news'); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
         async function checkURL() { const url = document.getElementById('urlInput').value.trim(); if (!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display = 'block'; document.getElementById('urlResult').style.display = 'none'; try { const data = await callAPI('url', url); showResult('urlResult', data, 'url'); } catch (e) { showError('urlResult', e.message); } finally { document.getElementById('urlLoading').style.display = 'none'; } }
         async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); showResult('phishingResult', data, 'phishing'); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
         async function checkScam() { const text = document.getElementById('scamInput').value.trim(); if (!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display = 'block'; document.getElementById('scamResult').style.display = 'none'; try { const data = await callAPI('scam', text); showResult('scamResult', data, 'scam'); } catch (e) { showError('scamResult', e.message); } finally { document.getElementById('scamLoading').style.display = 'none'; } }
@@ -303,39 +352,6 @@
             else { cls = 'strength-strong'; txt = 'Strong'; }
             result.innerHTML = `<div class="password-strength ${cls}">🔐 ${txt} (score ${strength}/6)</div>`;
         }
-        // Main tabs for URL/Phishing
-function switchMain(type) {
-    const cards = document.querySelectorAll('.main-card');
-    cards.forEach(c => c.style.display = 'none');
-    if (type === 'url') document.getElementById('main-url-card').style.display = 'block';
-    else if (type === 'phishing') document.getElementById('main-phishing-card').style.display = 'block';
-    
-    // Update active button
-    document.querySelectorAll('#mainTabs .tab').forEach((b, i) => {
-        if ((type === 'url' && i === 0) || (type === 'phishing' && i === 1)) b.classList.add('active');
-        else if (i < 2) b.classList.remove('active');
-    });
-}
-
-function toggleMoreTools() {
-    const more = document.getElementById('moreToolsContainer');
-    const btn = document.getElementById('moreBtn');
-    if (more.style.display === 'none' || !more.style.display) {
-        more.style.display = 'block';
-        btn.textContent = '🔼 Hide Tools';
-    } else {
-        more.style.display = 'none';
-        btn.textContent = '🔽 More Tools';
-    }
-}
-
-// Ensure main cards default view
-window.addEventListener('DOMContentLoaded', () => {
-    switchMain('url'); // show URL card first
-});
     </script>
-    <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">
-    🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse
-    </div>
 </body>
 </html>
