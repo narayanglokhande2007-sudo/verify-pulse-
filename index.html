@@ -126,13 +126,14 @@
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
 
-        <div class="scam-alert">
-            <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
-            <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
-            <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
-            <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
-            <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
-        </div>
+        <div style="text-align:center; padding:25px 15px; margin-bottom:15px;">
+    <p style="font-size:22px; font-weight:bold; color:#1e40af; margin-bottom:10px;">
+        Check links, messages, and scams before you trust them.
+    </p>
+    <p style="font-size:14px; color:#475569;">
+        Fast. Private. Easy to use.
+    </p>
+</div>
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
@@ -154,7 +155,15 @@
         <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
         <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
 
-        <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
+        <div class="scam-alert">
+    <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
+    <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
+    <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
+    <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
+    <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
+</div>
+
+<div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
     </div>
 
     <script>
