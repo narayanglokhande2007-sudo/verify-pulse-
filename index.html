@@ -236,7 +236,7 @@
             <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
         </div>
 
-        <!-- Sections for each tool -->
+        <!-- Sections for each tool (unchanged) -->
         <div class="section active" id="news-section">
             <div class="card">
                 <textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea>
@@ -328,7 +328,7 @@
     </div>
 
     <script>
-        // ================= LANGUAGE & STATS =================
+        // ================= LANGUAGE & STATS (Safe localStorage) =================
         const translations = {
             en: {
                 tagline: 'AI-Powered Cybersecurity & Fact Checking',
@@ -354,6 +354,16 @@
             }
         };
 
+        // Safe localStorage access
+        let totalChecks, scamsFound, safeItems;
+        try {
+            totalChecks = parseInt(localStorage.getItem('totalChecks') || '0');
+            scamsFound = parseInt(localStorage.getItem('scamsFound') || '0');
+            safeItems = parseInt(localStorage.getItem('safeItems') || '0');
+        } catch (e) {
+            totalChecks = 0; scamsFound = 0; safeItems = 0;
+        }
+
         function setLang(lang, e) {
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
@@ -369,26 +379,23 @@
             document.getElementById('statLabel3').textContent = t.statLabel3;
         }
 
-        // Stats
-        let totalChecks = parseInt(localStorage.getItem('totalChecks') || '0');
-        let scamsFound = parseInt(localStorage.getItem('scamsFound') || '0');
-        let safeItems = parseInt(localStorage.getItem('safeItems') || '0');
-        updateStats();
-
         function updateStats() {
             document.getElementById('totalChecks').textContent = totalChecks;
             document.getElementById('scamsFound').textContent = scamsFound;
             document.getElementById('safeItems').textContent = safeItems;
         }
+        updateStats();
 
         function recordResult(verdict) {
             totalChecks++;
             const v = (verdict || '').toUpperCase();
             if (v === 'SAFE' || v === 'TRUE' || v === 'STRONG') safeItems++;
             else if (['SCAM','PHISHING','DANGEROUS','FRAUD','FALSE','WEAK'].includes(v)) scamsFound++;
-            localStorage.setItem('totalChecks', totalChecks);
-            localStorage.setItem('scamsFound', scamsFound);
-            localStorage.setItem('safeItems', safeItems);
+            try {
+                localStorage.setItem('totalChecks', totalChecks);
+                localStorage.setItem('scamsFound', scamsFound);
+                localStorage.setItem('safeItems', safeItems);
+            } catch (e) {}
             updateStats();
         }
 
@@ -407,19 +414,15 @@
         }
 
         // API call
-        async function callAPI(checkType, inputText, loadingId) {
-            try {
-                const response = await fetch('/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: inputText, checkType: checkType })
-                });
-                const data = await response.json();
-                if (data.error) throw new Error(data.error);
-                return data;
-            } catch (error) {
-                throw new Error(error.message || 'Network error');
-            }
+        async function callAPI(checkType, inputText) {
+            const response = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: inputText, checkType: checkType })
+            });
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            return data;
         }
 
         function showResult(containerId, data, type) {
@@ -450,6 +453,4 @@
                     <h4>🔍 Analysis</h4>
                     <p>${data.analysis || 'No details'}</p>
                 </div>
-                <div class="analysis-box">
-                    <h4>💡 Findings</h4>
-                    <p>${data.findings || 'No s
+                <div class="analysis-box"
