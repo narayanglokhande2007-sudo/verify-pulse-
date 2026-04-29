@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://verify-pulse.vercel.app/$1",
+      "permanent": true
+    }
+  ]
+}
