@@ -25,8 +25,50 @@ export default async function handler(req, res) {
       systemPrompt = `You are a fact-checking AI. Determine if news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
       break;
     case 'url':
-      systemPrompt = `You are a cybersecurity AI. Analyze URL. Reply ONLY in JSON: {"verdict":"SAFE/DANGEROUS/PHISHING/SUSPICIOUS", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
+  // Whitelist of trusted domains
+  const trustedDomains = [
+    'verify-pulse.vercel.app',
+    'google.com',
+    'youtube.com',
+    'wikipedia.org',
+    'github.com',
+    'microsoft.com',
+    'apple.com',
+    'amazon.in',
+    'flipkart.com',
+    'twitter.com',
+    'facebook.com',
+    'instagram.com',
+    'linkedin.com',
+    'whatsapp.com',
+    'telegram.org',
+    'gov.in',
+    'india.gov.in',
+    'pmindia.gov.in',
+    'mohfw.gov.in',
+    'cowin.gov.in'
+  ];
+
+  try {
+    const urlObj = new URL(text.includes('://') ? text : 'https://' + text);
+    const domain = urlObj.hostname.replace(/^www\./, '');
+    
+    const isTrusted = trustedDomains.some(d => domain === d || domain.endsWith('.' + d));
+    
+    if (isTrusted) {
+      return res.status(200).json({
+        verdict: 'SAFE',
+        confidence: 100,
+        analysis: 'This is a verified and trusted domain.',
+        findings: 'No threats detected.'
+      });
+    }
+  } catch (e) {
+    // Invalid URL – let AI handle it
+  }
+
+  systemPrompt = `You are a URL safety expert. Analyze the given URL and determine if it is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS. Provide a confidence score (0-100) and a fair analysis. A normal, common website should be marked SAFE with high confidence. Only mark as DANGEROUS/PHISHING if there is clear evidence of fraud or malware. Respond ONLY in JSON format: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+  break;
     case 'phishing':
       systemPrompt = `You are an anti-phishing AI. Analyze email/SMS. Reply ONLY in JSON: {"verdict":"PHISHING/SAFE/SUSPICIOUS", "confidence":85, "analysis":"...", "findings":"..."}`;
       break;
