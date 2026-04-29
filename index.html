@@ -39,7 +39,6 @@
             color: #0a0e27;
         }
 
-        /* Recent Scams Alert */
         .scam-alert {
             background: rgba(244,67,54,0.1);
             border: 1px solid #f44336;
@@ -57,7 +56,6 @@
             color: #a0aec0;
         }
 
-        /* Stats Dashboard */
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -192,13 +190,11 @@
             <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
         </header>
 
-        <!-- Language Toggle -->
         <div class="lang-toggle">
             <button class="lang-btn active" onclick="setLang('en')">🇬🇧 English</button>
             <button class="lang-btn" onclick="setLang('hi')">🇮🇳 हिंदी</button>
         </div>
 
-        <!-- Stats Dashboard -->
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalChecks">0</div>
@@ -214,132 +210,159 @@
             </div>
         </div>
 
-        <!-- Recent Scams Alert -->
         <div class="scam-alert">
-            <h3>🚨 <span id="alertTitle">Recent Scam Alerts</span></h3>
-            <div class="scam-item">⚠️ <span id="alert1">Fake KBC lottery messages circulating on WhatsApp</span></div>
-            <div class="scam-item">⚠️ <span id="alert2">Fake SBI KYC update SMS - Do not click links</span></div>
-            <div class="scam-item">⚠️ <span id="alert3">Job fraud emails asking advance payment</span></div>
-            <div class="scam-item">⚠️ <span id="alert4">Fake electricity bill emails with malicious links</span></div>
+            <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
+            <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
+            <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
+            <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
+            <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('news', this)" id="tab-news">📰 Fake News</div>
-            <div class="tab" onclick="switchTab('url', this)" id="tab-url">🔗 URL</div>
-            <div class="tab" onclick="switchTab('phishing', this)" id="tab-phishing">📧 Phishing</div>
-            <div class="tab" onclick="switchTab('password', this)" id="tab-password">🔐 Password</div>
-            <div class="tab" onclick="switchTab('scam', this)" id="tab-scam">⚠️ Scam</div>
-            <div class="tab" onclick="switchTab('phone', this)" id="tab-phone">📞 Phone</div>
-            <div class="tab" onclick="switchTab('upi', this)" id="tab-upi">💳 UPI</div>
-            <div class="tab" onclick="switchTab('gmail', this)" id="tab-gmail">📧 Gmail</div>
+            <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
+            <button class="tab" onclick="switchTab('url', this)">🔗 URL</button>
+            <button class="tab" onclick="switchTab('phishing', this)">📧 Phishing</button>
+            <button class="tab" onclick="switchTab('password', this)">🔐 Password</button>
+            <button class="tab" onclick="switchTab('scam', this)">⚠️ Scam</button>
+            <button class="tab" onclick="switchTab('phone', this)">📞 Phone</button>
+            <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
+            <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
         </div>
 
-        <!-- Fake News -->
+        <!-- Sections for each tool -->
         <div class="section active" id="news-section">
             <div class="card">
                 <textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea>
-                <button onclick="checkNews()" id="btn-news">✨ Check News</button>
-                <button class="btn-clear" onclick="clearInput('newsInput', 'newsResult')" id="btn-news-clear">Clear</button>
+                <button onclick="checkNews()">✨ Check News</button>
+                <button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button>
                 <div class="loading" id="newsLoading">⏳ AI Analyzing...</div>
                 <div class="result" id="newsResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- URL Scanner -->
         <div class="section" id="url-section">
             <div class="card">
                 <input type="text" id="urlInput" placeholder="Enter URL to scan...">
                 <button onclick="checkURL()">🔍 Scan URL</button>
-                <button class="btn-clear" onclick="clearInput('urlInput', 'urlResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
                 <div class="loading" id="urlLoading">⏳ Scanning...</div>
                 <div class="result" id="urlResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- Phishing -->
         <div class="section" id="phishing-section">
             <div class="card">
-                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS..."></textarea>
                 <button onclick="checkPhishing()">🛡️ Check Phishing</button>
-                <button class="btn-clear" onclick="clearInput('phishingInput', 'phishingResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
                 <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
                 <div class="result" id="phishingResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- Password -->
         <div class="section" id="password-section">
             <div class="card">
-                <input type="password" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPassword()">
+                <input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()">
                 <div id="passwordResult"></div>
                 <div class="tips">
                     <h4>💡 Password Tips</h4>
-                    <div class="tip-item">✅ Use at least 12 characters</div>
-                    <div class="tip-item">✅ Mix UPPERCASE and lowercase</div>
-                    <div class="tip-item">✅ Add numbers (1,2,3...)</div>
-                    <div class="tip-item">✅ Add symbols (!,@,#,$...)</div>
-                    <div class="tip-item">❌ Never use name or birthday</div>
-                    <div class="tip-item">❌ Never reuse passwords</div>
+                    <div class="tip-item">✅ At least 12 characters</div>
+                    <div class="tip-item">✅ Mix UPPER & lowercase</div>
+                    <div class="tip-item">✅ Add numbers & symbols</div>
+                    <div class="tip-item">❌ Avoid personal info</div>
                 </div>
                 <div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div>
             </div>
         </div>
 
-        <!-- Scam -->
         <div class="section" id="scam-section">
             <div class="card">
-                <textarea id="scamInput" placeholder="Paste suspicious message or offer here..."></textarea>
+                <textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea>
                 <button onclick="checkScam()">⚠️ Detect Scam</button>
-                <button class="btn-clear" onclick="clearInput('scamInput', 'scamResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button>
                 <div class="loading" id="scamLoading">⏳ Analyzing...</div>
                 <div class="result" id="scamResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- Phone Number -->
         <div class="section" id="phone-section">
             <div class="card">
-                <input type="text" id="phoneInput" placeholder="Enter phone number... (e.g. +91 9876543210)">
+                <input type="text" id="phoneInput" placeholder="+91 9876543210">
                 <button onclick="checkPhone()">📞 Check Number</button>
-                <button class="btn-clear" onclick="clearInput('phoneInput', 'phoneResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button>
                 <div class="loading" id="phoneLoading">⏳ Checking...</div>
                 <div class="result" id="phoneResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- UPI -->
         <div class="section" id="upi-section">
             <div class="card">
-                <input type="text" id="upiInput" placeholder="Enter UPI ID... (e.g. name@upi)">
+                <input type="text" id="upiInput" placeholder="name@upi">
                 <button onclick="checkUPI()">💳 Check UPI</button>
-                <button class="btn-clear" onclick="clearInput('upiInput', 'upiResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button>
                 <div class="loading" id="upiLoading">⏳ Checking...</div>
                 <div class="result" id="upiResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
         </div>
 
-        <!-- Gmail Fraud -->
         <div class="section" id="gmail-section">
             <div class="card">
-                <textarea id="gmailInput" placeholder="Paste suspicious Gmail message here..."></textarea>
+                <textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea>
                 <button onclick="checkGmail()">📧 Check Gmail</button>
-                <button class="btn-clear" onclick="clearInput('gmailInput', 'gmailResult')">Clear</button>
+                <button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button>
                 <div class="loading" id="gmailLoading">⏳ Analyzing...</div>
                 <div class="result" id="gmailResult"></div>
-                <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data.</div>
             </div>
+        </div>
+
+        <div class="privacy">
+            🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.
         </div>
     </div>
 
     <script>
-        // Stats
+        // ================= LANGUAGE & STATS =================
+        const translations = {
+            en: {
+                tagline: 'AI-Powered Cybersecurity & Fact Checking',
+                alertTitle: '🚨 Recent Scam Alerts',
+                alert1: '⚠️ Fake KBC lottery messages on WhatsApp',
+                alert2: '⚠️ Fake SBI KYC update SMS - Do not click links',
+                alert3: '⚠️ Job fraud emails asking advance payment',
+                alert4: '⚠️ Fake electricity bill emails with malicious links',
+                statLabel1: 'Total Checks',
+                statLabel2: 'Scams Found',
+                statLabel3: 'Safe Items',
+            },
+            hi: {
+                tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच',
+                alertTitle: '🚨 हाल के स्कैम अलर्ट',
+                alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश',
+                alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें',
+                alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल',
+                alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल',
+                statLabel1: 'कुल जांच',
+                statLabel2: 'स्कैम मिले',
+                statLabel3: 'सुरक्षित',
+            }
+        };
+
+        function setLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            const t = translations[lang];
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('alertTitle').textContent = t.alertTitle;
+            document.getElementById('alert1').textContent = t.alert1;
+            document.getElementById('alert2').textContent = t.alert2;
+            document.getElementById('alert3').textContent = t.alert3;
+            document.getElementById('alert4').textContent = t.alert4;
+            document.getElementById('statLabel1').textContent = t.statLabel1;
+            document.getElementById('statLabel2').textContent = t.statLabel2;
+            document.getElementById('statLabel3').textContent = t.statLabel3;
+        }
+
+        // ================= STATS =================
         let totalChecks = parseInt(localStorage.getItem('totalChecks') || '0');
         let scamsFound = parseInt(localStorage.getItem('scamsFound') || '0');
         let safeItems = parseInt(localStorage.getItem('safeItems') || '0');
@@ -354,66 +377,46 @@
         function recordResult(verdict) {
             totalChecks++;
             const v = (verdict || '').toUpperCase();
-            if (v === 'SAFE' || v === 'TRUE') safeItems++;
-            else if (v === 'SCAM' || v === 'PHISHING' || v === 'DANGEROUS' || v === 'FRAUD' || v === 'FALSE') scamsFound++;
+            if (v === 'SAFE' || v === 'TRUE' || v === 'STRONG') safeItems++;
+            else if (['SCAM','PHISHING','DANGEROUS','FRAUD','FALSE','WEAK'].includes(v)) scamsFound++;
             localStorage.setItem('totalChecks', totalChecks);
             localStorage.setItem('scamsFound', scamsFound);
             localStorage.setItem('safeItems', safeItems);
             updateStats();
         }
 
-        // Language
-        const translations = {
-            en: {
-                tagline: 'AI-Powered Cybersecurity & Fact Checking',
-                alertTitle: '🚨 Recent Scam Alerts',
-                alert1: 'Fake KBC lottery messages circulating on WhatsApp',
-                alert2: 'Fake SBI KYC update SMS - Do not click links',
-                alert3: 'Job fraud emails asking advance payment',
-                alert4: 'Fake electricity bill emails with malicious links',
-                statLabel1: 'Total Checks',
-                statLabel2: 'Scams Found',
-                statLabel3: 'Safe Items',
-            },
-            hi: {
-                tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच',
-                alertTitle: '🚨 हाल के स्कैम अलर्ट',
-                alert1: 'WhatsApp पर नकली KBC लॉटरी संदेश फैल रहे हैं',
-                alert2: 'नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें',
-                alert3: 'अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल',
-                alert4: 'दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल',
-                statLabel1: 'कुल जांच',
-                statLabel2: 'स्कैम मिले',
-                statLabel3: 'सुरक्षित',
-            }
-        };
-
-        function setLang(lang) {
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            const t = translations[lang];
-            Object.keys(t).forEach(key => {
-                const el = document.getElementById(key);
-                if (el) el.textContent = t[key];
-            });
-        }
-
-        function switchTab(tab, el) {
+        // ================= TAB SWITCHING =================
+        function switchTab(tabName, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             el.classList.add('active');
-            document.getElementById(tab + '-section').classList.add('active');
+            document.getElementById(tabName + '-section').classList.add('active');
         }
 
-        function clearInput(inputId, resultId) {
+        function clearField(inputId, resultId) {
             document.getElementById(inputId).value = '';
-            const result = document.getElementById(resultId);
-            if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+            const res = document.getElementById(resultId);
+            if (res) { res.style.display = 'none'; res.innerHTML = ''; }
         }
 
-        function displayResult(resultId, loadingId, data, type) {
-            document.getElementById(loadingId).style.display = 'none';
-            const container = document.getElementById(resultId);
+        // ================= API CALL HELPER =================
+        async function callAPI(checkType, inputText, loadingId) {
+            try {
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: inputText, checkType: checkType })
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                return data;
+            } catch (error) {
+                throw new Error(error.message || 'Network error');
+            }
+        }
+
+        function showResult(containerId, data, type) {
+            const container = document.getElementById(containerId);
             let verdictClass = '', verdictText = '';
             const v = (data.verdict || '').toUpperCase();
             recordResult(v);
@@ -424,9 +427,11 @@
                 else if (v === 'MISLEADING') { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Misleading'; }
                 else { verdictClass = 'verdict-uncertain'; verdictText = '❓ Uncertain'; }
             } else {
-                if (v === 'SAFE') { verdictClass = 'verdict-safe'; verdictText = '✅ Safe'; }
-                else if (['DANGEROUS','FRAUD','SCAM','PHISHING'].includes(v)) { verdictClass = 'verdict-dangerous'; verdictText = v === 'PHISHING' ? '🎣 Phishing!' : v === 'SCAM' ? '⚠️ Scam!' : '🚨 Dangerous!'; }
-                else { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Suspicious'; }
+                if (v === 'SAFE' || v === 'TRUE') { verdictClass = 'verdict-safe'; verdictText = '✅ Safe'; }
+                else if (['DANGEROUS','FRAUD','SCAM','PHISHING'].includes(v)) {
+                    verdictClass = 'verdict-dangerous';
+                    verdictText = v === 'PHISHING' ? '🎣 Phishing!' : v === 'SCAM' ? '⚠️ Scam!' : '🚨 Dangerous!';
+                } else { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Suspicious'; }
             }
 
             container.innerHTML = `
@@ -435,4 +440,150 @@
                     <div class="confidence">Confidence: ${data.confidence}%</div>
                 </div>
                 <div class="analysis-box">
-         
+                    <h4>🔍 Analysis</h4>
+                    <p>${data.analysis || 'No details'}</p>
+                </div>
+                <div class="analysis-box">
+                    <h4>💡 Findings</h4>
+                    <p>${data.findings || 'No specific findings'}</p>
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="error-box">❌ ${message}</div>`;
+            container.style.display = 'block';
+        }
+
+        // ================= TOOL HANDLERS =================
+        async function checkNews() {
+            const text = document.getElementById('newsInput').value.trim();
+            if (!text) return alert('Please enter text');
+            document.getElementById('newsLoading').style.display = 'block';
+            document.getElementById('newsResult').style.display = 'none';
+            try {
+                const data = await callAPI('news', text, 'newsLoading');
+                showResult('newsResult', data, 'news');
+            } catch (e) {
+                showError('newsResult', e.message);
+            } finally {
+                document.getElementById('newsLoading').style.display = 'none';
+            }
+        }
+
+        async function checkURL() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) return alert('Enter URL');
+            document.getElementById('urlLoading').style.display = 'block';
+            document.getElementById('urlResult').style.display = 'none';
+            try {
+                const data = await callAPI('url', url, 'urlLoading');
+                showResult('urlResult', data, 'url');
+            } catch (e) {
+                showError('urlResult', e.message);
+            } finally {
+                document.getElementById('urlLoading').style.display = 'none';
+            }
+        }
+
+        async function checkPhishing() {
+            const text = document.getElementById('phishingInput').value.trim();
+            if (!text) return alert('Paste email content');
+            document.getElementById('phishingLoading').style.display = 'block';
+            document.getElementById('phishingResult').style.display = 'none';
+            try {
+                const data = await callAPI('phishing', text, 'phishingLoading');
+                showResult('phishingResult', data, 'phishing');
+            } catch (e) {
+                showError('phishingResult', e.message);
+            } finally {
+                document.getElementById('phishingLoading').style.display = 'none';
+            }
+        }
+
+        async function checkScam() {
+            const text = document.getElementById('scamInput').value.trim();
+            if (!text) return alert('Paste scam message');
+            document.getElementById('scamLoading').style.display = 'block';
+            document.getElementById('scamResult').style.display = 'none';
+            try {
+                const data = await callAPI('scam', text, 'scamLoading');
+                showResult('scamResult', data, 'scam');
+            } catch (e) {
+                showError('scamResult', e.message);
+            } finally {
+                document.getElementById('scamLoading').style.display = 'none';
+            }
+        }
+
+        async function checkPhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) return alert('Enter phone number');
+            document.getElementById('phoneLoading').style.display = 'block';
+            document.getElementById('phoneResult').style.display = 'none';
+            try {
+                const data = await callAPI('phone', phone, 'phoneLoading');
+                showResult('phoneResult', data, 'phone');
+            } catch (e) {
+                showError('phoneResult', e.message);
+            } finally {
+                document.getElementById('phoneLoading').style.display = 'none';
+            }
+        }
+
+        async function checkUPI() {
+            const upi = document.getElementById('upiInput').value.trim();
+            if (!upi) return alert('Enter UPI ID');
+            document.getElementById('upiLoading').style.display = 'block';
+            document.getElementById('upiResult').style.display = 'none';
+            try {
+                const data = await callAPI('upi', upi, 'upiLoading');
+                showResult('upiResult', data, 'upi');
+            } catch (e) {
+                showError('upiResult', e.message);
+            } finally {
+                document.getElementById('upiLoading').style.display = 'none';
+            }
+        }
+
+        async function checkGmail() {
+            const msg = document.getElementById('gmailInput').value.trim();
+            if (!msg) return alert('Paste Gmail message');
+            document.getElementById('gmailLoading').style.display = 'block';
+            document.getElementById('gmailResult').style.display = 'none';
+            try {
+                const data = await callAPI('gmail', msg, 'gmailLoading');
+                showResult('gmailResult', data, 'gmail');
+            } catch (e) {
+                showError('gmailResult', e.message);
+            } finally {
+                document.getElementById('gmailLoading').style.display = 'none';
+            }
+        }
+
+        // ================= PASSWORD STRENGTH (LOCAL) =================
+        function checkPasswordLive() {
+            const pwd = document.getElementById('passwordInput').value;
+            const result = document.getElementById('passwordResult');
+            if (!pwd) { result.innerHTML = ''; return; }
+            let strength = 0;
+            if (pwd.length >= 9) strength++;
+            if (pwd.length >= 12) strength++;
+            if (/[A-Z]/.test(pwd)) strength++;
+            if (/[a-z]/.test(pwd)) strength++;
+            if (/[0-9]/.test(pwd)) strength++;
+            if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+            let cls, txt;
+            if (strength <= 2) { cls = 'strength-weak'; txt = 'Weak'; }
+            else if (strength <= 4) { cls = 'strength-medium'; txt = 'Moderate'; }
+            else { cls = 'strength-strong'; txt = 'Strong'; }
+            result.innerHTML = `<div class="password-strength ${cls}">🔐 ${txt} (score ${strength}/6)</div>`;
+        }
+
+        // ================= PRIVACY NOTICE =================
+        // Already present in HTML
+    </script>
+</body>
+</html>
