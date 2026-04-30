@@ -112,7 +112,7 @@
         /* Toggle big card styles */
         .big-card-buttons {
             display: flex;
-            gap: 0;
+            gap: 6px;
             margin-bottom: 0;
         }
         .big-card-btn {
@@ -137,27 +137,36 @@
             border: 2px solid #2563eb;
             border-top: none;
             border-radius: 0 0 10px 10px;
-            padding: 25px;
+            padding: 30px;
             background: #f0f4ff;
         }
         .big-card-content h2 {
-            font-size: 24px;
+            font-size: 26px;
             color: #1e40af;
             margin-bottom: 20px;
         }
         .big-card-content input, .big-card-content textarea {
-            font-size: 20px;
-            padding: 22px;
+            font-size: 22px;
+            padding: 24px;
         }
         .big-card-content button {
-            font-size: 20px;
-            padding: 20px;
+            font-size: 22px;
+            padding: 22px;
         }
+
+        /* More Tools button compact */
         #moreBtn {
-            font-size: 16px; padding: 12px; background: #2563eb; color: white;
-            border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px;
+            font-size: 16px; padding: 10px; background: #2563eb; color: white;
+            border: none; border-radius: 10px; cursor: pointer; margin-bottom: 10px;
             width: 100%; font-weight: bold;
-            margin-top: 15px;
+            margin-top: 10px;
+        }
+
+        #moreToolsContainer {
+            margin-top: 5px;
+        }
+        #moreToolsContainer .tabs {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -179,7 +188,7 @@
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
 
-        <!-- Bold headline (tumne kaha tha stats ke neeche) -->
+        <!-- Bold headline -->
         <div style="text-align:center; padding:10px 0; margin-bottom:15px;">
             <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">
                 Check links, messages, and scams before you trust them.
@@ -195,7 +204,6 @@
             <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
         </div>
         <div class="big-card-content" id="bigCardContent">
-            <!-- URL content default -->
             <div id="main-url-section">
                 <h2>🔗 URL Scanner</h2>
                 <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
@@ -204,7 +212,6 @@
                 <div class="loading" id="urlLoading">⏳ Scanning...</div>
                 <div class="result" id="urlResult"></div>
             </div>
-            <!-- Phishing content (hidden initially) -->
             <div id="main-phishing-section" style="display:none;">
                 <h2>📧 Phishing Detector</h2>
                 <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
@@ -234,7 +241,7 @@
             <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
         </div>
 
-        <!-- Scam alerts shifted down here (tumne kaha tha neeche) -->
+        <!-- Scam alerts shifted down here -->
         <div class="scam-alert" style="margin-top:15px;">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
@@ -287,7 +294,6 @@
             updateStats();
         }
 
-        // Toggle main big card content
         function toggleMain(type) {
             document.querySelectorAll('.big-card-btn').forEach(b => b.classList.remove('active'));
             const urlSection = document.getElementById('main-url-section');
@@ -303,7 +309,6 @@
             }
         }
 
-        // Regular tabs (inside More Tools)
         function switchTab(tabName, el) {
             const container = document.getElementById('moreToolsContainer');
             container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
