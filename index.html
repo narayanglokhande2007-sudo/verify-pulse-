@@ -109,48 +109,58 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* Toggle big card styles – buttons with gap */
+        /* Toggle wrapper – smooth rounded outline */
+        .toggle-wrapper {
+            border: 2px solid #2563eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
         .big-card-buttons {
             display: flex;
             gap: 6px;
-            margin-bottom: 0;
+            background: #f0f4ff;
+            padding: 6px 6px 0 6px;
+            margin: 0;
         }
         .big-card-btn {
             flex: 1;
             padding: 14px 8px;
-            background: #f0f4ff;
-            border: 2px solid #2563eb;
-            border-bottom: none;
-            border-radius: 10px 10px 0 0;
+            background: transparent;
+            border: none;
             color: #2563eb;
             cursor: pointer;
             font-size: 15px;
             font-weight: bold;
             text-align: center;
+            border-radius: 10px 10px 0 0;
         }
         .big-card-btn.active {
             background: #2563eb;
             color: #ffffff;
-            border-bottom: 2px solid #2563eb; /* matches active background, covers content top border */
+            border-bottom: 2px solid #2563eb;
         }
 
         .big-card-content {
-            border: 2px solid #2563eb;
-            border-radius: 0 0 10px 10px;
-            padding: 20px;                  /* reduced from 25px */
             background: #f0f4ff;
+            padding: 20px;
+            border: none;
         }
         .big-card-content h2 {
-            font-size: 20px;               /* reduced from 22px */
+            font-size: 20px;
             color: #1e40af;
             margin-bottom: 18px;
         }
         .big-card-content input, .big-card-content textarea {
-            font-size: 17px;              /* reduced from 18px */
+            font-size: 17px;
             padding: 16px;
         }
+        .big-card-content textarea {
+            min-height: 70px;
+        }
         .big-card-content button {
-            font-size: 17px;              /* reduced from 18px */
+            font-size: 17px;
             padding: 16px;
         }
 
@@ -205,27 +215,29 @@
             </p>
         </div>
 
-        <!-- Single big toggled box with complete blue outline -->
-        <div class="big-card-buttons">
-            <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
-            <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
-        </div>
-        <div class="big-card-content" id="bigCardContent">
-            <div id="main-url-section">
-                <h2>🔗 URL Scanner</h2>
-                <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
-                <button onclick="checkURL()">🔍 Scan URL</button>
-                <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
-                <div class="loading" id="urlLoading">⏳ Scanning...</div>
-                <div class="result" id="urlResult"></div>
+        <!-- Single big toggled box with wrapper for smooth outline -->
+        <div class="toggle-wrapper">
+            <div class="big-card-buttons">
+                <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
+                <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
             </div>
-            <div id="main-phishing-section" style="display:none;">
-                <h2>📧 Phishing Detector</h2>
-                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
-                <button onclick="checkPhishing()">🛡️ Check Phishing</button>
-                <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
-                <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
-                <div class="result" id="phishingResult"></div>
+            <div class="big-card-content" id="bigCardContent">
+                <div id="main-url-section">
+                    <h2>🔗 URL Scanner</h2>
+                    <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
+                    <button onclick="checkURL()">🔍 Scan URL</button>
+                    <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
+                    <div class="loading" id="urlLoading">⏳ Scanning...</div>
+                    <div class="result" id="urlResult"></div>
+                </div>
+                <div id="main-phishing-section" style="display:none;">
+                    <h2>📧 Phishing Detector</h2>
+                    <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+                    <button onclick="checkPhishing()">🛡️ Check Phishing</button>
+                    <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
+                    <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
+                    <div class="result" id="phishingResult"></div>
+                </div>
             </div>
         </div>
 
