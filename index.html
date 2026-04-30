@@ -109,39 +109,55 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* BADE CARDS (URL & Phishing) */
-        .main-card {
-            margin-bottom: 15px;
+        /* Toggle big card styles */
+        .big-card-buttons {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
         }
-        .main-card .card {
+        .big-card-btn {
+            flex: 1;
+            padding: 15px 10px;
             background: #f0f4ff;
             border: 2px solid #2563eb;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            color: #2563eb;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .big-card-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-bottom: none;
+        }
+        .big-card-content {
+            border: 2px solid #2563eb;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
             padding: 25px;
+            background: #f0f4ff;
         }
-        .main-card h2 {
-            font-size: 22px;
+        .big-card-content h2 {
+            font-size: 24px;
+            color: #1e40af;
+            margin-bottom: 20px;
         }
-        .main-card input, .main-card textarea {
-            font-size: 18px;
+        .big-card-content input, .big-card-content textarea {
+            font-size: 20px;
+            padding: 22px;
+        }
+        .big-card-content button {
+            font-size: 20px;
             padding: 20px;
         }
-        .main-card button {
-            font-size: 18px;
-            padding: 18px;
-        }
-
-        /* MORE TOOLS BUTTON */
         #moreBtn {
-            font-size: 16px;
-            padding: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            width: 100%;
-            font-weight: bold;
+            font-size: 16px; padding: 12px; background: #2563eb; color: white;
+            border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px;
+            width: 100%; font-weight: bold;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -163,65 +179,75 @@
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
 
-        <div class="scam-alert">
+        <!-- Bold headline (tumne kaha tha stats ke neeche) -->
+        <div style="text-align:center; padding:10px 0; margin-bottom:15px;">
+            <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">
+                Check links, messages, and scams before you trust them.
+            </p>
+            <p style="font-size:14px; color:#475569;">
+                Fast. Private. Easy to use.
+            </p>
+        </div>
+
+        <!-- Single big toggled box -->
+        <div class="big-card-buttons">
+            <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
+            <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
+        </div>
+        <div class="big-card-content" id="bigCardContent">
+            <!-- URL content default -->
+            <div id="main-url-section">
+                <h2>🔗 URL Scanner</h2>
+                <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
+                <button onclick="checkURL()">🔍 Scan URL</button>
+                <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
+                <div class="loading" id="urlLoading">⏳ Scanning...</div>
+                <div class="result" id="urlResult"></div>
+            </div>
+            <!-- Phishing content (hidden initially) -->
+            <div id="main-phishing-section" style="display:none;">
+                <h2>📧 Phishing Detector</h2>
+                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+                <button onclick="checkPhishing()">🛡️ Check Phishing</button>
+                <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
+                <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
+                <div class="result" id="phishingResult"></div>
+            </div>
+        </div>
+
+        <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
+
+        <div id="moreToolsContainer" style="display:none;">
+            <div class="tabs" style="margin-top:15px;">
+                <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
+                <button class="tab" onclick="switchTab('password', this)">🔐 Password</button>
+                <button class="tab" onclick="switchTab('scam', this)">⚠️ Scam</button>
+                <button class="tab" onclick="switchTab('phone', this)">📞 Phone</button>
+                <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
+                <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
+            </div>
+            <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
+            <div class="section" id="password-section"><div class="card"><input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
+            <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div></div></div>
+            <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button onclick="checkPhone()">📞 Check Number</button><button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
+            <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
+            <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
+        </div>
+
+        <!-- Scam alerts shifted down here (tumne kaha tha neeche) -->
+        <div class="scam-alert" style="margin-top:15px;">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
             <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links</div>
             <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
             <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
         </div>
-        <!-- MAIN CARDS: URL & Phishing (bade boxes) -->
-<div id="mainCardsContainer">
-    <div class="main-card active" id="main-url-card">
-        <div class="card">
-            <h2>🔗 URL Scanner</h2>
-            <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
-            <button onclick="checkURL()">🔍 Scan URL</button>
-            <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
-            <div class="loading" id="urlLoading">⏳ Scanning...</div>
-            <div class="result" id="urlResult"></div>
+
+        <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
+        <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">
+            🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse
         </div>
     </div>
-    <div class="main-card" id="main-phishing-card" style="display:none;">
-        <div class="card">
-            <h2>📧 Phishing Detector</h2>
-            <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
-            <button onclick="checkPhishing()">🛡️ Check Phishing</button>
-            <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
-            <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
-            <div class="result" id="phishingResult"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Toggle button for more tools -->
-<button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
-
-<!-- Hidden container for remaining 6 tools (normal size) -->
-<div id="moreToolsContainer" style="display:none;">
-    <div class="tabs" style="margin-top:15px;">
-        <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
-        <button class="tab" onclick="switchTab('password', this)">🔐 Password</button>
-        <button class="tab" onclick="switchTab('scam', this)">⚠️ Scam</button>
-        <button class="tab" onclick="switchTab('phone', this)">📞 Phone</button>
-        <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
-        <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
-    </div>
-
-    <!-- Sections for the 6 tools (existing design) -->
-    <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
-    <div class="section" id="password-section"><div class="card"><input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
-    <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div></div></div>
-    <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button onclick="checkPhone()">📞 Check Number</button><button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
-    <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
-    <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
-</div>
-
-<div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
-<div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">
-    🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse
-    </div>
-        </div> <!-- container close -->
 
     <script>
         const translations = {
@@ -261,6 +287,22 @@
             updateStats();
         }
 
+        // Toggle main big card content
+        function toggleMain(type) {
+            document.querySelectorAll('.big-card-btn').forEach(b => b.classList.remove('active'));
+            const urlSection = document.getElementById('main-url-section');
+            const phishingSection = document.getElementById('main-phishing-section');
+            if (type === 'url') {
+                document.querySelector('.big-card-btn:nth-child(1)').classList.add('active');
+                urlSection.style.display = 'block';
+                phishingSection.style.display = 'none';
+            } else {
+                document.querySelector('.big-card-btn:nth-child(2)').classList.add('active');
+                urlSection.style.display = 'none';
+                phishingSection.style.display = 'block';
+            }
+        }
+
         // Regular tabs (inside More Tools)
         function switchTab(tabName, el) {
             const container = document.getElementById('moreToolsContainer');
@@ -269,16 +311,6 @@
             el.classList.add('active');
             document.getElementById(tabName + '-section').classList.add('active');
         }
-
-        // Main tab toggle (URL vs Phishing)
-        function switchMain(type) {
-            document.getElementById('main-url-card').style.display = (type === 'url') ? 'block' : 'none';
-            document.getElementById('main-phishing-card').style.display = (type === 'phishing') ? 'block' : 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            switchMain('url'); // Show URL card by default
-        });
 
         function toggleMoreTools() {
             const more = document.getElementById('moreToolsContainer');
