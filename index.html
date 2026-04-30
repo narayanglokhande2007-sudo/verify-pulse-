@@ -109,52 +109,52 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* Toggle big card styles – BUTTONS WITH GAP */
+        /* Toggle big card styles – buttons with gap */
         .big-card-buttons {
             display: flex;
-            gap: 6px;                     /* buttons ab chipkenge nahi */
+            gap: 6px;
             margin-bottom: 0;
         }
         .big-card-btn {
             flex: 1;
-            padding: 15px 10px;
+            padding: 14px 8px;
             background: #f0f4ff;
             border: 2px solid #2563eb;
             border-bottom: none;
             border-radius: 10px 10px 0 0;
             color: #2563eb;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             text-align: center;
         }
         .big-card-btn.active {
             background: #2563eb;
             color: #ffffff;
-            border-bottom: none;
+            border-bottom: 2px solid #2563eb; /* matches active background, covers content top border */
         }
+
         .big-card-content {
             border: 2px solid #2563eb;
-            border-top: none;
             border-radius: 0 0 10px 10px;
-            padding: 25px;                 /* thoda bada kiya */
+            padding: 20px;                  /* reduced from 25px */
             background: #f0f4ff;
         }
         .big-card-content h2 {
-            font-size: 22px;               /* heading size thodi badi */
+            font-size: 20px;               /* reduced from 22px */
             color: #1e40af;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         .big-card-content input, .big-card-content textarea {
-            font-size: 18px;              /* input font thoda bada */
-            padding: 18px;
+            font-size: 17px;              /* reduced from 18px */
+            padding: 16px;
         }
         .big-card-content button {
-            font-size: 18px;              /* button font thoda bada */
-            padding: 18px;
+            font-size: 17px;              /* reduced from 18px */
+            padding: 16px;
         }
 
-        /* More Tools button – normal size (pehle jaisa) */
+        /* More Tools button – normal size */
         #moreBtn {
             font-size: 16px;
             padding: 12px;
@@ -166,15 +166,14 @@
             margin-bottom: 15px;
             width: 100%;
             font-weight: bold;
-            /* NO extra top margin */
         }
 
         /* More Tools container – compact */
         #moreToolsContainer {
-            margin-top: 0;                 /* already fine */
+            margin-top: 0;
         }
         #moreToolsContainer .tabs {
-            margin-top: 5px;               /* gap above tabs */
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -206,7 +205,7 @@
             </p>
         </div>
 
-        <!-- Single big toggled box -->
+        <!-- Single big toggled box with complete blue outline -->
         <div class="big-card-buttons">
             <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
             <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
