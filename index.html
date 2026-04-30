@@ -109,43 +109,41 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* Toggle wrapper – smooth rounded outline */
-        .toggle-wrapper {
-            border: 2px solid #2563eb;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-
+        /* Toggle buttons – separate, with outline */
         .big-card-buttons {
             display: flex;
             gap: 6px;
-            background: #f0f4ff;
-            padding: 6px 6px 0 6px;
-            margin: 0;
+            margin-bottom: -2px; /* negative margin to bring content closer */
+            position: relative;
+            z-index: 1;
         }
         .big-card-btn {
             flex: 1;
             padding: 14px 8px;
             background: transparent;
-            border: none;
+            border: 2px solid #2563eb;
+            border-radius: 10px 10px 0 0;
             color: #2563eb;
             cursor: pointer;
             font-size: 15px;
             font-weight: bold;
             text-align: center;
-            border-radius: 10px 10px 0 0;
+            transition: all 0.2s;
         }
         .big-card-btn.active {
             background: #2563eb;
             color: #ffffff;
-            border-bottom: 2px solid #2563eb;
+            border-bottom: 2px solid #f0f4ff; /* matches content background, hides content top border */
         }
 
         .big-card-content {
-            background: #f0f4ff;
+            border: 2px solid #2563eb;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
             padding: 20px;
-            border: none;
+            background: #f0f4ff;
+            position: relative;
+            z-index: 0;
         }
         .big-card-content h2 {
             font-size: 20px;
@@ -157,7 +155,7 @@
             padding: 16px;
         }
         .big-card-content textarea {
-            min-height: 70px;
+            min-height: 70px; /* makes both sections similar height */
         }
         .big-card-content button {
             font-size: 17px;
@@ -205,7 +203,6 @@
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
 
-        <!-- Bold headline -->
         <div style="text-align:center; padding:10px 0; margin-bottom:15px;">
             <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">
                 Check links, messages, and scams before you trust them.
@@ -215,29 +212,27 @@
             </p>
         </div>
 
-        <!-- Single big toggled box with wrapper for smooth outline -->
-        <div class="toggle-wrapper">
-            <div class="big-card-buttons">
-                <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
-                <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
+        <!-- Buttons and content now separate, no wrapper -->
+        <div class="big-card-buttons">
+            <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
+            <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
+        </div>
+        <div class="big-card-content" id="bigCardContent">
+            <div id="main-url-section">
+                <h2>🔗 URL Scanner</h2>
+                <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
+                <button onclick="checkURL()">🔍 Scan URL</button>
+                <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
+                <div class="loading" id="urlLoading">⏳ Scanning...</div>
+                <div class="result" id="urlResult"></div>
             </div>
-            <div class="big-card-content" id="bigCardContent">
-                <div id="main-url-section">
-                    <h2>🔗 URL Scanner</h2>
-                    <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
-                    <button onclick="checkURL()">🔍 Scan URL</button>
-                    <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
-                    <div class="loading" id="urlLoading">⏳ Scanning...</div>
-                    <div class="result" id="urlResult"></div>
-                </div>
-                <div id="main-phishing-section" style="display:none;">
-                    <h2>📧 Phishing Detector</h2>
-                    <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
-                    <button onclick="checkPhishing()">🛡️ Check Phishing</button>
-                    <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
-                    <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
-                    <div class="result" id="phishingResult"></div>
-                </div>
+            <div id="main-phishing-section" style="display:none;">
+                <h2>📧 Phishing Detector</h2>
+                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+                <button onclick="checkPhishing()">🛡️ Check Phishing</button>
+                <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
+                <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
+                <div class="result" id="phishingResult"></div>
             </div>
         </div>
 
@@ -260,7 +255,6 @@
             <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
         </div>
 
-        <!-- Scam alerts shifted down here -->
         <div class="scam-alert" style="margin-top:15px;">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
