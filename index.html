@@ -109,10 +109,10 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* Toggle big card styles */
+        /* Toggle big card styles – BUTTONS WITH GAP */
         .big-card-buttons {
             display: flex;
-            gap: 6px;
+            gap: 6px;                     /* buttons ab chipkenge nahi */
             margin-bottom: 0;
         }
         .big-card-btn {
@@ -137,36 +137,44 @@
             border: 2px solid #2563eb;
             border-top: none;
             border-radius: 0 0 10px 10px;
-            padding: 30px;
+            padding: 25px;                 /* thoda bada kiya */
             background: #f0f4ff;
         }
         .big-card-content h2 {
-            font-size: 26px;
+            font-size: 22px;               /* heading size thodi badi */
             color: #1e40af;
             margin-bottom: 20px;
         }
         .big-card-content input, .big-card-content textarea {
-            font-size: 22px;
-            padding: 24px;
+            font-size: 18px;              /* input font thoda bada */
+            padding: 18px;
         }
         .big-card-content button {
-            font-size: 22px;
-            padding: 22px;
+            font-size: 18px;              /* button font thoda bada */
+            padding: 18px;
         }
 
-        /* More Tools button compact */
+        /* More Tools button – normal size (pehle jaisa) */
         #moreBtn {
-            font-size: 16px; padding: 10px; background: #2563eb; color: white;
-            border: none; border-radius: 10px; cursor: pointer; margin-bottom: 10px;
-            width: 100%; font-weight: bold;
-            margin-top: 10px;
+            font-size: 16px;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
+            font-weight: bold;
+            /* NO extra top margin */
         }
 
+        /* More Tools container – compact */
         #moreToolsContainer {
-            margin-top: 5px;
+            margin-top: 0;                 /* already fine */
         }
         #moreToolsContainer .tabs {
-            margin-top: 10px;
+            margin-top: 5px;               /* gap above tabs */
         }
     </style>
 </head>
@@ -225,7 +233,7 @@
         <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
 
         <div id="moreToolsContainer" style="display:none;">
-            <div class="tabs" style="margin-top:15px;">
+            <div class="tabs">
                 <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
                 <button class="tab" onclick="switchTab('password', this)">🔐 Password</button>
                 <button class="tab" onclick="switchTab('scam', this)">⚠️ Scam</button>
