@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifyPulse - Cybersecurity & Fact Check</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-G45VVDTF59"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-G45VVDTF59');
+    </script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -34,7 +44,6 @@
             background: rgba(37,99,235,0.05); padding: 8px; border-radius: 5px;
             margin-bottom: 5px; font-size: 12px; color: #334155;
         }
-
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-card {
             background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px;
@@ -42,7 +51,6 @@
         }
         .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
         .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
-
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab {
             flex: 1; min-width: 80px; padding: 8px 5px;
@@ -109,11 +117,11 @@
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
 
-        /* Toggle buttons – separate, with outline */
+        /* Toggle big card styles – buttons with gap */
         .big-card-buttons {
             display: flex;
             gap: 6px;
-            margin-bottom: -2px; /* negative margin to bring content closer */
+            margin-bottom: 0;
             position: relative;
             z-index: 1;
         }
@@ -133,7 +141,7 @@
         .big-card-btn.active {
             background: #2563eb;
             color: #ffffff;
-            border-bottom: 2px solid #f0f4ff; /* matches content background, hides content top border */
+            border-bottom: 2px solid #f0f4ff;
         }
 
         .big-card-content {
@@ -155,14 +163,13 @@
             padding: 16px;
         }
         .big-card-content textarea {
-            min-height: 70px; /* makes both sections similar height */
+            min-height: 70px;
         }
         .big-card-content button {
             font-size: 17px;
             padding: 16px;
         }
 
-        /* More Tools button – normal size */
         #moreBtn {
             font-size: 16px;
             padding: 12px;
@@ -176,7 +183,6 @@
             font-weight: bold;
         }
 
-        /* More Tools container – compact */
         #moreToolsContainer {
             margin-top: 0;
         }
@@ -212,7 +218,6 @@
             </p>
         </div>
 
-        <!-- Buttons and content now separate, no wrapper -->
         <div class="big-card-buttons">
             <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
             <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
