@@ -383,13 +383,120 @@
             container.style.display = 'block';
         }
 
-        async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); showResult('newsResult', data, 'news'); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
-        async function checkURL() { const url = document.getElementById('urlInput').value.trim(); if (!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display = 'block'; document.getElementById('urlResult').style.display = 'none'; try { const data = await callAPI('url', url); showResult('urlResult', data, 'url'); } catch (e) { showError('urlResult', e.message); } finally { document.getElementById('urlLoading').style.display = 'none'; } }
-        async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); showResult('phishingResult', data, 'phishing'); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
-        async function checkScam() { const text = document.getElementById('scamInput').value.trim(); if (!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display = 'block'; document.getElementById('scamResult').style.display = 'none'; try { const data = await callAPI('scam', text); showResult('scamResult', data, 'scam'); } catch (e) { showError('scamResult', e.message); } finally { document.getElementById('scamLoading').style.display = 'none'; } }
-        async function checkPhone() { const phone = document.getElementById('phoneInput').value.trim(); if (!phone) return alert('Enter phone number'); document.getElementById('phoneLoading').style.display = 'block'; document.getElementById('phoneResult').style.display = 'none'; try { const data = await callAPI('phone', phone); showResult('phoneResult', data, 'phone'); } catch (e) { showError('phoneResult', e.message); } finally { document.getElementById('phoneLoading').style.display = 'none'; } }
-        async function checkUPI() { const upi = document.getElementById('upiInput').value.trim(); if (!upi) return alert('Enter UPI ID'); document.getElementById('upiLoading').style.display = 'block'; document.getElementById('upiResult').style.display = 'none'; try { const data = await callAPI('upi', upi); showResult('upiResult', data, 'upi'); } catch (e) { showError('upiResult', e.message); } finally { document.getElementById('upiLoading').style.display = 'none'; } }
-        async function checkGmail() { const msg = document.getElementById('gmailInput').value.trim(); if (!msg) return alert('Paste Gmail message'); document.getElementById('gmailLoading').style.display = 'block'; document.getElementById('gmailResult').style.display = 'none'; try { const data = await callAPI('gmail', msg); showResult('gmailResult', data, 'gmail'); } catch (e) { showError('gmailResult', e.message); } finally { document.getElementById('gmailLoading').style.display = 'none'; } }
+        // ==================== All Tool Handlers with Analytics Tracking ====================
+
+        async function checkNews() { 
+            const text = document.getElementById('newsInput').value.trim(); 
+            if (!text) return alert('Please enter text'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'fake_news_check' });
+            document.getElementById('newsLoading').style.display = 'block'; 
+            document.getElementById('newsResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('news', text); 
+                showResult('newsResult', data, 'news'); 
+            } catch (e) { 
+                showError('newsResult', e.message); 
+            } finally { 
+                document.getElementById('newsLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkURL() { 
+            const url = document.getElementById('urlInput').value.trim(); 
+            if (!url) return alert('Enter URL'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'url_scan' });
+            document.getElementById('urlLoading').style.display = 'block'; 
+            document.getElementById('urlResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('url', url); 
+                showResult('urlResult', data, 'url'); 
+            } catch (e) { 
+                showError('urlResult', e.message); 
+            } finally { 
+                document.getElementById('urlLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkPhishing() { 
+            const text = document.getElementById('phishingInput').value.trim(); 
+            if (!text) return alert('Paste email content'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'phishing_check' });
+            document.getElementById('phishingLoading').style.display = 'block'; 
+            document.getElementById('phishingResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('phishing', text); 
+                showResult('phishingResult', data, 'phishing'); 
+            } catch (e) { 
+                showError('phishingResult', e.message); 
+            } finally { 
+                document.getElementById('phishingLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkScam() { 
+            const text = document.getElementById('scamInput').value.trim(); 
+            if (!text) return alert('Paste scam message'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'scam_detect' });
+            document.getElementById('scamLoading').style.display = 'block'; 
+            document.getElementById('scamResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('scam', text); 
+                showResult('scamResult', data, 'scam'); 
+            } catch (e) { 
+                showError('scamResult', e.message); 
+            } finally { 
+                document.getElementById('scamLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkPhone() { 
+            const phone = document.getElementById('phoneInput').value.trim(); 
+            if (!phone) return alert('Enter phone number'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'phone_check' });
+            document.getElementById('phoneLoading').style.display = 'block'; 
+            document.getElementById('phoneResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('phone', phone); 
+                showResult('phoneResult', data, 'phone'); 
+            } catch (e) { 
+                showError('phoneResult', e.message); 
+            } finally { 
+                document.getElementById('phoneLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkUPI() { 
+            const upi = document.getElementById('upiInput').value.trim(); 
+            if (!upi) return alert('Enter UPI ID'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'upi_check' });
+            document.getElementById('upiLoading').style.display = 'block'; 
+            document.getElementById('upiResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('upi', upi); 
+                showResult('upiResult', data, 'upi'); 
+            } catch (e) { 
+                showError('upiResult', e.message); 
+            } finally { 
+                document.getElementById('upiLoading').style.display = 'none'; 
+            } 
+        }
+
+        async function checkGmail() { 
+            const msg = document.getElementById('gmailInput').value.trim(); 
+            if (!msg) return alert('Paste Gmail message'); 
+            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'gmail_fraud_check' });
+            document.getElementById('gmailLoading').style.display = 'block'; 
+            document.getElementById('gmailResult').style.display = 'none'; 
+            try { 
+                const data = await callAPI('gmail', msg); 
+                showResult('gmailResult', data, 'gmail'); 
+            } catch (e) { 
+                showError('gmailResult', e.message); 
+            } finally { 
+                document.getElementById('gmailLoading').style.display = 'none'; 
+            } 
+        }
+
         function checkPasswordLive() {
             const pwd = document.getElementById('passwordInput').value;
             const result = document.getElementById('passwordResult');
