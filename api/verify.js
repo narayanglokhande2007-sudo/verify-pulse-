@@ -1,144 +1,154 @@
-// api/verify.js - Debug version
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
+  if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
 
-  if (!text || !checkType) {
-    return res.status(400).json({ error: 'Missing text or checkType' });
-  }
-
-  const GROQ_API_KEY = process.env.GROQ_API_KEY;
-  const GROQ_MODEL = 'llama-3.3-70b-versatile';
-  const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-  if (!GROQ_API_KEY) {
-    return res.status(500).json({ error: 'GROQ_API_KEY not set' });
-  }
-
-  let systemPrompt = '';
-
-  switch (checkType) {
-    case 'news':
-      systemPrompt = `You are a fact-checking AI. Determine if news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    case 'url':
-  // Whitelist of trusted domains
-  const trustedDomains = [
-    'verify-pulse.vercel.app',
-    'google.com',
-    'youtube.com',
-    'wikipedia.org',
-    'github.com',
-    'microsoft.com',
-    'apple.com',
-    'amazon.in',
-    'flipkart.com',
-    'twitter.com',
-    'facebook.com',
-    'instagram.com',
-    'linkedin.com',
-    'whatsapp.com',
-    'telegram.org',
-    'gov.in',
-    'india.gov.in',
-    'pmindia.gov.in',
-    'mohfw.gov.in',
-    'cowin.gov.in'
-  ];
+  const GROQ_KEY = process.env.GROQ_API_KEY;
+  const GEMINI_KEY = process.env.GEMINI_API_KEY;
+  const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
   try {
-    const urlObj = new URL(text.includes('://') ? text : 'https://' + text);
-    const domain = urlObj.hostname.replace(/^www\./, '');
-    
-    const isTrusted = trustedDomains.some(d => domain === d || domain.endsWith('.' + d));
-    
-    if (isTrusted) {
-      return res.status(200).json({
-        verdict: 'SAFE',
-        confidence: 100,
-        analysis: 'This is a verified and trusted domain.',
-        findings: 'No threats detected.'
-      });
-    }
-  } catch (e) {
-    // Invalid URL – let AI handle it
-  }
-
-  systemPrompt = `You are a URL safety expert. Analyze the given URL and determine if it is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS. Provide a confidence score (0-100) and a fair analysis. A normal, common website should be marked SAFE with high confidence. Only mark as DANGEROUS/PHISHING if there is clear evidence of fraud or malware. Respond ONLY in JSON format: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
-  break;
-    case 'phishing':
-      systemPrompt = `You are an anti-phishing AI. Analyze email/SMS. Reply ONLY in JSON: {"verdict":"PHISHING/SAFE/SUSPICIOUS", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    case 'scam':
-      systemPrompt = `You are a scam detection AI. Analyze message. Reply ONLY in JSON: {"verdict":"SCAM/FRAUD/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    case 'phone':
-      systemPrompt = `You are a phone fraud detector. Analyze number. Reply ONLY in JSON: {"verdict":"SPAM/FRAUD/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    case 'upi':
-      systemPrompt = `You are a UPI fraud detector. Analyze UPI ID. Reply ONLY in JSON: {"verdict":"FRAUD/SUSPICIOUS/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    case 'gmail':
-      systemPrompt = `You are a Gmail fraud detector. Analyze email. Reply ONLY in JSON: {"verdict":"FRAUD/PHISHING/SCAM/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
-      break;
-    default:
-      return res.status(400).json({ error: 'Invalid checkType' });
-  }
-
-  try {
-    const response = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Check: ${text}` }
-        ],
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Groq API error:', response.status, errorText);
-      return res.status(500).json({ error: 'Groq API error ' + response.status });
+    // ==================== Password (local) ====================
+    if (checkType === 'password') {
+      return res.status(200).json({ verdict: 'SAFE', confidence: 100, analysis: 'Checked locally', findings: '' });
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      return res.status(500).json({ error: 'AI empty response' });
+    // ==================== URL, Phishing, Scam, Gmail – Safe Browsing first ====================
+    if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
+      try {
+        const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
+        if (safeResult && safeResult.found) {
+          return res.status(200).json(safeResult);
+        }
+      } catch (e) { /* fallback to next AI */ }
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(content);
-    } catch (e) {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        return res.status(500).json({ error: 'Failed to parse AI response. Raw output: ' + content });
-      }
+    // ==================== Fake News – Gemini primary ====================
+    if (checkType === 'news' && GEMINI_KEY) {
+      try {
+        const gemRes = await callGemini(text, GEMINI_KEY, 'news');
+        if (gemRes) return res.status(200).json(gemRes);
+      } catch (e) { /* fallback to Groq */ }
     }
 
-    if (!parsed.verdict || parsed.confidence === undefined || !parsed.analysis || !parsed.findings) {
-      return res.status(500).json({ error: 'Incomplete AI response. Received: ' + JSON.stringify(parsed) });
+    // ==================== Scam, Gmail – DeepSeek R1 (smarter reasoning) ====================
+    if (['scam', 'gmail'].includes(checkType)) {
+      try {
+        const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b');
+        if (deepRes) return res.status(200).json(deepRes);
+      } catch (e) { /* fallback to Llama 3 */ }
     }
 
-    return res.status(200).json(parsed);
+    // ==================== Fallback – Groq Llama 3.3 ====================
+    const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile');
+    return res.status(200).json(finalRes);
 
   } catch (error) {
-    console.error('Handler error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Final Error:', error);
+    return res.status(500).json({ error: error.message || 'AI engine failed' });
   }
+}
+
+// ========== Safe Browsing Check ==========
+async function checkWithSafeBrowsing(inputUrl, apiKey) {
+  try {
+    const payload = {
+      client: { clientId: "verifypulse", clientVersion: "1.0" },
+      threatInfo: {
+        threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
+        platformTypes: ["ANY_PLATFORM"],
+        threatEntryTypes: ["URL"],
+        threatEntries: [{ url: inputUrl }]
+      }
+    };
+    const resp = await fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error('Safe Browsing API failed');
+    const data = await resp.json();
+    if (data.matches) {
+      return {
+        verdict: 'DANGEROUS',
+        confidence: 100,
+        analysis: 'Google Safe Browsing has identified this as a known malicious or phishing link.',
+        findings: 'This URL is a known threat. Do not visit it.'
+      };
+    }
+    return { found: false };
+  } catch (e) {
+    console.error('Safe Browsing Error:', e);
+    return { found: false };
+  }
+}
+
+// ========== Gemini Call ==========
+async function callGemini(text, apiKey, type) {
+  const systemPrompt = `You are a highly accurate fact-checking AI with access to the latest information. Analyze the given text and determine if it is TRUE, FALSE, MISLEADING, or UNCERTAIN. Provide a confidence score (0-100) and detailed reasoning in JSON format: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const body = {
+    contents: [{ parts: [{ text: `${systemPrompt}\n\nInput: "${text}"` }] }]
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('Gemini API failed');
+  const data = await res.json();
+  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) throw new Error('Empty Gemini response');
+  let parsed;
+  try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
+  return {
+    verdict: parsed.verdict,
+    confidence: parsed.confidence,
+    analysis: parsed.analysis,
+    findings: parsed.findings
+  };
+}
+
+// ========== Groq Call ==========
+async function callGroq(apiKey, text, type, model) {
+  const systemPrompt = getPrompt(type);
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: [
+          { role: 'system', content: "You are a helpful cybersecurity and fact-checking AI. Always respond in valid JSON format with keys: verdict, confidence, analysis, findings." },
+          { role: 'user', content: systemPrompt + `\n\nInput: "${text}"` }
+      ],
+      temperature: 0.1,
+      max_tokens: 500,
+      response_format: { type: "json_object" }
+    })
+  });
+  if (!res.ok) throw new Error('Groq API failed');
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Empty Groq response');
+  let parsed;
+  try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
+  return {
+    verdict: parsed.verdict,
+    confidence: parsed.confidence,
+    analysis: parsed.analysis,
+    findings: parsed.findings
+  };
+}
+
+// ========== Prompts ==========
+function getPrompt(type) {
+  const base = `Analyze the input and respond ONLY in JSON format with the keys "verdict", "confidence", "analysis", and "findings". `;
+  if (type === 'news') return base + 'Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN.';
+  if (type === 'url') return base + 'Determine if the URL is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS.';
+  if (type === 'phishing') return base + 'Determine if the text is PHISHING, SAFE, or SUSPICIOUS.';
+  if (type === 'scam') return base + 'Determine if the message is SCAM, FRAUD, or SAFE.';
+  if (type === 'phone') return base + 'Determine if the phone number is SPAM, FRAUD, or SAFE.';
+  if (type === 'upi') return base + 'Determine if the UPI ID is FRAUD, SUSPICIOUS, or SAFE.';
+  if (type === 'gmail') return base + 'Determine if the email is FRAUD, PHISHING, SCAM, or SAFE.';
+  return base;
 }
