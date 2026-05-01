@@ -8,12 +8,12 @@ export default async function handler(req, res) {
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
   try {
-    // ==================== Password (local) ====================
+    // Password local hai, back-end pe nahi aata par safety ke liye handle kiya hai
     if (checkType === 'password') {
       return res.status(200).json({ verdict: 'SAFE', confidence: 100, analysis: 'Checked locally', findings: '' });
     }
 
-    // ==================== URL, Phishing, Scam, Gmail – Safe Browsing first ====================
+    // URL, Phishing, Scam, Gmail – Safe Browsing se check (instant database)
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       } catch (e) { /* fallback to next AI */ }
     }
 
-    // ==================== Fake News – Gemini primary ====================
+    // Fake News – Gemini primary
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY, 'news');
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       } catch (e) { /* fallback to Groq */ }
     }
 
-    // ==================== Scam, Gmail – DeepSeek R1 (smarter reasoning) ====================
+    // Scam, Gmail – DeepSeek R1 (smarter reasoning)
     if (['scam', 'gmail'].includes(checkType)) {
       try {
         const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b');
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       } catch (e) { /* fallback to Llama 3 */ }
     }
 
-    // ==================== Fallback – Groq Llama 3.3 ====================
+    // Fallback – Groq Llama 3.3
     const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile');
     return res.status(200).json(finalRes);
 
@@ -98,8 +98,15 @@ async function callGemini(text, apiKey, type) {
   const data = await res.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) throw new Error('Empty Gemini response');
+
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
+
+  // Fix confidence scale for Gemini
+  if (parsed.confidence > 0 && parsed.confidence <= 1) {
+    parsed.confidence = Math.round(parsed.confidence * 100);
+  }
+
   return {
     verdict: parsed.verdict,
     confidence: parsed.confidence,
@@ -130,8 +137,15 @@ async function callGroq(apiKey, text, type, model) {
   const data = await res.json();
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error('Empty Groq response');
+
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
+
+  // Fix confidence scale for Groq
+  if (parsed.confidence > 0 && parsed.confidence <= 1) {
+    parsed.confidence = Math.round(parsed.confidence * 100);
+  }
+
   return {
     verdict: parsed.verdict,
     confidence: parsed.confidence,
@@ -151,4 +165,4 @@ function getPrompt(type) {
   if (type === 'upi') return base + 'Determine if the UPI ID is FRAUD, SUSPICIOUS, or SAFE.';
   if (type === 'gmail') return base + 'Determine if the email is FRAUD, PHISHING, SCAM, or SAFE.';
   return base;
-}
+      }
