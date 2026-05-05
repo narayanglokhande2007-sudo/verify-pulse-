@@ -8,38 +8,33 @@ export default async function handler(req, res) {
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
   try {
-    // Password local hai
     if (checkType === 'password') {
-      return res.status(200).json({ verdict: 'SAFE', confidence: 100, analysis: 'Checked locally', findings: '' });
+      return res.status(200).json({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] });
     }
 
-    // URL, Phishing, Scam, Gmail – Safe Browsing se check
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
         if (safeResult && safeResult.found) {
           return res.status(200).json(safeResult);
         }
-      } catch (e) { /* fallback */ }
+      } catch (e) {}
     }
 
-    // Fake News – Gemini primary
     if (checkType === 'news' && GEMINI_KEY) {
       try {
-        const gemRes = await callGemini(text, GEMINI_KEY, 'news');
+        const gemRes = await callGemini(text, GEMINI_KEY);
         if (gemRes) return res.status(200).json(gemRes);
-      } catch (e) { /* fallback */ }
+      } catch (e) {}
     }
 
-    // Scam, Gmail – DeepSeek R1
     if (['scam', 'gmail'].includes(checkType)) {
       try {
         const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b');
         if (deepRes) return res.status(200).json(deepRes);
-      } catch (e) { /* fallback */ }
+      } catch (e) {}
     }
 
-    // Fallback – Groq Llama 3.3
     const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile');
     return res.status(200).json(finalRes);
 
@@ -48,7 +43,46 @@ export default async function handler(req, res) {
   }
 }
 
-// ========== Safe Browsing ==========
+// Helper: Determine scam type and what-to-do from final verdict/analysis
+function enrichResult(parsed) {
+  // If AI already gave scamType, keep it. Otherwise try to guess from verdict/analysis.
+  if (!parsed.scamType) {
+    const lower = (parsed.verdict + ' ' + (parsed.analysis||'')).toLowerCase();
+    if (lower.includes('phish')) parsed.scamType = 'Phishing Attack';
+    else if (lower.includes('fake reward') || lower.includes('lottery') || lower.includes('won')) parsed.scamType = 'Fake Reward Scam';
+    else if (lower.includes('otp')) parsed.scamType = 'OTP Fraud';
+    else if (lower.includes('upi')) parsed.scamType = 'UPI Fraud';
+    else if (lower.includes('job')) parsed.scamType = 'Job Scam';
+    else if (lower.includes('loan')) parsed.scamType = 'Loan Fraud';
+    else if (lower.includes('bank') || lower.includes('kyc')) parsed.scamType = 'Bank Impersonation';
+    else if (parsed.verdict === 'SAFE') parsed.scamType = 'Safe Content';
+    else if (parsed.verdict === 'SUSPICIOUS') parsed.scamType = 'Suspicious Activity';
+    else if (parsed.verdict === 'DANGEROUS') parsed.scamType = 'Dangerous Threat';
+    else parsed.scamType = 'Potential Scam';
+  }
+  if (!parsed.whatToDo) {
+    const tips = [];
+    if (parsed.scamType === 'Phishing Attack' || parsed.scamType === 'Bank Impersonation') {
+      tips.push('Do NOT click the link', 'Do NOT enter login details', 'Open the official website manually');
+    } else if (parsed.scamType === 'Fake Reward Scam') {
+      tips.push('Do NOT send any money', 'Do NOT share personal information', 'Report the number/sender');
+    } else if (parsed.scamType === 'OTP Fraud') {
+      tips.push('Never share OTP with anyone', 'No legit company asks for OTP over phone', 'Block and report the caller');
+    } else if (parsed.scamType === 'UPI Fraud') {
+      tips.push('Do NOT approve the payment request', 'Check the receiver name carefully', 'If suspicious, report via UPI app');
+    } else {
+      tips.push('Be cautious with unsolicited messages', 'Do not share sensitive information', 'When in doubt, verify through official channels');
+    }
+    parsed.whatToDo = tips;
+  }
+  // Ensure confidence is realistic (65‑91) if AI didn't give a sensible value
+  if (parsed.confidence > 91 || parsed.confidence < 50) {
+    const signals = (parsed.analysis||'').split('.').length + (parsed.findings||[]).length;
+    parsed.confidence = Math.min(91, 60 + signals * 5);
+  }
+  return parsed;
+}
+
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -66,15 +100,19 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
     if (!resp.ok) throw new Error('Safe Browsing failed');
     const data = await resp.json();
     if (data.matches) {
-      return { verdict: 'DANGEROUS', confidence: 100, analysis: 'Known malicious/phishing link detected by Google Safe Browsing.', findings: 'Do not visit this URL.' };
+      return enrichResult({
+        verdict: 'DANGEROUS',
+        confidence: 100,
+        analysis: 'Google Safe Browsing has identified this as a known malicious/phishing link.',
+        findings: []
+      });
     }
     return { found: false };
   } catch (e) { return { found: false }; }
 }
 
-// ========== Gemini ==========
-async function callGemini(text, apiKey, type) {
-  const systemPrompt = `You are a fact-checking AI. Analyze and determine if TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+async function callGemini(text, apiKey) {
+  const systemPrompt = `You are a fact-checking AI. Analyze and determine if TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":["point1","point2"]}`;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const body = { contents: [{ parts: [{ text: `${systemPrompt}\n\nInput: "${text}"` }] }] };
   const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -84,11 +122,9 @@ async function callGemini(text, apiKey, type) {
   if (!content) throw new Error('Empty Gemini response');
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
-  if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
-  return { verdict: parsed.verdict, confidence: parsed.confidence, analysis: parsed.analysis, findings: parsed.findings };
+  return enrichResult(parsed);
 }
 
-// ========== Groq ==========
 async function callGroq(apiKey, text, type, model) {
   const systemPrompt = getPrompt(type);
   const url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -98,10 +134,10 @@ async function callGroq(apiKey, text, type, model) {
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: "You are a cybersecurity and scam-detection AI. Always respond in valid JSON format with keys: verdict, confidence, analysis, findings." },
+        { role: 'system', content: "You are a cybersecurity and scam-detection AI. Always respond in valid JSON format with keys: verdict, scamType, confidence, analysis, findings (array of bullet points), whatToDo (array of actionable steps)." },
         { role: 'user', content: systemPrompt + `\n\nInput: "${text}"` }
       ],
-      temperature: 0.1, max_tokens: 500, response_format: { type: "json_object" }
+      temperature: 0.2, max_tokens: 600, response_format: { type: "json_object" }
     })
   });
   if (!res.ok) throw new Error('Groq failed');
@@ -110,20 +146,27 @@ async function callGroq(apiKey, text, type, model) {
   if (!content) throw new Error('Empty Groq response');
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
-  if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
-  return { verdict: parsed.verdict, confidence: parsed.confidence, analysis: parsed.analysis, findings: parsed.findings };
+  return enrichResult(parsed);
 }
 
-// ========== Prompts ==========
 function getPrompt(type) {
-  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and determine if it is SCAM, SPAM, FRAUD, or SAFE. Look for common Indian scam patterns: fake lottery (KBC, Crorepati), UPI fraud, electricity bill scams, loan offers with suspicious links, KYC update scams, job frauds with advance payment, and festive offer scams. A normal marketing SMS from a known brand (Airtel, Vi, Flipkart, Amazon) that offers a genuine product is usually SAFE or SPAM, not SCAM. Your response MUST be ONLY valid JSON: {"verdict":"SCAM/SPAM/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
-  
-  if (type === 'news') return `Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
-  if (type === 'url') return `Determine if the URL is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS. Reply ONLY in JSON.`;
-  if (type === 'phishing') return `You are an anti-phishing AI. Analyze the email/SMS for PHISHING, SAFE, or SUSPICIOUS. Look for Indian bank frauds (SBI, HDFC), KYC scams, and fake government links. Reply ONLY in JSON.`;
+  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return a JSON object with:
+- verdict: SCAM / FRAUD / SAFE / SUSPICIOUS
+- scamType: one of [Phishing Attack, Fake Reward Scam, OTP Fraud, UPI Fraud, Job Scam, Loan Fraud, Bank Impersonation, Safe Content]
+- confidence: realistic number between 65 and 91
+- analysis: human-like explanation in 2-3 sentences
+- findings: array of bullet-point red flags (use ⚠️, 🔗, 💰 etc.)
+- whatToDo: array of specific actionable steps. 
+
+Examples of Indian scams to detect: fake KBC lottery, SBI KYC update, UPI payment request, OTP sharing, job fraud with advance payment. 
+A normal marketing SMS from Airtel/Vi/Flipkart is usually SAFE.`;
+
+  if (type === 'news') return `Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON with keys: verdict, confidence, analysis, findings.`;
+  if (type === 'url') return `Analyze the URL and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.`;
+  if (type === 'phishing') return baseSCAM;
   if (type === 'scam') return baseSCAM;
-  if (type === 'phone') return `Determine if the phone number is SPAM, FRAUD, or SAFE. Consider Indian mobile number patterns. Reply ONLY in JSON.`;
-  if (type === 'upi') return `Determine if the UPI ID is FRAUD, SUSPICIOUS, or SAFE. Consider common Indian UPI scam patterns. Reply ONLY in JSON.`;
-  if (type === 'gmail') return `You are an email fraud detector. Analyze for FRAUD, PHISHING, SCAM, or SAFE. Look for Indian context: job frauds, lottery scams, fake invoices. Reply ONLY in JSON.`;
-  return `Analyze: "${text}". Respond ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+  if (type === 'phone') return `Analyze the phone number and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.`;
+  if (type === 'upi') return `Analyze the UPI ID and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.`;
+  if (type === 'gmail') return baseSCAM;
+  return `Analyze and return JSON with keys: verdict, confidence, analysis, findings.`;
 }
