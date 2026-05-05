@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifyPulse - Cybersecurity & Fact Check</title>
-    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-K346QTDXWZ"></script>
     <script>
@@ -13,17 +12,16 @@
       gtag('js', new Date());
       gtag('config', 'G-K346QTDXWZ');
     </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             background: #ffffff;
             color: #1e293b;
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 600px; margin: 0 auto; }
+        .container { max-width: 720px; margin: 0 auto; }
         header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
         h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
         .tagline { color: #475569; font-size: 14px; }
@@ -34,7 +32,6 @@
             width: auto; margin: 0;
         }
         .lang-btn.active { background: #2563eb; color: #ffffff; }
-
         .scam-alert {
             background: rgba(37,99,235,0.05); border: 1px solid #2563eb;
             border-radius: 10px; padding: 15px; margin-bottom: 15px;
@@ -84,21 +81,21 @@
         .btn-clear:hover { background: rgba(37,99,235,0.1); }
         .loading { display: none; text-align: center; color: #475569; padding: 15px; }
         .result { display: none; margin-top: 15px; }
-        .verdict-box { padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center; }
-        .verdict-true { background: #f0fdf4; border: 2px solid #22c55e; }
-        .verdict-false { background: #fef2f2; border: 2px solid #ef4444; }
-        .verdict-uncertain { background: #fffbeb; border: 2px solid #f59e0b; }
-        .verdict-safe { background: #f0fdf4; border: 2px solid #22c55e; }
-        .verdict-dangerous { background: #fef2f2; border: 2px solid #ef4444; }
-        .verdict-suspicious { background: #fffbeb; border: 2px solid #f59e0b; }
-        .verdict-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
-        .confidence { font-size: 14px; color: #475569; }
-        .analysis-box {
+        .verdict-box { padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #fff; }
+        .verdict-danger { background: #ef4444; }
+        .verdict-suspicious { background: #f59e0b; }
+        .verdict-safe { background: #22c55e; }
+        .verdict-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+        .scam-type-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+        .confidence { font-size: 16px; font-weight: bold; }
+        .analysis-box, .findings-box, .what-to-do-box {
             background: #f8fafc; padding: 15px; border-radius: 10px;
             border-left: 4px solid #2563eb; margin-bottom: 10px;
         }
-        .analysis-box h4 { color: #1e40af; margin-bottom: 8px; }
+        .analysis-box h4, .findings-box h4, .what-to-do-box h4 { color: #1e40af; margin-bottom: 8px; }
         .analysis-box p { color: #334155; font-size: 14px; line-height: 1.5; }
+        .findings-box ul, .what-to-do-box ul { margin: 0; padding-left: 20px; color: #334155; font-size: 14px; }
+        .findings-box li, .what-to-do-box li { margin-bottom: 5px; }
         .privacy {
             margin-top: 15px; padding: 12px; background: rgba(37,99,235,0.05);
             border: 1px solid #2563eb; border-radius: 10px; text-align: center;
@@ -116,78 +113,30 @@
         .tips h4 { color: #1e40af; margin-bottom: 10px; }
         .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
         .tip-item:last-child { border-bottom: none; }
-
-        .big-card-buttons {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 0;
-            position: relative;
-            z-index: 1;
-        }
+        .big-card-buttons { display: flex; gap: 6px; margin-bottom: 0; position: relative; z-index: 1; }
         .big-card-btn {
-            flex: 1;
-            padding: 14px 8px;
-            background: transparent;
-            border: 2px solid #2563eb;
-            border-radius: 10px 10px 0 0;
-            color: #2563eb;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.2s;
+            flex: 1; padding: 14px 8px; background: transparent; border: 2px solid #2563eb;
+            border-radius: 10px 10px 0 0; color: #2563eb; cursor: pointer; font-size: 15px; font-weight: bold;
+            text-align: center; transition: all 0.2s;
         }
-        .big-card-btn.active {
-            background: #2563eb;
-            color: #ffffff;
-            border-bottom: 2px solid #f0f4ff;
-        }
-
+        .big-card-btn.active { background: #2563eb; color: #ffffff; border-bottom: 2px solid #f0f4ff; }
         .big-card-content {
-            border: 2px solid #2563eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            padding: 20px;
-            background: #f0f4ff;
-            position: relative;
-            z-index: 0;
+            border: 2px solid #2563eb; border-top: none; border-radius: 0 0 10px 10px;
+            padding: 20px; background: #f0f4ff; position: relative; z-index: 0;
         }
-        .big-card-content h2 {
-            font-size: 20px;
-            color: #1e40af;
-            margin-bottom: 18px;
-        }
-        .big-card-content input, .big-card-content textarea {
-            font-size: 17px;
-            padding: 16px;
-        }
-        .big-card-content textarea {
-            min-height: 70px;
-        }
-        .big-card-content button {
-            font-size: 17px;
-            padding: 16px;
-        }
-
+        .big-card-content h2 { font-size: 20px; color: #1e40af; margin-bottom: 18px; }
+        .big-card-content input, .big-card-content textarea { font-size: 17px; padding: 16px; }
+        .big-card-content textarea { min-height: 70px; }
+        .big-card-content button { font-size: 17px; padding: 16px; }
         #moreBtn {
-            font-size: 16px;
-            padding: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            width: 100%;
-            font-weight: bold;
+            font-size: 16px; padding: 12px; background: #2563eb; color: white;
+            border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px;
+            width: 100%; font-weight: bold; margin-top: 15px;
         }
-
-        #moreToolsContainer {
-            margin-top: 0;
-        }
-        #moreToolsContainer .tabs {
-            margin-top: 5px;
-        }
+        #moreToolsContainer { margin-top: 0; }
+        #moreToolsContainer .tabs { margin-top: 5px; }
+        .try-example { margin-top: 10px; font-size: 12px; color: #475569; }
+        .try-example a { color: #2563eb; text-decoration: underline; cursor: pointer; margin: 0 5px; }
     </style>
 </head>
 <body>
@@ -196,27 +145,19 @@
             <h1>⚡ VerifyPulse</h1>
             <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
         </header>
-
         <div class="lang-toggle">
             <button class="lang-btn active" onclick="setLang('en', event)">🇬🇧 English</button>
             <button class="lang-btn" onclick="setLang('hi', event)">🇮🇳 हिंदी</button>
         </div>
-
         <div class="stats">
             <div class="stat-card"><div class="stat-number" id="totalChecks">0</div><div class="stat-label" id="statLabel1">Total Checks</div></div>
             <div class="stat-card"><div class="stat-number" id="scamsFound">0</div><div class="stat-label" id="statLabel2">Scams Found</div></div>
             <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
         </div>
-
         <div style="text-align:center; padding:10px 0; margin-bottom:15px;">
-            <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">
-                Check links, messages, and scams before you trust them.
-            </p>
-            <p style="font-size:14px; color:#475569;">
-                Fast. Private. Easy to use.
-            </p>
+            <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">Check links, messages, and scams before you trust them.</p>
+            <p style="font-size:14px; color:#475569;">Fast. Private. Easy to use.</p>
         </div>
-
         <div class="big-card-buttons">
             <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
             <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
@@ -239,9 +180,7 @@
                 <div class="result" id="phishingResult"></div>
             </div>
         </div>
-
         <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
-
         <div id="moreToolsContainer" style="display:none;">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
@@ -251,14 +190,70 @@
                 <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
                 <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
             </div>
-            <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
-            <div class="section" id="password-section"><div class="card"><input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
-            <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div></div></div>
-            <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button onclick="checkPhone()">📞 Check Number</button><button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
-            <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
-            <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
+            <div class="section active" id="news-section">
+                <div class="card">
+                    <textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea>
+                    <button onclick="checkNews()">✨ Check News</button>
+                    <button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button>
+                    <div class="loading" id="newsLoading">⏳ AI Analyzing...</div>
+                    <div class="result" id="newsResult"></div>
+                </div>
+            </div>
+            <div class="section" id="password-section">
+                <div class="card">
+                    <input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()">
+                    <div id="passwordResult"></div>
+                    <div class="tips"><h4>💡 Password Tips</h4>
+                        <div class="tip-item">✅ At least 12 characters</div>
+                        <div class="tip-item">✅ Mix UPPER & lowercase</div>
+                        <div class="tip-item">✅ Add numbers & symbols</div>
+                        <div class="tip-item">❌ Avoid personal info</div>
+                    </div>
+                    <div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div>
+                </div>
+            </div>
+            <div class="section" id="scam-section">
+                <div class="card">
+                    <textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea>
+                    <button onclick="checkScam()">⚠️ Detect Scam</button>
+                    <button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button>
+                    <div class="loading" id="scamLoading">⏳ Analyzing...</div>
+                    <div class="result" id="scamResult"></div>
+                    <div class="try-example">
+                        Try: <a onclick="document.getElementById('scamInput').value='CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.'; checkScam();">WhatsApp Scam</a> |
+                        <a onclick="document.getElementById('scamInput').value='Your SBI account will be blocked. Update KYC now: http://fake-sbi.com'; checkScam();">Bank Scam</a> |
+                        <a onclick="document.getElementById('scamInput').value='Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.'; checkScam();">Job Scam</a>
+                    </div>
+                </div>
+            </div>
+            <div class="section" id="phone-section">
+                <div class="card">
+                    <input type="text" id="phoneInput" placeholder="+91 9876543210">
+                    <button onclick="checkPhone()">📞 Check Number</button>
+                    <button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button>
+                    <div class="loading" id="phoneLoading">⏳ Checking...</div>
+                    <div class="result" id="phoneResult"></div>
+                </div>
+            </div>
+            <div class="section" id="upi-section">
+                <div class="card">
+                    <input type="text" id="upiInput" placeholder="name@upi">
+                    <button onclick="checkUPI()">💳 Check UPI</button>
+                    <button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button>
+                    <div class="loading" id="upiLoading">⏳ Checking...</div>
+                    <div class="result" id="upiResult"></div>
+                </div>
+            </div>
+            <div class="section" id="gmail-section">
+                <div class="card">
+                    <textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea>
+                    <button onclick="checkGmail()">📧 Check Gmail</button>
+                    <button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button>
+                    <div class="loading" id="gmailLoading">⏳ Analyzing...</div>
+                    <div class="result" id="gmailResult"></div>
+                </div>
+            </div>
         </div>
-
         <div class="scam-alert" style="margin-top:15px;">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
@@ -266,11 +261,8 @@
             <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment</div>
             <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
         </div>
-
         <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
-        <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">
-            🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse
-        </div>
+        <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse</div>
     </div>
 
     <script>
@@ -358,141 +350,59 @@
             if (data.error) throw new Error(data.error);
             return data;
         }
-        function showResult(containerId, data, type) {
+
+        function displayEnhancedResult(containerId, data) {
             const container = document.getElementById(containerId);
-            let verdictClass = '', verdictText = '';
+            let verdictClass = '';
             const v = (data.verdict || '').toUpperCase();
-            recordResult(v);
-            if (type === 'news') {
-                if (v === 'TRUE') { verdictClass = 'verdict-true'; verdictText = '✅ Likely True'; }
-                else if (v === 'FALSE') { verdictClass = 'verdict-false'; verdictText = '❌ Likely False'; }
-                else if (v === 'MISLEADING') { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Misleading'; }
-                else { verdictClass = 'verdict-uncertain'; verdictText = '❓ Uncertain'; }
-            } else {
-                if (v === 'SAFE' || v === 'TRUE') { verdictClass = 'verdict-safe'; verdictText = '✅ Safe'; }
-                else if (['DANGEROUS','FRAUD','SCAM','PHISHING'].includes(v)) { verdictClass = 'verdict-dangerous'; verdictText = v === 'PHISHING' ? '🎣 Phishing!' : v === 'SCAM' ? '⚠️ Scam!' : '🚨 Dangerous!'; }
-                else { verdictClass = 'verdict-suspicious'; verdictText = '⚠️ Suspicious'; }
+            if (['DANGEROUS','FRAUD','SCAM','PHISHING','MALICIOUS'].includes(v)) verdictClass = 'verdict-danger';
+            else if (['SUSPICIOUS','MISLEADING'].includes(v)) verdictClass = 'verdict-suspicious';
+            else verdictClass = 'verdict-safe';
+
+            recordResult(data.verdict);
+
+            const scamType = data.scamType || '';
+            const confidence = data.confidence || 85;
+            const analysis = data.analysis || '';
+            const findings = data.findings || [];
+            const whatToDo = data.whatToDo || [];
+
+            let html = `<div class="verdict-box ${verdictClass}">
+                <div class="verdict-title">${v === 'SAFE' ? '✅ Safe' : v === 'SUSPICIOUS' ? '⚠️ Suspicious' : '🚨 Dangerous'}</div>`;
+            if (scamType) html += `<div class="scam-type-label">${scamType}</div>`;
+            html += `<div class="confidence">Confidence: ${confidence}%</div></div>`;
+
+            if (analysis) {
+                html += `<div class="analysis-box"><h4>🔍 Analysis</h4><p>${analysis}</p></div>`;
             }
-            container.innerHTML = `<div class="verdict-box ${verdictClass}"><div class="verdict-title">${verdictText}</div><div class="confidence">Confidence: ${data.confidence}%</div></div><div class="analysis-box"><h4>🔍 Analysis</h4><p>${data.analysis || 'No details'}</p></div><div class="analysis-box"><h4>💡 Findings</h4><p>${data.findings || 'No specific findings'}</p></div>`;
+            if (findings.length > 0) {
+                html += `<div class="findings-box"><h4>💡 Findings</h4><ul>`;
+                findings.forEach(f => html += `<li>${f}</li>`);
+                html += `</ul></div>`;
+            }
+            if (whatToDo.length > 0) {
+                html += `<div class="what-to-do-box"><h4>🛡️ What to Do</h4><ul>`;
+                whatToDo.forEach(w => html += `<li>${w}</li>`);
+                html += `</ul></div>`;
+            }
+
+            container.innerHTML = html;
             container.style.display = 'block';
         }
+
         function showError(containerId, message) {
             const container = document.getElementById(containerId);
             container.innerHTML = `<div class="error-box">❌ ${message}</div>`;
             container.style.display = 'block';
         }
 
-        async function checkNews() { 
-            const text = document.getElementById('newsInput').value.trim(); 
-            if (!text) return alert('Please enter text'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'fake_news_check' });
-            document.getElementById('newsLoading').style.display = 'block'; 
-            document.getElementById('newsResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('news', text); 
-                showResult('newsResult', data, 'news'); 
-            } catch (e) { 
-                showError('newsResult', e.message); 
-            } finally { 
-                document.getElementById('newsLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkURL() { 
-            const url = document.getElementById('urlInput').value.trim(); 
-            if (!url) return alert('Enter URL'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'url_scan' });
-            document.getElementById('urlLoading').style.display = 'block'; 
-            document.getElementById('urlResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('url', url); 
-                showResult('urlResult', data, 'url'); 
-            } catch (e) { 
-                showError('urlResult', e.message); 
-            } finally { 
-                document.getElementById('urlLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkPhishing() { 
-            const text = document.getElementById('phishingInput').value.trim(); 
-            if (!text) return alert('Paste email content'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'phishing_check' });
-            document.getElementById('phishingLoading').style.display = 'block'; 
-            document.getElementById('phishingResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('phishing', text); 
-                showResult('phishingResult', data, 'phishing'); 
-            } catch (e) { 
-                showError('phishingResult', e.message); 
-            } finally { 
-                document.getElementById('phishingLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkScam() { 
-            const text = document.getElementById('scamInput').value.trim(); 
-            if (!text) return alert('Paste scam message'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'scam_detect' });
-            document.getElementById('scamLoading').style.display = 'block'; 
-            document.getElementById('scamResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('scam', text); 
-                showResult('scamResult', data, 'scam'); 
-            } catch (e) { 
-                showError('scamResult', e.message); 
-            } finally { 
-                document.getElementById('scamLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkPhone() { 
-            const phone = document.getElementById('phoneInput').value.trim(); 
-            if (!phone) return alert('Enter phone number'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'phone_check' });
-            document.getElementById('phoneLoading').style.display = 'block'; 
-            document.getElementById('phoneResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('phone', phone); 
-                showResult('phoneResult', data, 'phone'); 
-            } catch (e) { 
-                showError('phoneResult', e.message); 
-            } finally { 
-                document.getElementById('phoneLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkUPI() { 
-            const upi = document.getElementById('upiInput').value.trim(); 
-            if (!upi) return alert('Enter UPI ID'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'upi_check' });
-            document.getElementById('upiLoading').style.display = 'block'; 
-            document.getElementById('upiResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('upi', upi); 
-                showResult('upiResult', data, 'upi'); 
-            } catch (e) { 
-                showError('upiResult', e.message); 
-            } finally { 
-                document.getElementById('upiLoading').style.display = 'none'; 
-            } 
-        }
-
-        async function checkGmail() { 
-            const msg = document.getElementById('gmailInput').value.trim(); 
-            if (!msg) return alert('Paste Gmail message'); 
-            gtag('event', 'tool_used', { 'event_category': 'engagement', 'event_label': 'gmail_fraud_check' });
-            document.getElementById('gmailLoading').style.display = 'block'; 
-            document.getElementById('gmailResult').style.display = 'none'; 
-            try { 
-                const data = await callAPI('gmail', msg); 
-                showResult('gmailResult', data, 'gmail'); 
-            } catch (e) { 
-                showError('gmailResult', e.message); 
-            } finally { 
-                document.getElementById('gmailLoading').style.display = 'none'; 
-            } 
-        }
+        async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); displayEnhancedResult('newsResult', data); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
+        async function checkURL() { const url = document.getElementById('urlInput').value.trim(); if (!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display = 'block'; document.getElementById('urlResult').style.display = 'none'; try { const data = await callAPI('url', url); displayEnhancedResult('urlResult', data); } catch (e) { showError('urlResult', e.message); } finally { document.getElementById('urlLoading').style.display = 'none'; } }
+        async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); displayEnhancedResult('phishingResult', data); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
+        async function checkScam() { const text = document.getElementById('scamInput').value.trim(); if (!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display = 'block'; document.getElementById('scamResult').style.display = 'none'; try { const data = await callAPI('scam', text); displayEnhancedResult('scamResult', data); } catch (e) { showError('scamResult', e.message); } finally { document.getElementById('scamLoading').style.display = 'none'; } }
+        async function checkPhone() { const phone = document.getElementById('phoneInput').value.trim(); if (!phone) return alert('Enter phone number'); document.getElementById('phoneLoading').style.display = 'block'; document.getElementById('phoneResult').style.display = 'none'; try { const data = await callAPI('phone', phone); displayEnhancedResult('phoneResult', data); } catch (e) { showError('phoneResult', e.message); } finally { document.getElementById('phoneLoading').style.display = 'none'; } }
+        async function checkUPI() { const upi = document.getElementById('upiInput').value.trim(); if (!upi) return alert('Enter UPI ID'); document.getElementById('upiLoading').style.display = 'block'; document.getElementById('upiResult').style.display = 'none'; try { const data = await callAPI('upi', upi); displayEnhancedResult('upiResult', data); } catch (e) { showError('upiResult', e.message); } finally { document.getElementById('upiLoading').style.display = 'none'; } }
+        async function checkGmail() { const msg = document.getElementById('gmailInput').value.trim(); if (!msg) return alert('Paste Gmail message'); document.getElementById('gmailLoading').style.display = 'block'; document.getElementById('gmailResult').style.display = 'none'; try { const data = await callAPI('gmail', msg); displayEnhancedResult('gmailResult', data); } catch (e) { showError('gmailResult', e.message); } finally { document.getElementById('gmailLoading').style.display = 'none'; } }
 
         function checkPasswordLive() {
             const pwd = document.getElementById('passwordInput').value;
