@@ -8,19 +8,19 @@ export default async function handler(req, res) {
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
   try {
-    // Password local hai, back-end pe nahi aata par safety ke liye handle kiya hai
+    // Password local hai
     if (checkType === 'password') {
       return res.status(200).json({ verdict: 'SAFE', confidence: 100, analysis: 'Checked locally', findings: '' });
     }
 
-    // URL, Phishing, Scam, Gmail – Safe Browsing se check (instant database)
+    // URL, Phishing, Scam, Gmail – Safe Browsing se check
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
         if (safeResult && safeResult.found) {
           return res.status(200).json(safeResult);
         }
-      } catch (e) { /* fallback to next AI */ }
+      } catch (e) { /* fallback */ }
     }
 
     // Fake News – Gemini primary
@@ -28,15 +28,15 @@ export default async function handler(req, res) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY, 'news');
         if (gemRes) return res.status(200).json(gemRes);
-      } catch (e) { /* fallback to Groq */ }
+      } catch (e) { /* fallback */ }
     }
 
-    // Scam, Gmail – DeepSeek R1 (smarter reasoning)
+    // Scam, Gmail – DeepSeek R1
     if (['scam', 'gmail'].includes(checkType)) {
       try {
         const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b');
         if (deepRes) return res.status(200).json(deepRes);
-      } catch (e) { /* fallback to Llama 3 */ }
+      } catch (e) { /* fallback */ }
     }
 
     // Fallback – Groq Llama 3.3
@@ -44,12 +44,11 @@ export default async function handler(req, res) {
     return res.status(200).json(finalRes);
 
   } catch (error) {
-    console.error('Final Error:', error);
     return res.status(500).json({ error: error.message || 'AI engine failed' });
   }
 }
 
-// ========== Safe Browsing Check ==========
+// ========== Safe Browsing ==========
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -62,60 +61,34 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
       }
     };
     const resp = await fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
-      method: 'POST',
-      body: JSON.stringify(payload)
+      method: 'POST', body: JSON.stringify(payload)
     });
-    if (!resp.ok) throw new Error('Safe Browsing API failed');
+    if (!resp.ok) throw new Error('Safe Browsing failed');
     const data = await resp.json();
     if (data.matches) {
-      return {
-        verdict: 'DANGEROUS',
-        confidence: 100,
-        analysis: 'Google Safe Browsing has identified this as a known malicious or phishing link.',
-        findings: 'This URL is a known threat. Do not visit it.'
-      };
+      return { verdict: 'DANGEROUS', confidence: 100, analysis: 'Known malicious/phishing link detected by Google Safe Browsing.', findings: 'Do not visit this URL.' };
     }
     return { found: false };
-  } catch (e) {
-    console.error('Safe Browsing Error:', e);
-    return { found: false };
-  }
+  } catch (e) { return { found: false }; }
 }
 
-// ========== Gemini Call ==========
+// ========== Gemini ==========
 async function callGemini(text, apiKey, type) {
-  const systemPrompt = `You are a highly accurate fact-checking AI with access to the latest information. Analyze the given text and determine if it is TRUE, FALSE, MISLEADING, or UNCERTAIN. Provide a confidence score (0-100) and detailed reasoning in JSON format: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+  const systemPrompt = `You are a fact-checking AI. Analyze and determine if TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-  const body = {
-    contents: [{ parts: [{ text: `${systemPrompt}\n\nInput: "${text}"` }] }]
-  };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) throw new Error('Gemini API failed');
+  const body = { contents: [{ parts: [{ text: `${systemPrompt}\n\nInput: "${text}"` }] }] };
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error('Gemini failed');
   const data = await res.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) throw new Error('Empty Gemini response');
-
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
-
-  // Fix confidence scale for Gemini
-  if (parsed.confidence > 0 && parsed.confidence <= 1) {
-    parsed.confidence = Math.round(parsed.confidence * 100);
-  }
-
-  return {
-    verdict: parsed.verdict,
-    confidence: parsed.confidence,
-    analysis: parsed.analysis,
-    findings: parsed.findings
-  };
+  if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
+  return { verdict: parsed.verdict, confidence: parsed.confidence, analysis: parsed.analysis, findings: parsed.findings };
 }
 
-// ========== Groq Call ==========
+// ========== Groq ==========
 async function callGroq(apiKey, text, type, model) {
   const systemPrompt = getPrompt(type);
   const url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -125,44 +98,32 @@ async function callGroq(apiKey, text, type, model) {
     body: JSON.stringify({
       model,
       messages: [
-          { role: 'system', content: "You are a helpful cybersecurity and fact-checking AI. Always respond in valid JSON format with keys: verdict, confidence, analysis, findings." },
-          { role: 'user', content: systemPrompt + `\n\nInput: "${text}"` }
+        { role: 'system', content: "You are a cybersecurity and scam-detection AI. Always respond in valid JSON format with keys: verdict, confidence, analysis, findings." },
+        { role: 'user', content: systemPrompt + `\n\nInput: "${text}"` }
       ],
-      temperature: 0.1,
-      max_tokens: 500,
-      response_format: { type: "json_object" }
+      temperature: 0.1, max_tokens: 500, response_format: { type: "json_object" }
     })
   });
-  if (!res.ok) throw new Error('Groq API failed');
+  if (!res.ok) throw new Error('Groq failed');
   const data = await res.json();
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error('Empty Groq response');
-
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
-
-  // Fix confidence scale for Groq
-  if (parsed.confidence > 0 && parsed.confidence <= 1) {
-    parsed.confidence = Math.round(parsed.confidence * 100);
-  }
-
-  return {
-    verdict: parsed.verdict,
-    confidence: parsed.confidence,
-    analysis: parsed.analysis,
-    findings: parsed.findings
-  };
+  if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
+  return { verdict: parsed.verdict, confidence: parsed.confidence, analysis: parsed.analysis, findings: parsed.findings };
 }
 
 // ========== Prompts ==========
 function getPrompt(type) {
-  const base = `Analyze the input and respond ONLY in JSON format with the keys "verdict", "confidence", "analysis", and "findings". `;
-  if (type === 'news') return base + 'Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN.';
-  if (type === 'url') return base + 'Determine if the URL is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS.';
-  if (type === 'phishing') return base + 'Determine if the text is PHISHING, SAFE, or SUSPICIOUS.';
-  if (type === 'scam') return base + 'Determine if the message is SCAM, FRAUD, or SAFE.';
-  if (type === 'phone') return base + 'Determine if the phone number is SPAM, FRAUD, or SAFE.';
-  if (type === 'upi') return base + 'Determine if the UPI ID is FRAUD, SUSPICIOUS, or SAFE.';
-  if (type === 'gmail') return base + 'Determine if the email is FRAUD, PHISHING, SCAM, or SAFE.';
-  return base;
-      }
+  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and determine if it is SCAM, SPAM, FRAUD, or SAFE. Look for common Indian scam patterns: fake lottery (KBC, Crorepati), UPI fraud, electricity bill scams, loan offers with suspicious links, KYC update scams, job frauds with advance payment, and festive offer scams. A normal marketing SMS from a known brand (Airtel, Vi, Flipkart, Amazon) that offers a genuine product is usually SAFE or SPAM, not SCAM. Your response MUST be ONLY valid JSON: {"verdict":"SCAM/SPAM/SAFE", "confidence":85, "analysis":"...", "findings":"..."}`;
+  
+  if (type === 'news') return `Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+  if (type === 'url') return `Determine if the URL is SAFE, DANGEROUS, PHISHING, or SUSPICIOUS. Reply ONLY in JSON.`;
+  if (type === 'phishing') return `You are an anti-phishing AI. Analyze the email/SMS for PHISHING, SAFE, or SUSPICIOUS. Look for Indian bank frauds (SBI, HDFC), KYC scams, and fake government links. Reply ONLY in JSON.`;
+  if (type === 'scam') return baseSCAM;
+  if (type === 'phone') return `Determine if the phone number is SPAM, FRAUD, or SAFE. Consider Indian mobile number patterns. Reply ONLY in JSON.`;
+  if (type === 'upi') return `Determine if the UPI ID is FRAUD, SUSPICIOUS, or SAFE. Consider common Indian UPI scam patterns. Reply ONLY in JSON.`;
+  if (type === 'gmail') return `You are an email fraud detector. Analyze for FRAUD, PHISHING, SCAM, or SAFE. Look for Indian context: job frauds, lottery scams, fake invoices. Reply ONLY in JSON.`;
+  return `Analyze: "${text}". Respond ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":"..."}`;
+}
