@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       return res.status(200).send('ok');
     }
 
-    // Scanning message
+    // Scanning message to user
     await sendMessage(chatId, '⏳ Scanning... Please wait.');
 
     // AI scan
@@ -65,8 +65,8 @@ export default async function handler(req, res) {
     await sendMessage(chatId, resultText);
 
   } catch (error) {
-    console.error('Bot error:', error);
-    await sendMessage(chatId, '❌ Sorry, something went wrong. Please try again.');
+    // THIS LINE WILL SHOW THE REAL ERROR
+    await sendMessage(chatId, '❌ Real Error: ' + error.message);
   }
 
   return res.status(200).send('ok');
@@ -124,7 +124,9 @@ async function scanInput(input) {
       try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
       return parsed;
     }
-  } catch (e) {}
+  } catch (e) {
+    throw new Error('Groq scan failed: ' + e.message);
+  }
 
   return {
     verdict: 'UNCERTAIN',
