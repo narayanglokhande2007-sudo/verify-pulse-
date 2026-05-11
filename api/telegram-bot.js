@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     await sendTelegramMessage(chatId, resultText);
 
   } catch (error) {
-    await sendTelegramMessage(chatId, '❌ Real Error: ' + error.message);
+    await sendTelegramMessage(chatId, '❌ Error: ' + error.message);
   }
 
   return res.status(200).send('ok');
@@ -123,6 +123,11 @@ function getPrompt(type) {
 }
 
 function formatResult(result) {
+  // Fix confidence scale
+  if (result.confidence && result.confidence > 0 && result.confidence <= 1) {
+    result.confidence = Math.round(result.confidence * 100);
+  }
+
   const verdict = (result.verdict || 'UNCERTAIN').toUpperCase();
   const emoji = ['DANGEROUS','SCAM','FRAUD','PHISHING'].includes(verdict) ? '🔴' :
                 ['SUSPICIOUS','MISLEADING'].includes(verdict) ? '⚠️' : '✅';
