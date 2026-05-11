@@ -20,33 +20,49 @@ export default async function handler(req, res) {
   const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
   try {
-    // /start command handle karna
+    // /start command
     if (userText.startsWith('/start')) {
-      await sendMessage(chatId, '👋 Welcome to VerifyPulse Bot!\n\nSend me any suspicious message, link, or email. I\'ll check if it\'s a scam.\n\nCommands:\n/score - Check your safety score\n/help - Get help');
+      await sendMessage(chatId, 
+        '👋 Welcome to VerifyPulse Bot!\n\n' +
+        'Send me any suspicious message, link, or email. I will check if it is a scam.\n\n' +
+        'Commands:\n' +
+        '/score - Check your safety score\n' +
+        '/help - Get help'
+      );
       return res.status(200).send('ok');
     }
 
     // /score command
     if (userText.startsWith('/score')) {
-      await sendMessage(chatId, '🛡️ *Safety Score*\n\nYour score helps you track your scam awareness.\n\n📊 Visit our website to see your personalized safety score: https://verify-pulse.vercel.app\n\nStay vigilant! 🛡️', 'Markdown');
+      await sendMessage(chatId, 
+        '🛡️ Safety Score\n\n' +
+        'Your score helps you track your scam awareness.\n\n' +
+        '📊 Visit our website to see your personalized safety score:\n' +
+        'https://verify-pulse.vercel.app\n\n' +
+        'Stay vigilant! 🛡️'
+      );
       return res.status(200).send('ok');
     }
 
     // /help command
     if (userText.startsWith('/help')) {
-      await sendMessage(chatId, '🔍 *VerifyPulse Bot Help*\n\n• Send me any message or link to check if it\'s a scam\n• Use /score to learn about safety scores\n• Visit https://verify-pulse.vercel.app for all 8 tools\n\nStay safe! 🛡️', 'Markdown');
+      await sendMessage(chatId, 
+        '🔍 VerifyPulse Bot Help\n\n' +
+        '• Send me any message or link to check if it is a scam\n' +
+        '• Use /score to learn about safety scores\n' +
+        '• Visit https://verify-pulse.vercel.app for all 8 tools\n\n' +
+        'Stay safe! 🛡️'
+      );
       return res.status(200).send('ok');
     }
 
-    // User ne koi content bheja - scan karna hai
+    // Scanning message
     await sendMessage(chatId, '⏳ Scanning... Please wait.');
 
-    // Scan karo using AI
+    // AI scan
     const scanResult = await scanInput(userText);
-
-    // Result format karo
     const resultText = formatResult(scanResult);
-    await sendMessage(chatId, resultText, 'Markdown');
+    await sendMessage(chatId, resultText);
 
   } catch (error) {
     console.error('Bot error:', error);
@@ -56,7 +72,7 @@ export default async function handler(req, res) {
   return res.status(200).send('ok');
 }
 
-async function sendMessage(chatId, text, parseMode = '') {
+async function sendMessage(chatId, text) {
   const BOT_TOKEN = process.env.VERIFYPULSE_BOT_TOKEN;
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
@@ -66,7 +82,6 @@ async function sendMessage(chatId, text, parseMode = '') {
     body: JSON.stringify({
       chat_id: chatId,
       text: text,
-      parse_mode: parseMode || undefined,
       disable_web_page_preview: true
     })
   });
@@ -111,7 +126,14 @@ async function scanInput(input) {
     }
   } catch (e) {}
 
-  return { verdict: 'UNCERTAIN', scamType: 'Unknown', confidence: 50, analysis: 'Unable to analyze right now. Please try again.', findings: [], whatToDo: ['Be cautious'] };
+  return {
+    verdict: 'UNCERTAIN',
+    scamType: 'Unknown',
+    confidence: 50,
+    analysis: 'Unable to analyze right now. Please try again.',
+    findings: [],
+    whatToDo: ['Be cautious']
+  };
 }
 
 function getPrompt(type) {
@@ -135,24 +157,24 @@ function formatResult(result) {
     status = 'Suspicious';
   }
 
-  let text = `${emoji} *${status}*`;
-  if (result.scamType) text += `\n📋 *Type:* ${result.scamType}`;
-  text += `\n📊 *Confidence:* ${result.confidence || 'N/A'}%`;
+  let text = `${emoji} Status: ${status}`;
+  if (result.scamType) text += `\n📋 Type: ${result.scamType}`;
+  text += `\n📊 Confidence: ${result.confidence || 'N/A'}%`;
 
   if (result.analysis) {
-    text += `\n\n🔍 *Analysis:*\n${result.analysis}`;
+    text += `\n\n🔍 Analysis:\n${result.analysis}`;
   }
 
   if (result.findings && result.findings.length > 0) {
-    text += '\n\n💡 *Findings:*';
+    text += '\n\n💡 Findings:';
     result.findings.forEach(f => text += `\n• ${f}`);
   }
 
   if (result.whatToDo && result.whatToDo.length > 0) {
-    text += '\n\n🛡️ *What to Do:*';
+    text += '\n\n🛡️ What to Do:';
     result.whatToDo.forEach(w => text += `\n• ${w}`);
   }
 
-  text += '\n\n🌐 _Check more at https://verify-pulse.vercel.app_';
+  text += '\n\n🌐 Check more at https://verify-pulse.vercel.app';
   return text;
 }
