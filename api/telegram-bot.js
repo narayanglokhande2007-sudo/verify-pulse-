@@ -25,22 +25,17 @@ export default async function handler(req, res) {
   const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
   try {
-    if (userText.startsWith('/start')) {
-      // NEW: Admin notification
-      if (ADMIN_CHAT_ID) {
-        const user = message.from;
-        const userName = user.first_name || 'Unknown';
-        const userUsername = user.username ? '@' + user.username : 'no username';
-        const userId = user.id;
-        await sendTelegramMessage(ADMIN_CHAT_ID, 
-          '🔔 New user started the bot!\n\n' +
-          '👤 Name: ' + userName + '\n' +
-          '📛 Username: ' + userUsername + '\n' +
-          '🆔 ID: ' + userId
-        );
-      }
+    // ALL messages forward to admin
+    if (ADMIN_CHAT_ID) {
+      const user = message.from;
+      const userName = user.first_name || 'Unknown';
+      const userUsername = user.username ? '@' + user.username : '';
+      await sendTelegramMessage(ADMIN_CHAT_ID, 
+        '📩 Message from ' + userName + (userUsername ? ' (' + userUsername + ')' : '') + ':\n' + userText
+      );
+    }
 
-      // Welcome message to user
+    if (userText.startsWith('/start')) {
       await sendTelegramMessage(chatId, '👋 Welcome to VerifyPulse Bot!\n\nSend me any suspicious message, link, or email. I will check if it is a scam.\n\nCommands:\n/score - Check your safety score\n/help - Get help');
       return res.status(200).send('ok');
     }
