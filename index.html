@@ -83,13 +83,13 @@
         .btn-clear:hover { background: rgba(37,99,235,0.1); }
         .loading { display: none; text-align: center; color: #475569; padding: 15px; }
         .result { display: none; margin-top: 15px; }
-        .verdict-box { padding: 30px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #fff; }
+        .verdict-box { padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #fff; }
         .verdict-danger { background: #ef4444; }
         .verdict-suspicious { background: #f59e0b; }
         .verdict-safe { background: #22c55e; }
-        .verdict-title { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
-        .scam-type-label { font-size: 16px; opacity: 0.9; margin-bottom: 10px; letter-spacing: 0.5px; }
-        .confidence { font-size: 18px; font-weight: bold; }
+        .verdict-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+        .scam-type-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+        .confidence { font-size: 16px; font-weight: bold; }
         .analysis-box, .findings-box, .what-to-do-box {
             background: #f8fafc; padding: 15px; border-radius: 10px;
             border-left: 4px solid #2563eb; margin-bottom: 10px;
@@ -149,6 +149,8 @@
         .info-section h4 { color: #1e40af; margin-bottom: 10px; }
         .info-section p, .info-section li { font-size: 14px; color: #334155; line-height: 1.5; }
         .feedback-btn { background: #22c55e; color: #fff; }
+        .telegram-btn { background: #0088cc; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+        .extension-btn { background: #f0f4ff; color: #2563eb; border: 2px solid #2563eb; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
@@ -170,6 +172,17 @@
             <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">Check links, messages, and scams before you trust them.</p>
             <p style="font-size:14px; color:#475569;">Fast. Private. Easy to use.</p>
         </div>
+
+        <!-- ✅ New Telegram & Extension Buttons -->
+        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+            <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;">
+                <button class="telegram-btn">🤖 Try on Telegram</button>
+            </a>
+            <a href="#" onclick="alert('Chrome Extension coming soon! Stay tuned.')" style="text-decoration: none;">
+                <button class="extension-btn">💻 Chrome Extension (Soon)</button>
+            </a>
+        </div>
+
         <div class="big-card-buttons">
             <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
             <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
@@ -202,72 +215,13 @@
                 <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
                 <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
             </div>
-            <div class="section active" id="news-section">
-                <div class="card">
-                    <textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea>
-                    <button onclick="checkNews()">✨ Check News</button>
-                    <button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button>
-                    <div class="loading" id="newsLoading">⏳ AI Analyzing...</div>
-                    <div class="result" id="newsResult"></div>
-                </div>
-            </div>
-            <div class="section" id="password-section">
-                <div class="card">
-                    <input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()">
-                    <div id="passwordResult"></div>
-                    <div class="tips"><h4>💡 Password Tips</h4>
-                        <div class="tip-item">✅ At least 12 characters</div>
-                        <div class="tip-item">✅ Mix UPPER & lowercase</div>
-                        <div class="tip-item">✅ Add numbers & symbols</div>
-                        <div class="tip-item">❌ Avoid personal info</div>
-                    </div>
-                    <div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div>
-                </div>
-            </div>
-            <div class="section" id="scam-section">
-                <div class="card">
-                    <textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea>
-                    <button onclick="checkScam()">⚠️ Detect Scam</button>
-                    <button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button>
-                    <div class="loading" id="scamLoading">⏳ Analyzing...</div>
-                    <div class="result" id="scamResult"></div>
-                    <div class="try-example">
-                        Try: <a onclick="document.getElementById('scamInput').value='CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.'; checkScam();">WhatsApp Scam</a> |
-                        <a onclick="document.getElementById('scamInput').value='Your SBI account will be blocked. Update KYC now: http://fake-sbi.com'; checkScam();">Bank Scam</a> |
-                        <a onclick="document.getElementById('scamInput').value='Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.'; checkScam();">Job Scam</a>
-                    </div>
-                </div>
-            </div>
-            <div class="section" id="phone-section">
-                <div class="card">
-                    <input type="text" id="phoneInput" placeholder="+91 9876543210">
-                    <button onclick="checkPhone()">📞 Check Number</button>
-                    <button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button>
-                    <div class="loading" id="phoneLoading">⏳ Checking...</div>
-                    <div class="result" id="phoneResult"></div>
-                </div>
-            </div>
-            <div class="section" id="upi-section">
-                <div class="card">
-                    <input type="text" id="upiInput" placeholder="name@upi">
-                    <button onclick="checkUPI()">💳 Check UPI</button>
-                    <button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button>
-                    <div class="loading" id="upiLoading">⏳ Checking...</div>
-                    <div class="result" id="upiResult"></div>
-                </div>
-            </div>
-            <div class="section" id="gmail-section">
-                <div class="card">
-                    <textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea>
-                    <button onclick="checkGmail()">📧 Check Gmail</button>
-                    <button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button>
-                    <div class="loading" id="gmailLoading">⏳ Analyzing...</div>
-                    <div class="result" id="gmailResult"></div>
-                </div>
-            </div>
+            <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
+            <div class="section" id="password-section"><div class="card"><input type="text" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
+            <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div><div class="try-example">Try: <a onclick="document.getElementById('scamInput').value='CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.'; checkScam();">WhatsApp Scam</a> | <a onclick="document.getElementById('scamInput').value='Your SBI account will be blocked. Update KYC now: http://fake-sbi.com'; checkScam();">Bank Scam</a> | <a onclick="document.getElementById('scamInput').value='Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.'; checkScam();">Job Scam</a></div></div></div>
+            <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button onclick="checkPhone()">📞 Check Number</button><button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
+            <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
+            <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
         </div>
-
-        <!-- 🔥 Recent Scams (Upgraded) -->
         <div class="scam-alert" style="margin-top:15px;">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="scam-item"><span id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</span> <a onclick="tryScamExample('CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.')">Try this scam</a></div>
@@ -275,11 +229,9 @@
             <div class="scam-item"><span id="alert3">⚠️ Job fraud emails asking advance payment</span> <a onclick="tryScamExample('Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.')">Try this scam</a></div>
             <div class="scam-item"><span id="alert4">⚠️ Fake electricity bill emails with malicious links</span> <a onclick="tryScamExample('Your electricity bill is pending. Pay immediately to avoid disconnection: http://fake-ebill.com')">Try this scam</a></div>
         </div>
-
-        <!-- ℹ️ How It Works, Limitations, Global Use Cases, Future Vision -->
         <div class="info-section card">
             <h4>🚀 How It Works</h4>
-            <p>1️⃣ Paste any suspicious message, link, or email.<br>2️⃣ Our AI (trained on 10,000+ Indian scams) analyzes patterns.<br>3️⃣ Get instant verdict with confidence score, red flags, and action steps.</p>
+            <p>1️⃣ Paste any suspicious message, link, or email.<br>2️⃣ Our AI (trained on real Indian scam patterns) analyzes it.<br>3️⃣ Get instant verdict with confidence score, red flags, and action steps.</p>
         </div>
         <div class="info-section card">
             <h4>🌍 Global Use Cases</h4>
@@ -296,22 +248,19 @@
         <div class="info-section" style="text-align:center;">
             <p style="font-size:18px; font-weight:bold; color:#1e40af;">🌟 Our Mission: Make the internet safer for everyone.</p>
         </div>
-
-        <!-- 📝 Feedback Button -->
         <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;">
             <button class="feedback-btn" style="margin-bottom:15px;">💬 Give Feedback</button>
         </a>
-
         <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
         <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse</div>
     </div>
 
     <script>
-        // ========== UTILS ==========
         const translations = {
             en: { tagline: 'AI-Powered Cybersecurity & Fact Checking', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total Checks', statLabel2: 'Scams Found', statLabel3: 'Safe Items' },
             hi: { tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित' }
         };
+
         function setLang(lang, e) {
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
@@ -392,7 +341,6 @@
             return data;
         }
 
-        // ========== ENHANCED RESULT DISPLAY ==========
         function displayEnhancedResult(containerId, data) {
             const container = document.getElementById(containerId);
             let verdictClass = '';
@@ -415,18 +363,17 @@
             html += `<div class="confidence">Confidence: ${confidence}%</div></div>`;
 
             if (analysis) html += `<div class="analysis-box"><h4>🔍 Analysis</h4><p>${analysis}</p></div>`;
-            if (findings.length > 0) {
+            if (findings.length) {
                 html += `<div class="findings-box"><h4>💡 Findings</h4><ul>`;
                 findings.forEach(f => html += `<li>${f}</li>`);
                 html += `</ul></div>`;
             }
-            if (whatToDo.length > 0) {
+            if (whatToDo.length) {
                 html += `<div class="what-to-do-box"><h4>🛡️ What to Do</h4><ul>`;
                 whatToDo.forEach(w => html += `<li>${w}</li>`);
                 html += `</ul></div>`;
             }
 
-            // ----- SHARE BUTTONS -----
             const shareText = `🚨 VerifyPulse Result: ${verdictClass.includes('danger') ? 'DANGER' : verdictClass.includes('suspicious') ? 'SUSPICIOUS' : 'SAFE'} - ${scamType} (${confidence}%). Check safely at https://verify-pulse.vercel.app`;
             html += `<div class="share-row">
                 <button class="share-btn" onclick="navigator.clipboard.writeText('${shareText.replace(/'/g, "\\'")}'); alert('Result copied! Share it anywhere.')">📋 Copy Result</button>
@@ -443,16 +390,13 @@
             container.style.display = 'block';
         }
 
-        // ========== Try Scam from Alert ==========
         function tryScamExample(text) {
             const more = document.getElementById('moreToolsContainer');
             if (more.style.display === 'none' || !more.style.display) {
                 toggleMoreTools();
             }
-            // switch to scam tab
             const scamTabBtn = document.querySelector('#moreToolsContainer .tabs .tab:nth-child(3)');
             if (scamTabBtn) scamTabBtn.click();
-            // fill and trigger
             const scamInput = document.getElementById('scamInput');
             if (scamInput) {
                 scamInput.value = text;
@@ -460,7 +404,6 @@
             }
         }
 
-        // ========== TOOL HANDLERS ==========
         async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); displayEnhancedResult('newsResult', data); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
         async function checkURL() { const url = document.getElementById('urlInput').value.trim(); if (!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display = 'block'; document.getElementById('urlResult').style.display = 'none'; try { const data = await callAPI('url', url); displayEnhancedResult('urlResult', data); } catch (e) { showError('urlResult', e.message); } finally { document.getElementById('urlLoading').style.display = 'none'; } }
         async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); displayEnhancedResult('phishingResult', data); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
