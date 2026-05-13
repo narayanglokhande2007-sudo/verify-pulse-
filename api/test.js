@@ -1,5 +1,5 @@
 export default function handler(req, res) {
-  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
+  const VERIFY_TOKEN = 'verifypulse_webhook_2024';  // directly hardcoded
 
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
