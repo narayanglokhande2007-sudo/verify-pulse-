@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'verifypulse_webhook_2024';
-  const MY_NUMBER = '+919373568817'; // apna number
+  const MY_NUMBER = '+919373568817'; // अपना व्हाट्सएप नंबर
 
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
@@ -23,18 +23,36 @@ export default async function handler(req, res) {
       }
 
       from = message.from;
-      const userText = message.type === 'text' ? message.text?.body : `[${message.type}]`;
+      let userText = '';
+      if (message.type === 'text') {
+        userText = message.text?.body || '';
+      } else {
+        userText = `[${message.type} received]`;
+      }
+
+      if (!userText) return res.status(200).send('ok');
+
+      // Commands handle karna
+      if (userText.startsWith('/start')) {
+        await sendWhatsAppMessage(from, '👋 Welcome to VerifyPulse Bot on WhatsApp!\n\nSend me any suspicious message, link, or email. I will check if it is a scam.');
+        return res.status(200).send('ok');
+      }
+      if (userText.startsWith('/help')) {
+        await sendWhatsAppMessage(from, '🔍 VerifyPulse Bot Help\n\n• Send me any message or link\n• Visit verify-pulse.vercel.app');
+        return res.status(200).send('ok');
+      }
+      if (userText.startsWith('/score')) {
+        await sendWhatsAppMessage(from, '🛡️ Safety Score\n\nVisit our website to see your safety score:\nhttps://verify-pulse.vercel.app');
+        return res.status(200).send('ok');
+      }
 
       await sendWhatsAppMessage(from, '⏳ Scanning... Please wait.');
-
-      // AI scan
       const result = await scanText(userText);
       const reply = formatResult(result);
       await sendWhatsAppMessage(from, reply);
-
       return res.status(200).send('ok');
+
     } catch (error) {
-      // Agar koi bhi error aaye, to WhatsApp par bhejo
       if (from) {
         try { await sendWhatsAppMessage(from, '❌ Error: ' + error.message); } catch (e) {}
       }
@@ -45,7 +63,7 @@ export default async function handler(req, res) {
   return res.status(405).send('Method not allowed');
 }
 
-// --- Helper functions ---
+// --- Helper Functions ---
 async function sendWhatsAppMessage(to, text) {
   const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
   const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -85,7 +103,7 @@ async function scanText(input) {
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
       messages: [
-        { role: 'system', content: 'You are a cybersecurity AI. Always respond in valid JSON format with keys: verdict, scamType, confidence, analysis, findings, whatToDo.' },
+        { role: 'system', content: 'You are a cybersecurity AI. Always respond in valid JSON. Format: {"verdict":"SCAM/SAFE","scamType":"...","confidence":85,"analysis":"...","findings":["point1","point2"],"whatToDo":["step1","step2"]}' },
         { role: 'user', content: systemPrompt + '\n\nInput: "' + input + '"' }
       ],
       temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
@@ -114,6 +132,7 @@ function getScanPrompt(type) {
 }
 
 function formatResult(result) {
+  // Confidence scale fix
   if (result.confidence > 0 && result.confidence <= 1) {
     result.confidence = Math.round(result.confidence * 100);
   }
@@ -126,8 +145,19 @@ function formatResult(result) {
 
   let text = `${emoji} *${status}*\n📋 Type: ${result.scamType || 'N/A'}\n📊 Confidence: ${result.confidence || 'N/A'}%\n\n🔍 ${result.analysis || ''}`;
 
-  (result.findings || []).forEach(f => text += `\n• ${f}`);
-  (result.whatToDo || []).forEach(w => text += `\n🛡️ ${w}`);
+  // Safe handling for findings and whatToDo (string or array)
+  let findings = result.findings || [];
+  if (typeof findings === 'string') findings = [findings];
+  if (Array.isArray(findings)) {
+    findings.forEach(f => text += `\n• ${f}`);
+  }
+
+  let whatToDo = result.whatToDo || [];
+  if (typeof whatToDo === 'string') whatToDo = [whatToDo];
+  if (Array.isArray(whatToDo)) {
+    text += '\n\n🛡️ *What to Do:*';
+    whatToDo.forEach(w => text += `\n• ${w}`);
+  }
 
   return text + '\n\n🌐 verify-pulse.vercel.app';
-}
+    }
