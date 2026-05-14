@@ -1,0 +1,23 @@
+name: Daily Scam Scraper
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'   # har 12 ghante
+  workflow_dispatch:          # manual trigger
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install node-fetch
+
+      - name: Run scraper
+        run: node pipeline/scraper.js
