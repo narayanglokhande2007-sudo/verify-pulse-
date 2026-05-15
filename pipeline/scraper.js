@@ -3,34 +3,29 @@ const fs = require('fs');
 const path = require('path');
 
 const SCAM_FILE = path.join(__dirname, 'daily-data', 'latest_scams.json');
-const PHISHTANK_URL = 'https://data.phishtank.com/data/online-valid.json';  // ⚡ HTTPS
+const OPENPHISH_URL = 'https://openphish.com/feed.txt';  // returns plain text URLs
 
-function fetchJSON(url) {
+function fetchText(url) {
   return new Promise((resolve, reject) => {
     https.get(url, { headers: { 'User-Agent': 'VerifyPulseBot/1.0' } }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(new Error(`JSON parse failed. Response was not JSON.`));
-        }
-      });
+      res.on('end', () => resolve(data));
     }).on('error', reject);
   });
 }
 
-async function fetchPhishTankScams() {
+async function fetchOpenPhishScams() {
   const scams = [];
   try {
-    const entries = await fetchJSON(PHISHTANK_URL);
-    console.log(`PhishTank entries fetched: ${entries.length}`);
-    for (const entry of entries) {
-      if (entry.url) scams.push(entry.url);
-    }
+    const text = await fetchText(OPENPHISH_URL);
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    // Keep only lines that look like URLs
+    const urls = lines.filter(l => l.startsWith('http'));
+    console.log(`OpenPhish URLs found: ${urls.length}`);
+    scams.push(...urls);
   } catch (e) {
-    console.error(`PhishTank error: ${e.message}`);
+    console.error(`OpenPhish error: ${e.message}`);
   }
   return scams;
 }
@@ -42,7 +37,7 @@ async function fetchPhishTankScams() {
       existing = JSON.parse(fs.readFileSync(SCAM_FILE, 'utf8'));
     }
 
-    const newScams = await fetchPhishTankScams();
+    const newScams = await fetchOpenPhishScams();
     const all = [...new Set([...existing, ...newScams])];
 
     fs.writeFileSync(SCAM_FILE, JSON.stringify(all, null, 2));
