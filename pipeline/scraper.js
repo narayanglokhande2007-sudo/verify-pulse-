@@ -1,44 +1,29 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import fetch from 'node-fetch';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const SCAM_FILE = path.join(__dirname, 'daily-data', 'latest_scams.json');
 
-function fetchJSON(url) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-        'Accept': 'application/json'
-      }
-    };
-    https.get(url, options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error('JSON parse failed')); }
-      });
-    }).on('error', reject);
-  });
-}
-
 async function fetchRedditScams() {
-  const subreddits = ['Scams', 'IndiaScams', 'IsThisAScamIndia'];
+  const subs = ['Scams', 'IndiaScams', 'IsThisAScamIndia'];
   const scams = [];
-  for (const sub of subreddits) {
+  for (const sub of subs) {
     try {
       const url = `https://old.reddit.com/r/${sub}/new.json?limit=50`;
-      const data = await fetchJSON(url);
-      const posts = data.data?.children || [];
-      for (const post of posts) {
-        const title = post.data?.title || '';
-        const selftext = post.data?.selftext || '';
-        const combined = (title + ' ' + selftext).trim();
-        if (combined.length > 20) scams.push(combined);
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'VerifyPulseBot/1.0 (by /u/narayan_lokhande)' }
+      });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data = await res.json();
+      for (const post of data.data?.children || []) {
+        const txt = `${post.data?.title || ''} ${post.data?.selftext || ''}`.trim();
+        if (txt.length > 30) scams.push(txt);
       }
     } catch (e) {
-      console.error(`Reddit ${sub} failed:`, e.message);
+      console.error(`Reddit ${sub} error: ${e.message}`);
     }
   }
   return scams;
@@ -46,13 +31,14 @@ async function fetchRedditScams() {
 
 (async () => {
   try {
-    const existing = JSON.parse(fs.readFileSync(SCAM_FILE, 'utf8'));
-    const redditScams = await fetchRedditScams();
-    const newScams = [...new Set([...existing, ...redditScams])];
-    fs.writeFileSync(SCAM_FILE, JSON.stringify(newScams, null, 2));
-    console.log(`✅ Scams updated. Total: ${newScams.length}`);
-  } catch (e) {
-    console.error('❌ Scraper failed:', e);
+    let existing = [];
+    try { existing = JSON.parse(await fs.readFile(SCAM_FILE, 'utf-8')); } catch {}
+    const newScams = await fetchRedditScams();
+    const all = [...new Set([...existing, ...newScams])];
+    await fs.writeFile(SCAM_FILE, JSON.stringify(all, null, 2));
+    console.log(`✅ Total scams: ${all.length} (${newScams.length} new)`);
+  } catch (err) {
+    console.error('❌ Fatal:', err.message);
     process.exit(1);
   }
 })();
