@@ -16,8 +16,5 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm install node-fetch
-
       - name: Run scraper
         run: node pipeline/scraper.js
