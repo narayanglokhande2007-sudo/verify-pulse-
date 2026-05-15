@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SCAM_FILE = path.join(__dirname, 'daily-data', 'latest_scams.json');
-const PHISHTANK_URL = 'http://data.phishtank.com/data/online-valid.json';
+const PHISHTANK_URL = 'https://data.phishtank.com/data/online-valid.json';  // ⚡ HTTPS
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
