@@ -1,4 +1,4 @@
-// api/verify.js - VerifyPulse Backend (with Live Scam Knowledge Boost)
+// api/verify.js - VerifyPulse Backend (with Live Scam Knowledge Boost + Array Safety)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -8,29 +8,37 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
+  // Helper to ensure findings & whatToDo are arrays
+  function safeResult(r) {
+    if (typeof r.findings === 'string') r.findings = [r.findings];
+    if (!Array.isArray(r.findings)) r.findings = [];
+    if (typeof r.whatToDo === 'string') r.whatToDo = [r.whatToDo];
+    if (!Array.isArray(r.whatToDo)) r.whatToDo = [];
+    return r;
+  }
+
   try {
-    // Password local check
+    // Password check local
     if (checkType === 'password') {
-      return res.status(200).json({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] });
+      return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
-    // ---- LIVE KNOWLEDGE BOOST: fetch latest scam URLs from pipeline ----
+    // ---- LIVE KNOWLEDGE BOOST ----
     let recentScamURLs = [];
     try {
       const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
       const pipelineRes = await fetch(pipelineURL);
       if (pipelineRes.ok) {
         const allURLs = await pipelineRes.json();
-        recentScamURLs = allURLs.slice(-20); // last 20 most recent
+        recentScamURLs = allURLs.slice(-20);
       }
-    } catch (e) { /* ignore if not available */ }
+    } catch (e) {}
 
-    // Build a knowledge booster line
     const knowledgeLine = recentScamURLs.length > 0
       ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}`
       : '';
 
-    // Safe Browsing check for appropriate types
+    // Safe Browsing check
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
@@ -44,21 +52,21 @@ export default async function handler(req, res) {
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY);
-        if (gemRes) return res.status(200).json(gemRes);
+        if (gemRes) return res.status(200).json(safeResult(gemRes));
       } catch (e) {}
     }
 
-    // DeepSeek R1 for complex reasoning
+    // DeepSeek R1
     if (['scam', 'gmail'].includes(checkType)) {
       try {
         const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
-        if (deepRes) return res.status(200).json(deepRes);
+        if (deepRes) return res.status(200).json(safeResult(deepRes));
       } catch (e) {}
     }
 
-    // Default Groq Llama 3.3
+    // Fallback Groq Llama 3.3
     const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
-    return res.status(200).json(finalRes);
+    return res.status(200).json(safeResult(finalRes));
 
   } catch (error) {
     return res.status(500).json({ error: error.message || 'AI engine failed' });
