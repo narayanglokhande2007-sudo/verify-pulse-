@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate weekly training data
+        run: python pipeline/collect_weekly_data.py
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
