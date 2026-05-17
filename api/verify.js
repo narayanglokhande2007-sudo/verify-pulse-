@@ -1,4 +1,4 @@
-// api/verify.js - VerifyPulse Backend (with Live Scam Knowledge Boost + Array Safety)
+// api/verify.js - VerifyPulse Backend (Custom HF Model + Fallback)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -8,7 +8,6 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
 
-  // Helper to ensure findings & whatToDo are arrays
   function safeResult(r) {
     if (typeof r.findings === 'string') r.findings = [r.findings];
     if (!Array.isArray(r.findings)) r.findings = [];
@@ -18,12 +17,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Password check local
     if (checkType === 'password') {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
-    // ---- LIVE KNOWLEDGE BOOST ----
     let recentScamURLs = [];
     try {
       const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
@@ -38,7 +35,6 @@ export default async function handler(req, res) {
       ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}`
       : '';
 
-    // Safe Browsing check
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
@@ -48,7 +44,15 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // Gemini for fact-checking
+    if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
+      try {
+        const hfResult = await queryHuggingFaceModel(text);
+        if (hfResult && hfResult.verdict && hfResult.confidence > 60) {
+          return res.status(200).json(safeResult(hfResult));
+        }
+      } catch (e) {}
+    }
+
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY);
@@ -56,7 +60,6 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // DeepSeek R1
     if (['scam', 'gmail'].includes(checkType)) {
       try {
         const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
@@ -64,7 +67,6 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // Fallback Groq Llama 3.3
     const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
     return res.status(200).json(safeResult(finalRes));
 
@@ -73,7 +75,30 @@ export default async function handler(req, res) {
   }
 }
 
-// ========== Safe Browsing ==========
+async function queryHuggingFaceModel(text) {
+  const HF_MODEL_URL = 'https://api-inference.huggingface.co/models/VerifyPulse384556/verifypulse-scam-detector';
+  const prompt = `You are a scam detection expert. Analyze the following message/link and return a JSON object with verdict (SCAM/FRAUD/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), and whatToDo (array).\n\nInput: ${text}\n\nJSON:`;
+  const response = await fetch(HF_MODEL_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      inputs: prompt,
+      parameters: { max_new_tokens: 300, temperature: 0.3 }
+    })
+  });
+
+  if (!response.ok) throw new Error('Hugging Face API error');
+  const data = await response.json();
+  let generated = data[0]?.generated_text || '';
+  const jsonMatch = generated.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0]);
+    } catch (e) {}
+  }
+  return null;
+}
+
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -101,7 +126,6 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
   } catch (e) { return { found: false }; }
 }
 
-// ========== Gemini ==========
 async function callGemini(text, apiKey) {
   const systemPrompt = `You are a fact-checking AI. Analyze and determine if TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON: {"verdict":"...", "confidence":85, "analysis":"...", "findings":[]}`;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -117,7 +141,6 @@ async function callGemini(text, apiKey) {
   return parsed;
 }
 
-// ========== Groq ==========
 async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   const systemPrompt = getPrompt(type, knowledgeLine);
   const url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -141,7 +164,6 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
   if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
 
-  // Enrich result
   if (!parsed.scamType) {
     const lower = (parsed.verdict + ' ' + (parsed.analysis||'')).toLowerCase();
     if (lower.includes('phish')) parsed.scamType = 'Phishing Attack';
@@ -174,7 +196,6 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   return parsed;
 }
 
-// ========== Prompts ==========
 function getPrompt(type, knowledgeLine = '') {
   const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return a JSON object with:
 - verdict: SCAM / FRAUD / SAFE / SUSPICIOUS
