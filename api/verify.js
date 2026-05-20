@@ -1,4 +1,3 @@
-// api/verify.js - VerifyPulse Backend (Custom HF Model + Fallback)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -7,6 +6,7 @@ export default async function handler(req, res) {
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
+  const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
 
   function safeResult(r) {
     if (typeof r.findings === 'string') r.findings = [r.findings];
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
+    // Live knowledge boost (latest 20 phishing URLs)
     let recentScamURLs = [];
     try {
       const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
@@ -30,29 +31,21 @@ export default async function handler(req, res) {
         recentScamURLs = allURLs.slice(-20);
       }
     } catch (e) {}
-
     const knowledgeLine = recentScamURLs.length > 0
       ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}`
       : '';
 
+    // Safe Browsing (instant known threat DB)
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
-        const safeResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
-        if (safeResult && safeResult.found) {
-          return res.status(200).json(safeResult);
+        const safeResultVal = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
+        if (safeResultVal && safeResultVal.found) {
+          return res.status(200).json(safeResultVal);
         }
       } catch (e) {}
     }
 
-    if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
-      try {
-        const hfResult = await queryHuggingFaceModel(text);
-        if (hfResult && hfResult.verdict && hfResult.confidence > 60) {
-          return res.status(200).json(safeResult(hfResult));
-        }
-      } catch (e) {}
-    }
-
+    // Gemini for fake news
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY);
@@ -60,14 +53,100 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    if (['scam', 'gmail'].includes(checkType)) {
-      try {
-        const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
-        if (deepRes) return res.status(200).json(safeResult(deepRes));
-      } catch (e) {}
+    // ========== FAST PRIMARY: Groq (ultra‑fast, <0.5s) ==========
+    try {
+      const groqRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
+      if (groqRes && groqRes.verdict && groqRes.confidence > 60) {
+        return res.status(200).json(safeResult(groqRes));
+      }
+    } catch (e) {}
+
+    // ========== FALLBACK: 10 PARALLEL MODELS (8 OpenRouter + 2 HF Specialists) ==========
+    const parallelTasks = [];
+
+    if (OPENROUTER_KEY) {
+      const openRouterModels = [
+        'meta-llama/llama-3-8b-instruct',
+        'mistralai/mistral-7b-instruct',
+        'google/gemma-3-12b-it',
+        'qwen/qwen2.5-7b',
+        'deepseek/deepseek-r1',
+        'meta-llama/llama-3.1-8b-instruct',
+        'huggingfaceh4/zephyr-7b-beta',
+        'microsoft/phi-3-medium-128k-instruct'
+      ];
+
+      const prompt = `You are a scam detection expert. Analyze this: "${text}". Return JSON with keys: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), whatToDo (array).`;
+
+      openRouterModels.forEach(model => {
+        parallelTasks.push(
+          fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${OPENROUTER_KEY}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.2,
+              max_tokens: 400,
+              response_format: { type: 'json_object' },
+            }),
+          })
+          .then(r => r.json())
+          .then(d => {
+            const content = d.choices?.[0]?.message?.content;
+            if (content) {
+              try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
+            }
+            return null;
+          })
+          .catch(() => null)
+        );
+      });
     }
 
-    const finalRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
+    // 2 Hugging Face cybersecurity specialist models
+    const hfSpecialists = [
+      'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
+      'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
+    ];
+
+    hfSpecialists.forEach(url => {
+      parallelTasks.push(
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputs: `You are a cybersecurity expert. Analyze this text/URL: "${text}". Return JSON with keys: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), whatToDo (array).`,
+            parameters: { max_new_tokens: 300, temperature: 0.3 }
+          })
+        })
+        .then(r => r.json())
+        .then(d => {
+          let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
+          const jsonMatch = generated.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try { return JSON.parse(jsonMatch[0]); } catch (e) {}
+          }
+          return null;
+        })
+        .catch(() => null)
+      );
+    });
+
+    if (parallelTasks.length > 0) {
+      const results = await Promise.allSettled(parallelTasks);
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value && r.value.verdict && r.value.confidence > 60) {
+          return res.status(200).json(safeResult(r.value));
+        }
+      }
+    }
+
+    // Final fallback Groq DeepSeek R1
+    const finalRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
     return res.status(200).json(safeResult(finalRes));
 
   } catch (error) {
@@ -75,29 +154,7 @@ export default async function handler(req, res) {
   }
 }
 
-async function queryHuggingFaceModel(text) {
-  const HF_MODEL_URL = 'https://api-inference.huggingface.co/models/VerifyPulse384556/verifypulse-scam-detector';
-  const prompt = `You are a scam detection expert. Analyze the following message/link and return a JSON object with verdict (SCAM/FRAUD/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), and whatToDo (array).\n\nInput: ${text}\n\nJSON:`;
-  const response = await fetch(HF_MODEL_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: { max_new_tokens: 300, temperature: 0.3 }
-    })
-  });
-
-  if (!response.ok) throw new Error('Hugging Face API error');
-  const data = await response.json();
-  let generated = data[0]?.generated_text || '';
-  const jsonMatch = generated.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0]);
-    } catch (e) {}
-  }
-  return null;
-}
+// ========== Helper functions ==========
 
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
@@ -163,7 +220,6 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
   if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
-
   if (!parsed.scamType) {
     const lower = (parsed.verdict + ' ' + (parsed.analysis||'')).toLowerCase();
     if (lower.includes('phish')) parsed.scamType = 'Phishing Attack';
