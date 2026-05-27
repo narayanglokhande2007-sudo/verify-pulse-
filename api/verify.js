@@ -1,4 +1,4 @@
-// api/verify.js - VerifyPulse Backend (with Groq fail-safe fallback)
+// api/verify.js - VerifyPulse Backend (Complete Trusted Brands Whitelist + Groq Fail-safe)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -17,17 +17,30 @@ export default async function handler(req, res) {
     return r;
   }
 
-  // Whitelist trusted domains (Allen, etc.)
+  // ----- Extensive whitelist of trusted domains (no short generic names) -----
   function isTrustedMessage(msg, url) {
     const trustedDomains = [
+      // Education
       'allen.ac.in', 'allen.in', 'd.sfmsg.co',
       'vedantu.com', 'byjus.com', 'unacademy.com',
       'physicswallah.com', 'pw.live',
-      'sbi.co.in', 'icicibank.com', 'hdfcbank.com',
-      'amazon.in', 'flipkart.com', 'paytm.com',
+      'khanacademy.org', 'coursera.org', 'udemy.com',
+      // Banks (India) – full domains only
+      'sbi.co.in', 'onlinesbi.com',
+      'hdfcbank.com', 'icicibank.com', 'pnb.in', 'bankofbaroda.in',
+      'axisbank.com', 'kotak.com', 'idfcbank.com',
+      // Government
+      'gov.in', 'nic.in', 'india.gov.in', 'mygov.in', 'digilocker.gov.in',
+      // E‑commerce
+      'amazon.in', 'flipkart.com', 'paytm.com', 'myntra.com', 'tatacliq.com',
+      // Social / Communication
       'google.com', 'microsoft.com', 'github.com',
-      'whatsapp.com', 'telegram.org', 'twitter.com',
-      'instagram.com', 'linkedin.com', 'youtube.com'
+      'whatsapp.com', 'telegram.org', 'twitter.com', 'instagram.com', 'linkedin.com', 'youtube.com',
+      // Telecom
+      'airtel.in', 'vi.in', 'jio.com', 'vodafone.in',
+      'reliancejio.com',
+      // Other trusted
+      'wikipedia.org', 'stackoverflow.com', 'medium.com'
     ];
     if (url) {
       for (let domain of trustedDomains) {
@@ -35,7 +48,14 @@ export default async function handler(req, res) {
       }
     }
     const lower = msg.toLowerCase();
+    // Allen educational pattern (extra safety)
     if (lower.includes('allen') && (lower.includes('neet') || lower.includes('course') || lower.includes('register'))) return true;
+    // SBI official pattern (already covered by domain, but safe)
+    if (lower.includes('sbi') && url && (url.includes('sbi.co.in') || url.includes('onlinesbi.com'))) return true;
+    // Government pattern (generic)
+    if (lower.includes('govt') || lower.includes('government')) return true;
+    // Telecom common marketing (without short generic like 'vi' or 'airtel' alone)
+    if ((lower.includes('airtel') || lower.includes('vodafone') || lower.includes('idea')) && url && url.includes('.in')) return true;
     return false;
   }
 
@@ -44,17 +64,17 @@ export default async function handler(req, res) {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
-    // Whitelist pre-check
+    // ----- Whitelist pre-check (no AI call) -----
     if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
       let extractedUrl = text.match(/https?:\/\/[^\s]+/)?.[0] || '';
       if (isTrustedMessage(text, extractedUrl)) {
         return res.status(200).json(safeResult({
           verdict: 'SAFE',
-          scamType: 'Educational/Marketing Message',
-          confidence: 98,
-          analysis: 'This message is from a trusted educational brand (ALLEN). It is not a scam.',
-          findings: ['Verified official domain', 'Legitimate coaching promotion'],
-          whatToDo: ['You can safely register if you need the course']
+          scamType: 'Trusted Brand Message',
+          confidence: 99,
+          analysis: 'This message is from a known trusted brand or government source. It appears legitimate.',
+          findings: ['Verified trusted domain or pattern'],
+          whatToDo: ['No action needed. You can safely proceed.']
         }));
       }
     }
@@ -89,7 +109,7 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // ========== PRIMARY: Groq (fail-safe, no error message) ==========
+    // ========== PRIMARY: Groq (fast, fail‑safe) ==========
     let groqSuccess = false;
     let groqResult = null;
     try {
@@ -100,12 +120,11 @@ export default async function handler(req, res) {
     } catch (e) {
       console.error('Groq failed:', e.message);
     }
-
     if (groqSuccess) {
       return res.status(200).json(safeResult(groqResult));
     }
 
-    // ========== FALLBACK: 10 PARALLEL MODELS ==========
+    // ========== FALLBACK: 10 parallel models ==========
     const parallelTasks = [];
 
     if (OPENROUTER_KEY) {
@@ -176,7 +195,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Final fallback: DeepSeek R1
+    // Final fallback DeepSeek R1 via Groq
     try {
       const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
       if (deepRes && deepRes.verdict) {
@@ -184,31 +203,30 @@ export default async function handler(req, res) {
       }
     } catch (e) {}
 
-    // If everything fails, return safe fallback (no crash)
+    // Ultimate fallback (no error to user)
     return res.status(200).json(safeResult({
       verdict: 'UNCERTAIN',
-      scamType: 'Temporary Service Issue',
+      scamType: 'Service Issue',
       confidence: 50,
-      analysis: 'AI service temporarily unavailable. Please try again later.',
-      findings: ['All AI engines are busy or rate limited'],
-      whatToDo: ['Refresh the page and try again', 'If issue persists, check back in a few minutes']
+      analysis: 'AI engines are temporarily busy. Please try again in a few seconds.',
+      findings: ['High load or temporary API limit'],
+      whatToDo: ['Refresh the page and try again', 'If issue persists, come back later']
     }));
 
   } catch (error) {
     console.error('Handler error:', error);
     return res.status(200).json(safeResult({
       verdict: 'UNCERTAIN',
-      scamType: 'Service Error',
+      scamType: 'Internal Error',
       confidence: 30,
-      analysis: 'An internal error occurred. We are working on it.',
-      findings: ['Error: ' + error.message],
-      whatToDo: ['Please try again after some time']
+      analysis: 'Something went wrong. We are working on it.',
+      findings: [error.message],
+      whatToDo: ['Please retry after some time']
     }));
   }
 }
 
-// ========== Helper functions ==========
-
+// ========== Helper functions (unchanged – keep them as they are) ==========
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -326,4 +344,4 @@ A normal marketing SMS from Airtel/Vi/Flipkart is usually SAFE.`;
   if (type === 'upi') return `Analyze the UPI ID and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.${knowledgeLine}`;
   if (type === 'gmail') return baseSCAM + knowledgeLine;
   return `Analyze and return JSON with keys: verdict, confidence, analysis, findings.`;
-          }
+}
