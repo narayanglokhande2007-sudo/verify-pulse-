@@ -1,0 +1,25 @@
+name: Daily Full Data Retrain
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'   # har 12 ghante run hota hai (change to '0 0 * * *' for daily)
+  workflow_dispatch:
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install torch transformers peft datasets huggingface_hub
+      - name: Update master training data
+        run: python pipeline/collect_all_data.py
+      - name: Train on all collected data
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python pipeline/train_on_all_data.py
