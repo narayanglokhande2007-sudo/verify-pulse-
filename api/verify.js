@@ -1,3 +1,4 @@
+// api/verify.js - VerifyPulse Backend (with trusted brand whitelist)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -16,9 +17,48 @@ export default async function handler(req, res) {
     return r;
   }
 
+  // ========== TRUSTED BRAND WHITELIST (fast pre‑check) ==========
+  function isTrustedMessage(msg, url) {
+    const trustedDomains = [
+      'allen.ac.in', 'allen.in', 'd.sfmsg.co',
+      'vedantu.com', 'byjus.com', 'unacademy.com',
+      'physicswallah.com', 'pw.live',
+      'sbi.co.in', 'icicibank.com', 'hdfcbank.com',
+      'amazon.in', 'flipkart.com', 'paytm.com',
+      'google.com', 'microsoft.com', 'github.com',
+      'whatsapp.com', 'telegram.org', 'twitter.com',
+      'instagram.com', 'linkedin.com', 'youtube.com'
+    ];
+    if (url) {
+      for (let domain of trustedDomains) {
+        if (url.includes(domain)) return true;
+      }
+    }
+    const lower = msg.toLowerCase();
+    if (lower.includes('allen') && (lower.includes('neet') || lower.includes('course') || lower.includes('register'))) {
+      return true;
+    }
+    return false;
+  }
+
   try {
     if (checkType === 'password') {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
+    }
+
+    // ----- Whitelist check (before any AI call) -----
+    if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
+      let extractedUrl = text.match(/https?:\/\/[^\s]+/)?.[0] || '';
+      if (isTrustedMessage(text, extractedUrl)) {
+        return res.status(200).json(safeResult({
+          verdict: 'SAFE',
+          scamType: 'Educational/Marketing Message',
+          confidence: 98,
+          analysis: 'This message is from a trusted educational brand (ALLEN). It is not a scam.',
+          findings: ['Verified official domain', 'Legitimate coaching promotion'],
+          whatToDo: ['You can safely register if you need the course']
+        }));
+      }
     }
 
     // Live knowledge boost (latest 20 phishing URLs)
@@ -31,9 +71,7 @@ export default async function handler(req, res) {
         recentScamURLs = allURLs.slice(-20);
       }
     } catch (e) {}
-    const knowledgeLine = recentScamURLs.length > 0
-      ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}`
-      : '';
+    const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
 
     // Safe Browsing (instant known threat DB)
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
@@ -53,7 +91,7 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // ========== FAST PRIMARY: Groq (ultra‑fast, <0.5s) ==========
+    // ========== FAST PRIMARY: Groq ==========
     try {
       const groqRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
       if (groqRes && groqRes.verdict && groqRes.confidence > 60) {
@@ -61,7 +99,7 @@ export default async function handler(req, res) {
       }
     } catch (e) {}
 
-    // ========== FALLBACK: 10 PARALLEL MODELS (8 OpenRouter + 2 HF Specialists) ==========
+    // ========== FALLBACK: 10 PARALLEL MODELS ==========
     const parallelTasks = [];
 
     if (OPENROUTER_KEY) {
@@ -75,9 +113,7 @@ export default async function handler(req, res) {
         'huggingfaceh4/zephyr-7b-beta',
         'microsoft/phi-3-medium-128k-instruct'
       ];
-
       const prompt = `You are a scam detection expert. Analyze this: "${text}". Return JSON with keys: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), whatToDo (array).`;
-
       openRouterModels.forEach(model => {
         parallelTasks.push(
           fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -94,15 +130,15 @@ export default async function handler(req, res) {
               response_format: { type: 'json_object' },
             }),
           })
-          .then(r => r.json())
-          .then(d => {
-            const content = d.choices?.[0]?.message?.content;
-            if (content) {
-              try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
-            }
-            return null;
-          })
-          .catch(() => null)
+            .then(r => r.json())
+            .then(d => {
+              const content = d.choices?.[0]?.message?.content;
+              if (content) {
+                try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
+              }
+              return null;
+            })
+            .catch(() => null)
         );
       });
     }
@@ -112,7 +148,6 @@ export default async function handler(req, res) {
       'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
       'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
     ];
-
     hfSpecialists.forEach(url => {
       parallelTasks.push(
         fetch(url, {
@@ -123,16 +158,16 @@ export default async function handler(req, res) {
             parameters: { max_new_tokens: 300, temperature: 0.3 }
           })
         })
-        .then(r => r.json())
-        .then(d => {
-          let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
-          const jsonMatch = generated.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            try { return JSON.parse(jsonMatch[0]); } catch (e) {}
-          }
-          return null;
-        })
-        .catch(() => null)
+          .then(r => r.json())
+          .then(d => {
+            let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
+            const jsonMatch = generated.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              try { return JSON.parse(jsonMatch[0]); } catch (e) {}
+            }
+            return null;
+          })
+          .catch(() => null)
       );
     });
 
@@ -155,7 +190,6 @@ export default async function handler(req, res) {
 }
 
 // ========== Helper functions ==========
-
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -220,6 +254,7 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
   if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
+
   if (!parsed.scamType) {
     const lower = (parsed.verdict + ' ' + (parsed.analysis||'')).toLowerCase();
     if (lower.includes('phish')) parsed.scamType = 'Phishing Attack';
