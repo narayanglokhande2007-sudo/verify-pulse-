@@ -1,58 +1,77 @@
-import json, os, torch
+import json
+import os
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, DataCollatorForLanguageModeling
 from peft import LoraConfig, get_peft_model, TaskType
 from datasets import Dataset
 from huggingface_hub import HfApi, upload_folder
-import shutil
 
-# 1. Load weekly training data
-data_path = 'pipeline/daily-data/weekly_scam_data.jsonl'
-texts = []
-with open(data_path, 'r', encoding='utf-8') as f:
+HF_TOKEN = os.environ['HF_TOKEN']
+MASTER_FILE = 'pipeline/daily-data/all_scams_master.jsonl'
+REPO_ID = 'VerifyPulse384556/verifypulse-scam-detector'   # your Hugging Face model repo
+
+print("📊 Loading all scam URLs from master file...")
+urls = []
+with open(MASTER_FILE, 'r', encoding='utf-8') as f:
     for line in f:
-        entry = json.loads(line)
-        msgs = entry.get("messages", [])
-        prompt = ""
-        for m in msgs:
-            role = m["role"]
-            content = m["content"]
-            if role == "system": prompt += f"System: {content}\n"
-            elif role == "user": prompt += f"User: {content}\n"
-            elif role == "assistant": prompt += f"Assistant: {content}\n"
-        texts.append(prompt.strip())
+        try:
+            data = json.loads(line)
+            urls.append(data['url'])
+        except:
+            pass
+
+print(f"Total URLs in master dataset: {len(urls)}")
+
+# Training prompt format (system + user + assistant)
+system_prompt = """You are an Indian scam detection expert. Analyze the URL and return a JSON object with:
+- verdict: DANGEROUS
+- scamType: Phishing Attack
+- confidence: 100
+- analysis: This URL is known phishing/scam from threat feed.
+- findings: ["Verified scam URL"]
+- whatToDo: ["Do not visit this link", "Report if you received it"]"""
+
+texts = []
+for url in urls:
+    texts.append(f"System: {system_prompt}\nUser: Check this URL: {url}\nAssistant: {{\"verdict\": \"DANGEROUS\", \"scamType\": \"Phishing Attack\", \"confidence\": 100, \"analysis\": \"This URL is a known phishing/scam link.\", \"findings\": [\"Verified scam URL\"], \"whatToDo\": [\"Do not visit\", \"Report to authorities\"]}}")
 
 dataset = Dataset.from_dict({"text": texts})
 
-# 2. Load base model (no GPU available, CPU only)
+# Load base model (DistilGPT2 – change if needed)
 model_name = "distilgpt2"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
-# 3. LoRA config
+# LoRA config
 lora_config = LoraConfig(
-    r=4, lora_alpha=8, target_modules=["c_attn"],
-    lora_dropout=0.05, bias="none", task_type=TaskType.CAUSAL_LM
+    r=4,
+    lora_alpha=8,
+    target_modules=["c_attn"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM
 )
 model = get_peft_model(model, lora_config)
 
-# 4. Tokenize
-def tokenize_function(examples):
+def tokenize(examples):
     return tokenizer(examples["text"], truncation=True, max_length=256, padding="max_length")
-tokenized_dataset = dataset.map(tokenize_function, batched=True)
 
-# 5. Training arguments (CPU friendly)
+tokenized_dataset = dataset.map(tokenize, batched=True)
+
+# Training arguments (CPU only, full dataset)
 training_args = TrainingArguments(
-    output_dir="./scam-detector-weekly",
-    num_train_epochs=2,
+    output_dir="./scam-model-full",
+    num_train_epochs=1,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=4,
-    save_steps=100,
-    logging_steps=50,
+    save_steps=10000,
+    logging_steps=500,
     learning_rate=5e-5,
     report_to="none",
     fp16=False,
-    no_cuda=True
+    no_cuda=True,
+    save_total_limit=2,
 )
 
 trainer = Trainer(
@@ -61,23 +80,24 @@ trainer = Trainer(
     train_dataset=tokenized_dataset,
     data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 )
+
+print("🚀 Training started on full dataset...")
 trainer.train()
+print("✅ Training complete!")
 
-# 6. Merge and save full model
+# Merge LoRA and save full model
 merged_model = model.merge_and_unload()
-merged_model.save_pretrained("./merged-scam-model-weekly")
-tokenizer.save_pretrained("./merged-scam-model-weekly")
+merged_model.save_pretrained("./merged-scam-model")
+tokenizer.save_pretrained("./merged-scam-model")
 
-# 7. Upload to Hugging Face (overwrite)
-HF_TOKEN = os.environ['HF_TOKEN']
-repo_id = "VerifyPulse384556/verifypulse-scam-detector"
+# Upload to Hugging Face (replace old model)
 api = HfApi()
-api.delete_folder(repo_id=repo_id, path_in_repo="", token=HF_TOKEN)  # clear old files
+api.delete_folder(repo_id=REPO_ID, path_in_repo="", token=HF_TOKEN)   # clear old files
 upload_folder(
-    folder_path="./merged-scam-model-weekly",
-    repo_id=repo_id,
+    folder_path="./merged-scam-model",
+    repo_id=REPO_ID,
     token=HF_TOKEN,
     repo_type="model",
-    commit_message="🤖 Weekly automated retraining"
+    commit_message="🤖 Daily retrain on full collected dataset"
 )
-print("✅ Weekly retraining complete and model uploaded!")
+print("🎉 Model uploaded to Hugging Face successfully!")
