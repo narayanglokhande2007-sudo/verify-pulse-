@@ -1,4 +1,4 @@
-// api/verify.js - VerifyPulse Backend (with trusted brand whitelist)
+// api/verify.js - VerifyPulse Backend (with Groq fail-safe fallback)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     return r;
   }
 
-  // ========== TRUSTED BRAND WHITELIST (fast pre‑check) ==========
+  // Whitelist trusted domains (Allen, etc.)
   function isTrustedMessage(msg, url) {
     const trustedDomains = [
       'allen.ac.in', 'allen.in', 'd.sfmsg.co',
@@ -35,9 +35,7 @@ export default async function handler(req, res) {
       }
     }
     const lower = msg.toLowerCase();
-    if (lower.includes('allen') && (lower.includes('neet') || lower.includes('course') || lower.includes('register'))) {
-      return true;
-    }
+    if (lower.includes('allen') && (lower.includes('neet') || lower.includes('course') || lower.includes('register'))) return true;
     return false;
   }
 
@@ -46,7 +44,7 @@ export default async function handler(req, res) {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
-    // ----- Whitelist check (before any AI call) -----
+    // Whitelist pre-check
     if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
       let extractedUrl = text.match(/https?:\/\/[^\s]+/)?.[0] || '';
       if (isTrustedMessage(text, extractedUrl)) {
@@ -61,7 +59,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Live knowledge boost (latest 20 phishing URLs)
+    // Live knowledge boost
     let recentScamURLs = [];
     try {
       const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
@@ -73,7 +71,7 @@ export default async function handler(req, res) {
     } catch (e) {}
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
 
-    // Safe Browsing (instant known threat DB)
+    // Safe Browsing
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const safeResultVal = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
@@ -83,7 +81,7 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // Gemini for fake news
+    // Gemini for news
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY);
@@ -91,13 +89,21 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // ========== FAST PRIMARY: Groq ==========
+    // ========== PRIMARY: Groq (fail-safe, no error message) ==========
+    let groqSuccess = false;
+    let groqResult = null;
     try {
-      const groqRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
-      if (groqRes && groqRes.verdict && groqRes.confidence > 60) {
-        return res.status(200).json(safeResult(groqRes));
+      groqResult = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
+      if (groqResult && groqResult.verdict && groqResult.confidence > 60) {
+        groqSuccess = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Groq failed:', e.message);
+    }
+
+    if (groqSuccess) {
+      return res.status(200).json(safeResult(groqResult));
+    }
 
     // ========== FALLBACK: 10 PARALLEL MODELS ==========
     const parallelTasks = [];
@@ -118,32 +124,22 @@ export default async function handler(req, res) {
         parallelTasks.push(
           fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${OPENROUTER_KEY}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [{ role: 'user', content: prompt }],
-              temperature: 0.2,
-              max_tokens: 400,
-              response_format: { type: 'json_object' },
-            }),
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}` },
+            body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400, response_format: { type: 'json_object' } })
           })
-            .then(r => r.json())
-            .then(d => {
-              const content = d.choices?.[0]?.message?.content;
-              if (content) {
-                try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
-              }
-              return null;
-            })
-            .catch(() => null)
+          .then(r => r.json())
+          .then(d => {
+            const content = d.choices?.[0]?.message?.content;
+            if (content) {
+              try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
+            }
+            return null;
+          })
+          .catch(() => null)
         );
       });
     }
 
-    // 2 Hugging Face cybersecurity specialist models
     const hfSpecialists = [
       'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
       'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
@@ -158,16 +154,16 @@ export default async function handler(req, res) {
             parameters: { max_new_tokens: 300, temperature: 0.3 }
           })
         })
-          .then(r => r.json())
-          .then(d => {
-            let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
-            const jsonMatch = generated.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              try { return JSON.parse(jsonMatch[0]); } catch (e) {}
-            }
-            return null;
-          })
-          .catch(() => null)
+        .then(r => r.json())
+        .then(d => {
+          let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
+          const jsonMatch = generated.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try { return JSON.parse(jsonMatch[0]); } catch (e) {}
+          }
+          return null;
+        })
+        .catch(() => null)
       );
     });
 
@@ -180,16 +176,39 @@ export default async function handler(req, res) {
       }
     }
 
-    // Final fallback Groq DeepSeek R1
-    const finalRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
-    return res.status(200).json(safeResult(finalRes));
+    // Final fallback: DeepSeek R1
+    try {
+      const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
+      if (deepRes && deepRes.verdict) {
+        return res.status(200).json(safeResult(deepRes));
+      }
+    } catch (e) {}
+
+    // If everything fails, return safe fallback (no crash)
+    return res.status(200).json(safeResult({
+      verdict: 'UNCERTAIN',
+      scamType: 'Temporary Service Issue',
+      confidence: 50,
+      analysis: 'AI service temporarily unavailable. Please try again later.',
+      findings: ['All AI engines are busy or rate limited'],
+      whatToDo: ['Refresh the page and try again', 'If issue persists, check back in a few minutes']
+    }));
 
   } catch (error) {
-    return res.status(500).json({ error: error.message || 'AI engine failed' });
+    console.error('Handler error:', error);
+    return res.status(200).json(safeResult({
+      verdict: 'UNCERTAIN',
+      scamType: 'Service Error',
+      confidence: 30,
+      analysis: 'An internal error occurred. We are working on it.',
+      findings: ['Error: ' + error.message],
+      whatToDo: ['Please try again after some time']
+    }));
   }
 }
 
 // ========== Helper functions ==========
+
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -307,4 +326,4 @@ A normal marketing SMS from Airtel/Vi/Flipkart is usually SAFE.`;
   if (type === 'upi') return `Analyze the UPI ID and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.${knowledgeLine}`;
   if (type === 'gmail') return baseSCAM + knowledgeLine;
   return `Analyze and return JSON with keys: verdict, confidence, analysis, findings.`;
-}
+          }
