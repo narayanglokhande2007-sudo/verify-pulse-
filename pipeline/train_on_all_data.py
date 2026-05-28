@@ -48,6 +48,7 @@ def tokenize(examples):
     return tokenizer(examples["text"], truncation=True, max_length=256, padding="max_length")
 tokenized_dataset = dataset.map(tokenize, batched=True)
 
+# ✅ Fixed: use_cpu=True instead of no_cuda
 training_args = TrainingArguments(
     output_dir="./scam-model-full",
     num_train_epochs=1,
@@ -58,7 +59,7 @@ training_args = TrainingArguments(
     learning_rate=5e-5,
     report_to="none",
     fp16=False,
-    no_cuda=True,
+    use_cpu=True,
     save_total_limit=2,
 )
 
