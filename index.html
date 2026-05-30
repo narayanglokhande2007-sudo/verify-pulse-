@@ -1,13 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyPulse - Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>VerifyPulse - Cybersecurity & Fact Check</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #ffffff;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 20px;
+      touch-action: manipulation;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
+    h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
+    .tagline { color: #475569; font-size: 14px; }
+    .lang-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .lang-btn { padding: 8px 20px; border-radius: 20px; border: 2px solid #2563eb; background: transparent; color: #2563eb; cursor: pointer; font-size: 14px; width: auto; margin: 0; transition: 0.2s; }
+    .lang-btn.active { background: #2563eb; color: #ffffff; }
+    .scam-alert { background: rgba(37,99,235,0.05); border: 1px solid #2563eb; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    .scam-alert h3 { color: #1e40af; margin-bottom: 10px; font-size: 14px; }
+    .scam-item { display: flex; justify-content: space-between; align-items: center; background: rgba(37,99,235,0.05); padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; font-size: 12px; color: #334155; }
+    .scam-item a { color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 11px; white-space: nowrap; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+    .stat-card { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
+    .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
+    .tab { flex: 1; min-width: 80px; padding: 8px 5px; background: rgba(37,99,235,0.05); border: 1px solid #cbd5e1; border-radius: 8px; color: #475569; cursor: pointer; text-align: center; font-size: 11px; transition: 0.3s; }
+    .tab.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .section { display: none; }
+    .section.active { display: block; }
+    textarea, input[type="text"], input[type="password"] { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc; color: #1e293b; font-size: 16px; font-family: inherit; margin-bottom: 15px; }
+    textarea { min-height: 100px; resize: vertical; }
+    textarea:focus, input:focus { outline: none; border-color: #2563eb; }
+    button { width: 100%; padding: 15px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+    button:active { transform: scale(0.98); }
+    button:hover { background: #1d4ed8; }
+    .btn-clear { background: transparent; border: 2px solid #2563eb; color: #2563eb; }
+    .btn-clear:hover { background: rgba(37,99,235,0.1); }
+    .loading { display: none; text-align: center; color: #475569; padding: 15px; }
+    .result { display: none; margin-top: 15px; }
+    .verdict-box { padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #fff; }
+    .verdict-danger { background: #ef4444; }
+    .verdict-suspicious { background: #f59e0b; }
+    .verdict-safe { background: #22c55e; }
+    .verdict-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+    .scam-type-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+    .confidence { font-size: 16px; font-weight: bold; }
+    .analysis-box, .findings-box, .what-to-do-box { background: #f8fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #2563eb; margin-bottom: 10px; }
+    .analysis-box h4, .findings-box h4, .what-to-do-box h4 { color: #1e40af; margin-bottom: 8px; }
+    .analysis-box p { color: #334155; font-size: 14px; line-height: 1.5; }
+    .findings-box ul, .what-to-do-box ul { margin: 0; padding-left: 20px; color: #334155; font-size: 14px; }
+    .findings-box li, .what-to-do-box li { margin-bottom: 5px; }
+    .share-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+    .share-btn { background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: bold; width: auto; margin: 0; }
+    .privacy { margin-top: 15px; padding: 12px; background: rgba(37,99,235,0.05); border: 1px solid #2563eb; border-radius: 10px; text-align: center; color: #475569; font-size: 13px; }
+    .error-box { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; padding: 15px; border-radius: 10px; margin-top: 15px; }
+    .password-strength { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 14px; }
+    .strength-weak { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; }
+    .strength-medium { background: #fffbeb; border: 1px solid #f59e0b; color: #b45309; }
+    .strength-strong { background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; }
+    .tips { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-top: 15px; }
+    .tips h4 { color: #1e40af; margin-bottom: 10px; }
+    .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
+    .tip-item:last-child { border-bottom: none; }
+    .big-card-buttons { display: flex; gap: 6px; margin-bottom: 0; }
+    .big-card-btn { flex: 1; padding: 14px 8px; background: transparent; border: 2px solid #2563eb; border-radius: 10px 10px 0 0; color: #2563eb; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; }
+    .big-card-btn.active { background: #2563eb; color: #ffffff; border-bottom: 2px solid #f0f4ff; }
+    .big-card-content { border: 2px solid #2563eb; border-top: none; border-radius: 0 0 10px 10px; padding: 20px; background: #f0f4ff; }
+    .big-card-content h2 { font-size: 20px; color: #1e40af; margin-bottom: 18px; }
+    .big-card-content input, .big-card-content textarea { font-size: 17px; padding: 16px; }
+    .big-card-content textarea { min-height: 70px; }
+    .big-card-content button { font-size: 17px; padding: 16px; }
+    #moreBtn { font-size: 16px; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; width: 100%; font-weight: bold; margin-top: 15px; }
+    #moreToolsContainer { margin-top: 0; }
+    #moreToolsContainer .tabs { margin-top: 5px; }
+    .try-example { margin-top: 10px; font-size: 12px; color: #475569; }
+    .try-example a { color: #2563eb; text-decoration: underline; cursor: pointer; margin: 0 5px; }
+    .info-section { margin: 20px 0; }
+    .info-section h4 { color: #1e40af; margin-bottom: 10px; }
+    .info-section p, .info-section li { font-size: 14px; color: #334155; line-height: 1.5; }
+    .feedback-btn { background: #22c55e; color: #fff; }
+    .telegram-btn { background: #0088cc; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+    .extension-btn { background: #f0f4ff; color: #2563eb; border: 2px solid #2563eb; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+    @media (max-width: 640px) {
+      .big-card-btn, .tab { font-size: 10px; padding: 8px 4px; }
+      button { padding: 12px; }
+      .container { padding: 0; }
+    }
+  </style>
 </head>
 <body>
-    <h1>VerifyPulse Test Page</h1>
-    <button onclick="alert('Button works! Touch is fine.')">Test Button 1</button>
-    <br><br>
-    <button onclick="fetch('/api/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:'test',checkType:'url'})}).then(r=>r.json()).then(d=>alert('API response: '+JSON.stringify(d))).catch(e=>alert('API error: '+e))">Test Button 2 (API)</button>
-</body>
-</html>
+<div class="container">
+  <header>
+    <h1>⚡ VerifyPulse</h1>
+    <p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p>
+  </header>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en', event)">🇬🇧 English</button>
+    <button class="lang-btn" onclick="setLang('hi', event)">🇮🇳 हिंदी</button>
+  </div>
+  <div class="stats">
+    <div class="stat-card"><div class="stat-number" id="totalChecks">0</div><div class="stat-label" id="statLabel1">Total Checks</div></div>
+    <div class="stat-card"><div class="stat-number" id="scamsFound">0</div><div class="stat-label" id="statLabel2">Scams Found</div></div>
+    <div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div>
+  </div>
+  <div style="text-align:center; padding:10px 0; margin-bottom:15px;">
+    <p style="font-size:20px; font-weight:bold; color:#1e40af; margin-bottom:5px;">Check links, messages, and scams before you trust them.</p>
+    <p style="font-size:14px; color:#475569;">Fast. Private. Easy to use.</p>
+  </div>
+  <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+    <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;"><button class="telegram-btn" type="button">🤖 Try on Telegram</button></a>
+    <button class="extension-btn" onclick="alert('Chrome Extension coming soon! Stay tuned.')" type="button">💻 Chrome Extension (Soon)</button>
+  </div>
+  <div class="big-card-buttons">
+    <button class="big-card-btn active" id="btnUrlMain" onclick="toggleMain('url')">🔗 URL Scanner</button>
+    <button class="big-card-btn" id="btnPhishMain" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
+  </div>
+  <div class="big-card-content" id="bigCardContent">
+    <div id="main-url-section">
+      <h2>🔗 URL Scanner</h2>
+      <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
+      <button onclick="checkURL()">🔍 Scan URL</button>
+      <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
+      <div class="loading" id="urlLoading">⏳ Scanning...</div>
+      <div class="result" id="urlResult"></div>
+    </div>
+    <div id="main-phishing-section" style="display:none;">
+      <h2>📧 Phishing Detector</h2>
+      <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
+      <button onclick="checkPhishing()">🛡️ Check Phishing</button>
+      <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
+      <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
+      <div class="result" id="phishingResult"></div>
+    </div>
+  </div>
+  <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
+  <div id="moreToolsContainer" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('news', this)">📰 Fake News</button>
+      <button class="tab" onclick="switchTab('password', this)">🔐 Password</button>
+      <button class="tab" onclick="switchTab('scam', this)">⚠️ Scam</button>
+      <button class="tab" onclick="switchTab('phone', this)">📞 Phone</button>
+      <button class="tab" onclick="switchTab('upi', this)">💳 UPI</button>
+      <button class="tab" onclick="switchTab('gmail', this)">📧 Gmail</button>
+    </div>
+    <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim to fact-check..."></textarea><button onclick="checkNews()">✨ Check News</button><button class="btn-clear" onclick="clearField('newsInput','newsResult')">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
+    <div class="section" id="password-section"><div class="card"><input type="password" id="passwordInput" placeholder="Enter password to check strength..." oninput="checkPasswordLive()"><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
+    <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message or offer..."></textarea><button onclick="checkScam()">⚠️ Detect Scam</button><button class="btn-clear" onclick="clearField('scamInput','scamResult')">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div><div class="try-example">Try: <a onclick="document.getElementById('scamInput').value='CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.'; checkScam();">WhatsApp Scam</a> | <a onclick="document.getElementById('scamInput').value='Your SBI account will be blocked. Update KYC now: http://fake-sbi.com'; checkScam();">Bank Scam</a> | <a onclick="document.getElementById('scamInput').value='Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.'; checkScam();">Job Scam</a></div></div></div>
+    <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button onclick="checkPhone()">📞 Check Number</button><button class="btn-clear" onclick="clearField('phoneInput','phoneResult')">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
+    <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button onclick="checkUPI()">💳 Check UPI</button><button class="btn-clear" onclick="clearField('upiInput','upiResult')">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
+    <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button onclick="checkGmail()">📧 Check Gmail</button><button class="btn-clear" onclick="clearField('gmailInput','gmailResult')">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
+  </div>
+  <div class="scam-alert" style="margin-top:15px;">
+    <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
+    <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp <a onclick="tryScamExample('CONGRATULATIONS! You won 1 crore rupees! Pay ₹5000 to claim.')">Try this scam</a></div>
+    <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS - Do not click links <a onclick="tryScamExample('Your SBI account will be blocked. Update KYC now: http://fake-sbi.com')">Try this scam</a></div>
+    <div class="scam-item" id="alert3">⚠️ Job fraud emails asking advance payment <a onclick="tryScamExample('Earn ₹10,000/day working from home. No experience needed. Pay ₹999 registration.')">Try this scam</a></div>
+    <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails with malicious links <a onclick="tryScamExample('Your electricity bill is pending. Pay immediately to avoid disconnection: http://fake-ebill.com')">Try this scam</a></div>
+  </div>
+  <div class="info-section card"><h4>🔍 How It Works</h4><p>1️⃣ Paste any suspicious message, link, or email.<br>2️⃣ Our AI analyzes patterns.<br>3️⃣ Get instant verdict with confidence score, red flags, and action steps.</p></div>
+  <div class="info-section card"><h4>🌍 Global Use Cases</h4><div class="tabs" style="justify-content: space-around;"><span style="padding:5px 10px; background:#fef2f2; border-radius:20px;">Amazon Scam</span><span style="padding:5px 10px; background:#fffbeb; border-radius:20px;">PayPal Phishing</span><span style="padding:5px 10px; background:#f0fdf4; border-radius:20px;">Lottery Scam</span><span style="padding:5px 10px; background:#e0e7ff; border-radius:20px;">Fake Delivery</span></div></div>
+  <div class="info-section"><p style="font-style:italic; color:#475569;"><strong>Limitations:</strong> This tool may not be 100% accurate. Always verify sensitive information through official channels.</p></div>
+  <div class="info-section" style="text-align:center;"><p style="font-size:18px; font-weight:bold; color:#1e40af;">Our Mission: Make the internet safer for everyone.</p></div>
+  <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;"><button class="feedback-btn" style="margin-bottom:15px;">📢 Give Feedback</button></a>
+  <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
+  <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse</div>
+</div>
+
+<script>
+  // Translations
+  const translations = {
+    en: { tagline: 'AI-Powered Cybersecurity & Fact Checking', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total Checks', statLabel2: 'Scams Found', statLabel3: 'Safe Items' },
+    hi: { tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित' }
+  };
+  function setLang(lang, e) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    const t = translations[lang];
+    document.getElementById('tagline').textContent = t.tagline;
+    document.getElementById('alertTitle').textContent = t.alertTitle;
+    let a1 = document.getElementById('alert1').firstChild; if(a1) a1.nodeValue = t.alert1;
+    let a2 = document.getElementById('alert2').firstChild; if(a2) a2.nodeValue = t.alert2;
+    let a3 = document.getElementById('alert3').firstChild; if(a3) a3.nodeValue = t.alert3;
+    let a4 = document.getElementById('alert4').firstChild; if(a4) a4.nodeValue = t.alert4;
+    document.getElementById('statLabel1').textContent = t.statLabel1;
+    document.getElementById('statLabel2').textContent = t.statLabel2;
+    document.getElementById('statLabel3').textContent = t.statLabel3;
+  }
+
+  // Stats
+  let totalChecks = 0, scamsFound = 0, safeItems = 0;
+  try { totalChecks = parseInt(localStorage.getItem('totalChecks')||'0'); scamsFound = parseInt(localStorage.getItem('scamsFound')||'0'); safeItems = parseInt(localStorage.getItem('safeItems')||'0'); } catch(e) {}
+  function updateStats() { document.getElementById('totalChecks').textContent = totalChecks; document.getElementById('scamsFound').textContent = scamsFound; document.getElementById('safeItems').textContent = safeItems; }
+  updateStats();
+  function recordResult(verdict) {
+    totalChecks++;
+    const v = (verdict||'').toUpperCase();
+    if(v==='SAFE'||v==='TRUE'||v==='STRONG') safeItems++;
+    else if(['SCAM','PHISHING','DANGEROUS','FRAUD','FALSE','WEAK'].includes(v)) scamsFound++;
+    try { localStorage.setItem('totalChecks',totalChecks); localStorage.setItem('scamsFound',scamsFound); localStorage.setItem('safeItems',safeItems); } catch(e) {}
+    updateStats();
+  }
+
+  function toggleMain(type) {
+    const btns = document.querySelectorAll('.big-card-btn');
+    btns.forEach(btn=>btn.classList.remove('active'));
+    if(typ
