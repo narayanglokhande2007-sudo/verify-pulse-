@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>VerifyPulse - Cybersecurity & Fact Check</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,6 +12,7 @@
       color: #1e293b;
       min-height: 100vh;
       padding: 20px;
+      touch-action: manipulation;
     }
     .container { max-width: 720px; margin: 0 auto; }
     header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
@@ -21,7 +22,7 @@
     .lang-btn {
       padding: 8px 20px; border-radius: 20px; border: 2px solid #2563eb;
       background: transparent; color: #2563eb; cursor: pointer; font-size: 14px;
-      width: auto; margin: 0;
+      width: auto; margin: 0; transition: 0.2s;
     }
     .lang-btn.active { background: #2563eb; color: #ffffff; }
     .scam-alert {
@@ -47,7 +48,7 @@
       flex: 1; min-width: 80px; padding: 8px 5px;
       background: rgba(37,99,235,0.05); border: 1px solid #cbd5e1;
       border-radius: 8px; color: #475569; cursor: pointer; text-align: center;
-      font-size: 11px; transition: all 0.3s;
+      font-size: 11px; transition: 0.3s;
     }
     .tab.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
     .card {
@@ -66,8 +67,9 @@
     button {
       width: 100%; padding: 15px; background: #2563eb; color: #ffffff;
       border: none; border-radius: 10px; font-size: 16px; font-weight: bold;
-      cursor: pointer; margin-bottom: 10px;
+      cursor: pointer; margin-bottom: 10px; transition: 0.2s;
     }
+    button:active { transform: scale(0.98); }
     button:hover { background: #1d4ed8; }
     .btn-clear {
       background: transparent; border: 2px solid #2563eb; color: #2563eb;
@@ -113,16 +115,16 @@
     .tips h4 { color: #1e40af; margin-bottom: 10px; }
     .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
     .tip-item:last-child { border-bottom: none; }
-    .big-card-buttons { display: flex; gap: 6px; margin-bottom: 0; position: relative; z-index: 1; }
+    .big-card-buttons { display: flex; gap: 6px; margin-bottom: 0; }
     .big-card-btn {
       flex: 1; padding: 14px 8px; background: transparent; border: 2px solid #2563eb;
       border-radius: 10px 10px 0 0; color: #2563eb; cursor: pointer; font-size: 15px; font-weight: bold;
-      text-align: center; transition: all 0.2s;
+      text-align: center;
     }
     .big-card-btn.active { background: #2563eb; color: #ffffff; border-bottom: 2px solid #f0f4ff; }
     .big-card-content {
       border: 2px solid #2563eb; border-top: none; border-radius: 0 0 10px 10px;
-      padding: 20px; background: #f0f4ff; position: relative; z-index: 0;
+      padding: 20px; background: #f0f4ff;
     }
     .big-card-content h2 { font-size: 20px; color: #1e40af; margin-bottom: 18px; }
     .big-card-content input, .big-card-content textarea { font-size: 17px; padding: 16px; }
@@ -143,6 +145,11 @@
     .feedback-btn { background: #22c55e; color: #fff; }
     .telegram-btn { background: #0088cc; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
     .extension-btn { background: #f0f4ff; color: #2563eb; border: 2px solid #2563eb; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+    @media (max-width: 640px) {
+      .big-card-btn, .tab { font-size: 10px; padding: 8px 4px; }
+      button { padding: 12px; }
+      .container { padding: 0; }
+    }
   </style>
 </head>
 <body>
@@ -165,12 +172,12 @@
     <p style="font-size:14px; color:#475569;">Fast. Private. Easy to use.</p>
   </div>
   <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
-    <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;"><button class="telegram-btn">🤖 Try on Telegram</button></a>
-    <a href="#" onclick="alert('Chrome Extension coming soon! Stay tuned.')" style="text-decoration: none;"><button class="extension-btn">💻 Chrome Extension (Soon)</button></a>
+    <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;"><button class="telegram-btn" type="button">🤖 Try on Telegram</button></a>
+    <button class="extension-btn" onclick="alert('Chrome Extension coming soon! Stay tuned.')" type="button">💻 Chrome Extension (Soon)</button>
   </div>
   <div class="big-card-buttons">
-    <button class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
-    <button class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
+    <button class="big-card-btn active" id="btnUrlMain" onclick="toggleMain('url')">🔗 URL Scanner</button>
+    <button class="big-card-btn" id="btnPhishMain" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
   </div>
   <div class="big-card-content" id="bigCardContent">
     <div id="main-url-section">
@@ -273,7 +280,7 @@
   </div>
   <div class="info-section card">
     <h4>🔍 How It Works</h4>
-    <p>1️⃣ Paste any suspicious message, link, or email.<br>2️⃣ Our AI (trained on 10,000+ Indian scams) analyzes patterns.<br>3️⃣ Get instant verdict with confidence score, red flags, and action steps.</p>
+    <p>1️⃣ Paste any suspicious message, link, or email.<br>2️⃣ Our AI analyzes patterns.<br>3️⃣ Get instant verdict with confidence score, red flags, and action steps.</p>
   </div>
   <div class="info-section card">
     <h4>🌍 Global Use Cases</h4>
@@ -290,9 +297,7 @@
   <div class="info-section" style="text-align:center;">
     <p style="font-size:18px; font-weight:bold; color:#1e40af;">Our Mission: Make the internet safer for everyone.</p>
   </div>
-  <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;">
-    <button class="feedback-btn" style="margin-bottom:15px;">📢 Give Feedback</button>
-  </a>
+  <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;"><button class="feedback-btn" style="margin-bottom:15px;">📢 Give Feedback</button></a>
   <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
   <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse</div>
 </div>
@@ -309,10 +314,10 @@
     const t = translations[lang];
     document.getElementById('tagline').textContent = t.tagline;
     document.getElementById('alertTitle').textContent = t.alertTitle;
-    document.getElementById('alert1').firstChild.nodeValue = t.alert1;
-    document.getElementById('alert2').firstChild.nodeValue = t.alert2;
-    document.getElementById('alert3').firstChild.nodeValue = t.alert3;
-    document.getElementById('alert4').firstChild.nodeValue = t.alert4;
+    let a1 = document.getElementById('alert1').firstChild; if(a1) a1.nodeValue = t.alert1;
+    let a2 = document.getElementById('alert2').firstChild; if(a2) a2.nodeValue = t.alert2;
+    let a3 = document.getElementById('alert3').firstChild; if(a3) a3.nodeValue = t.alert3;
+    let a4 = document.getElementById('alert4').firstChild; if(a4) a4.nodeValue = t.alert4;
     document.getElementById('statLabel1').textContent = t.statLabel1;
     document.getElementById('statLabel2').textContent = t.statLabel2;
     document.getElementById('statLabel3').textContent = t.statLabel3;
@@ -320,8 +325,4 @@
 
   // ========== STATS ==========
   let totalChecks = 0, scamsFound = 0, safeItems = 0;
-  try { totalChecks = parseInt(localStorage.getItem('totalChecks') || '0'); scamsFound = parseInt(localStorage.getItem('scamsFound') || '0'); safeItems = parseInt(localStorage.getItem('safeItems') || '0'); } catch(e) {}
-  function updateStats() {
-    document.getElementById('totalChecks').textContent = totalChecks;
-    document.getElementById('scamsFound').textContent = scamsFound;
-    document.getEleme
+  try { totalChecks = parseInt(localStorage.getItem('totalChecks') || '0'); scamsFound = parseInt(localStorage.getItem('scamsFound') || '0')
