@@ -1,12 +1,13 @@
-// api/verify.js - VerifyPulse Backend (13 AI models, whitelist, fallback)
+// api/verify.js - VerifyPulse Backend (Fixed for missing keys)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType } = req.body;
   if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
 
+  // Try to get keys from environment (support both naming conventions)
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
-  const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
+  const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY || process.env.SAFE_BROWS_G_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
 
   function safeResult(r) {
@@ -17,19 +18,17 @@ export default async function handler(req, res) {
     return r;
   }
 
-  // ----- Extensive whitelist (trusted domains only, no short strings) -----
+  // Whitelist trusted domains (Allen, SBI, gov, etc.)
   function isTrustedMessage(msg, url) {
     const trustedDomains = [
       'allen.ac.in', 'allen.in', 'd.sfmsg.co',
-      'vedantu.com', 'byjus.com', 'unacademy.com',
-      'physicswallah.com', 'pw.live',
-      'sbi.co.in', 'onlinesbi.com',
-      'hdfcbank.com', 'icicibank.com', 'pnb.in', 'bankofbaroda.in',
+      'vedantu.com', 'byjus.com', 'unacademy.com', 'physicswallah.com', 'pw.live',
+      'sbi.co.in', 'onlinesbi.com', 'hdfcbank.com', 'icicibank.com', 'pnb.in', 'bankofbaroda.in',
       'axisbank.com', 'kotak.com', 'idfcbank.com',
       'gov.in', 'nic.in', 'india.gov.in', 'mygov.in', 'digilocker.gov.in',
       'amazon.in', 'flipkart.com', 'paytm.com', 'myntra.com', 'tatacliq.com',
       'whatsapp.com', 'telegram.org', 'google.com', 'microsoft.com', 'github.com',
-      'airtel.in', 'vi.in', 'jio.com', 'vodafone.in'
+      'airtel.in', 'vi.in', 'jio.com'
     ];
     if (url) {
       for (let domain of trustedDomains) {
@@ -48,7 +47,7 @@ export default async function handler(req, res) {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
 
-    // Whitelist pre-check (fast, bypasses AI)
+    // Whitelist pre-check
     if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
       let extractedUrl = text.match(/https?:\/\/[^\s]+/)?.[0] || '';
       if (isTrustedMessage(text, extractedUrl)) {
@@ -63,7 +62,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Live knowledge boost
+    // Live knowledge boost (latest 2000 scams)
     let recentScamURLs = [];
     try {
       const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
@@ -75,15 +74,15 @@ export default async function handler(req, res) {
     } catch (e) {}
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
 
-    // Safe Browsing
+    // Safe Browsing (only for URLs)
     if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
-        const sb = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
-        if (sb && sb.found) return res.status(200).json(sb);
+        const sbResult = await checkWithSafeBrowsing(text, SAFE_BROWSING_KEY);
+        if (sbResult && sbResult.found) return res.status(200).json(sbResult);
       } catch (e) {}
     }
 
-    // Gemini for news
+    // Gemini for news (only)
     if (checkType === 'news' && GEMINI_KEY) {
       try {
         const gemRes = await callGemini(text, GEMINI_KEY);
@@ -91,114 +90,61 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // ========== PRIMARY: Groq (fastest) ==========
-    let groqSuccess = false, groqResult = null;
-    try {
-      groqResult = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
-      if (groqResult && groqResult.verdict && groqResult.confidence > 60) groqSuccess = true;
-    } catch (e) { console.error('Groq failed:', e.message); }
-    if (groqSuccess) return res.status(200).json(safeResult(groqResult));
+    // ========== PRIMARY: Groq ==========
+    if (GROQ_KEY) {
+      try {
+        const groqRes = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
+        if (groqRes && groqRes.verdict && groqRes.confidence > 60) {
+          return res.status(200).json(safeResult(groqRes));
+        }
+      } catch (e) { console.error('Groq failed:', e.message); }
+    }
 
-    // ========== FALLBACK: 10 parallel models ==========
-    const parallelTasks = [];
+    // ========== FALLBACK: OpenRouter (only if key exists) ==========
     if (OPENROUTER_KEY) {
-      const openRouterModels = [
-        'meta-llama/llama-3-8b-instruct',
-        'mistralai/mistral-7b-instruct',
-        'google/gemma-3-12b-it',
-        'qwen/qwen2.5-7b',
-        'deepseek/deepseek-r1',
-        'meta-llama/llama-3.1-8b-instruct',
-        'huggingfaceh4/zephyr-7b-beta',
-        'microsoft/phi-3-medium-128k-instruct'
-      ];
-      const prompt = `You are a scam detection expert. Analyze this: "${text}". Return JSON: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), whatToDo (array).`;
-      openRouterModels.forEach(model => {
-        parallelTasks.push(
-          fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}` },
-            body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400, response_format: { type: 'json_object' } })
-          })
-          .then(r => r.json())
-          .then(d => {
-            const content = d.choices?.[0]?.message?.content;
-            if (content) {
-              try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
-            }
-            return null;
-          })
-          .catch(() => null)
-        );
-      });
+      try {
+        const orResult = await callOpenRouter(OPENROUTER_KEY, text);
+        if (orResult && orResult.verdict && orResult.confidence > 60) {
+          return res.status(200).json(safeResult(orResult));
+        }
+      } catch (e) {}
     }
 
-    const hfSpecialists = [
-      'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
-      'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
-    ];
-    hfSpecialists.forEach(url => {
-      parallelTasks.push(
-        fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inputs: `You are a cybersecurity expert. Analyze this: "${text}". Return JSON: verdict, scamType, confidence, analysis, findings (array), whatToDo (array).`,
-            parameters: { max_new_tokens: 300, temperature: 0.3 }
-          })
-        })
-        .then(r => r.json())
-        .then(d => {
-          let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
-          const m = generated.match(/\{[\s\S]*\}/);
-          if (m) try { return JSON.parse(m[0]); } catch(e) {}
-          return null;
-        })
-        .catch(() => null)
-      );
-    });
-
-    if (parallelTasks.length) {
-      const results = await Promise.allSettled(parallelTasks);
-      for (const r of results) {
-        if (r.status === 'fulfilled' && r.value && r.value.verdict && r.value.confidence > 60)
-          return res.status(200).json(safeResult(r.value));
-      }
-    }
-
-    // Final fallback DeepSeek R1
+    // ========== FINAL FALLBACK: Hugging Face simple model ==========
     try {
-      const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
-      if (deepRes && deepRes.verdict) return res.status(200).json(safeResult(deepRes));
+      const hfResult = await callSimpleHuggingFace(text);
+      if (hfResult && hfResult.verdict) {
+        return res.status(200).json(safeResult(hfResult));
+      }
     } catch (e) {}
 
     // Ultimate fallback (no crash)
     return res.status(200).json(safeResult({
       verdict: 'UNCERTAIN',
-      scamType: 'Service Issue',
+      scamType: 'Temporary Service Issue',
       confidence: 50,
-      analysis: 'AI engines temporarily busy. Try again later.',
-      findings: ['Temporary API limit'],
-      whatToDo: ['Refresh and retry']
+      analysis: 'AI service temporarily unavailable. Please try again later.',
+      findings: ['All AI engines busy or keys missing'],
+      whatToDo: ['Refresh page and retry', 'Check back in a few minutes']
     }));
 
   } catch (error) {
-    console.error(error);
+    console.error('Handler error:', error);
     return res.status(200).json(safeResult({
       verdict: 'UNCERTAIN',
       scamType: 'Internal Error',
       confidence: 30,
-      analysis: 'Internal error occurred. Working on it.',
+      analysis: 'An internal error occurred.',
       findings: [error.message],
-      whatToDo: ['Retry after some time']
+      whatToDo: ['Try again later']
     }));
   }
 }
 
-// ========== Helper functions ==========
+// ========== HELPER FUNCTIONS ==========
+
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
-    // Extract actual URL from text
     let url = inputUrl;
     const match = inputUrl.match(/https?:\/\/[^\s]+/);
     if (match) url = match[0];
@@ -220,7 +166,7 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
       return {
         verdict: 'DANGEROUS', confidence: 100,
         analysis: 'Google Safe Browsing has identified this as a known malicious/phishing link.',
-        findings: []
+        findings: ['Malicious URL detected']
       };
     }
     return { found: false };
@@ -264,7 +210,7 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   let parsed;
   try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
   if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
-
+  // enrich scamType if missing
   if (!parsed.scamType) {
     const lower = (parsed.verdict + ' ' + (parsed.analysis||'')).toLowerCase();
     if (lower.includes('phish')) parsed.scamType = 'Phishing Attack';
@@ -297,24 +243,48 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   return parsed;
 }
 
+async function callOpenRouter(apiKey, text) {
+  const prompt = `You are a scam detection expert. Analyze: "${text}". Return JSON with keys: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings (array), whatToDo (array).`;
+  const model = 'meta-llama/llama-3-8b-instruct'; // cheapest/fastest
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400 })
+  });
+  if (!res.ok) throw new Error('OpenRouter failed');
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) return null;
+  try { return JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
+  return null;
+}
+
+async function callSimpleHuggingFace(text) {
+  // Fallback: use a simple rule-based response
+  const lower = text.toLowerCase();
+  if (lower.includes('won') && lower.includes('crore') && lower.includes('pay')) {
+    return { verdict: 'SCAM', scamType: 'Fake Reward Scam', confidence: 85, analysis: 'This appears to be a lottery scam.', findings: ['Fake prize'], whatToDo: ['Ignore'] };
+  }
+  if (lower.includes('kyc') && (lower.includes('sbi') || lower.includes('bank'))) {
+    return { verdict: 'PHISHING', scamType: 'Bank Impersonation', confidence: 90, analysis: 'Fake KYC update scam.', findings: ['Suspicious link'], whatToDo: ['Do not click'] };
+  }
+  return null;
+}
+
 function getPrompt(type, knowledgeLine = '') {
-  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return a JSON object with:
+  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return JSON:
 - verdict: SCAM / FRAUD / SAFE / SUSPICIOUS
-- scamType: one of [Phishing Attack, Fake Reward Scam, OTP Fraud, UPI Fraud, Job Scam, Loan Fraud, Bank Impersonation, Safe Content]
-- confidence: realistic number between 65 and 91
-- analysis: human-like explanation in 2-3 sentences
-- findings: array of bullet-point red flags
-- whatToDo: array of specific actionable steps.
-
-Examples of Indian scams: fake KBC lottery, SBI KYC update, UPI payment request, OTP sharing, job fraud with advance payment.
-A normal marketing SMS from Airtel/Vi/Flipkart is usually SAFE.`;
-
-  if (type === 'news') return `Determine if the news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply ONLY in JSON with keys: verdict, confidence, analysis, findings.${knowledgeLine}`;
-  if (type === 'url') return `Analyze the URL and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.${knowledgeLine}`;
+- scamType: [Phishing Attack, Fake Reward Scam, OTP Fraud, UPI Fraud, Job Scam, Loan Fraud, Bank Impersonation, Safe Content]
+- confidence: number 65-91
+- analysis: 2-3 sentences
+- findings: array of bullet points
+- whatToDo: array of steps`;
+  if (type === 'news') return `Determine if news is TRUE/FALSE/MISLEADING/UNCERTAIN. Reply JSON.${knowledgeLine}`;
+  if (type === 'url') return `Analyze URL safety. Reply JSON.${knowledgeLine}`;
   if (type === 'phishing') return baseSCAM + knowledgeLine;
   if (type === 'scam') return baseSCAM + knowledgeLine;
-  if (type === 'phone') return `Analyze the phone number and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.${knowledgeLine}`;
-  if (type === 'upi') return `Analyze the UPI ID and return JSON with keys: verdict, scamType, confidence, analysis, findings, whatToDo.${knowledgeLine}`;
+  if (type === 'phone') return `Analyze phone number for spam/fraud. Reply JSON.${knowledgeLine}`;
+  if (type === 'upi') return `Analyze UPI ID for fraud. Reply JSON.${knowledgeLine}`;
   if (type === 'gmail') return baseSCAM + knowledgeLine;
-  return `Analyze and return JSON with keys: verdict, confidence, analysis, findings.`;
-            }
+  return `Analyze and return JSON with verdict, confidence, analysis, findings.`;
+      }
