@@ -3,88 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Pulse - Scam Checker</title>
+    <title>Verify Pulse - Security Check</title>
+    <!-- Tailwind CSS for Modern Minimalist UI -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: system-ui, -apple-system, sans-serif; }
-    </style>
 </head>
-<body class="bg-gray-50">
-    <div class="max-w-2xl mx-auto p-6">
+<body class="bg-[#f8fafc] font-sans text-gray-800 antialiased selection:bg-blue-200">
+    
+    <div class="max-w-md mx-auto mt-10 p-5">
+        
+        <!-- Header Section -->
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-600">Verify Pulse</h1>
-            <p class="text-lg text-gray-700 mt-2">Check links, messages, and scams before you trust them.</p>
-            <p class="text-sm text-gray-500">Fast. Private. Easy to use.</p>
+            <h1 class="text-[32px] font-bold text-blue-600 mb-2 tracking-tight">Verify Pulse</h1>
+            <p class="text-gray-600 text-sm leading-relaxed">
+                Check links, messages, and scams before<br>you trust them.
+                <br><span class="text-gray-500 mt-1 block">Fast. Private. Easy to use.</span>
+            </p>
         </div>
 
-        <!-- Telegram and Chrome -->
+        <!-- Top Action Buttons -->
         <div class="flex flex-col gap-3 mb-8">
-            <button onclick="alert('Telegram bot coming soon!')" class="bg-blue-600 text-white py-3 px-6 rounded-full font-medium flex items-center justify-center gap-2">
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-[20px] flex items-center justify-center gap-2 shadow-sm transition-all duration-200">
                 🤖 Try on Telegram
             </button>
-            <button onclick="alert('Chrome Extension coming soon!')" class="border border-blue-600 text-blue-600 py-3 px-6 rounded-full font-medium flex items-center justify-center gap-2">
+            <button class="w-full bg-transparent border border-blue-200 text-blue-600 font-medium py-3 px-4 rounded-[20px] flex items-center justify-center gap-2 hover:bg-blue-50 transition-all duration-200">
                 💻 Chrome Extension (Soon)
             </button>
         </div>
 
-        <!-- Unified Checker -->
-        <div class="bg-white rounded-2xl shadow-sm border p-6 mb-8">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="text-2xl">🔍</div>
-                <h2 class="text-2xl font-semibold">Check Messages and Links</h2>
-            </div>
-            <textarea id="inputText" rows="6" class="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 resize-y" placeholder="Paste any link, SMS, WhatsApp message, or email here..."></textarea>
+        <!-- Main Input Card -->
+        <div class="bg-white rounded-3xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 mb-6">
+            <h2 class="text-[17px] font-medium mb-4 flex items-center gap-2 text-black">
+                🔍 Check Messages and Links
+            </h2>
+            <textarea 
+                class="w-full border border-gray-200 rounded-2xl p-4 h-32 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4 text-[15px] placeholder-gray-400" 
+                placeholder="Paste any link, SMS, WhatsApp message, or email here..."></textarea>
             
-            <div class="flex gap-3 mt-4">
-                <button onclick="checkContent()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2">
-                    🔍 Check Links and Messages
+            <div class="flex gap-3">
+                <button class="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-200">
+                    🔍 Check Links<br>and Messages
                 </button>
-                <button onclick="clearInput()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 rounded-xl font-semibold">
+                <button class="flex-1 bg-[#f1f5f9] hover:bg-[#e2e8f0] text-gray-600 font-medium py-3 px-4 rounded-xl text-sm transition-all duration-200">
                     Clear
                 </button>
             </div>
         </div>
 
-        <!-- More Tools -->
-        <div class="bg-blue-600 text-white rounded-2xl p-4 text-center mb-8 cursor-pointer" onclick="alert('More tools coming soon!')">
+        <!-- More Tools Dropdown Button -->
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 px-4 rounded-[16px] flex items-center justify-center gap-2 shadow-sm transition-all duration-200 mb-6">
             ▼ More Tools
-        </div>
+        </button>
 
-        <!-- Recent Scam Alerts -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm">
-            <h3 class="font-semibold mb-4 flex items-center gap-2">
-                <span class="text-red-500">🚨</span> Recent Scam Alerts
-            </h3>
-            <div class="space-y-4">
-                <div class="flex justify-between items-start p-3 bg-yellow-50 rounded-xl">
-                    <div>
-                        <p class="font-medium">Fake KBC lottery messages on WhatsApp</p>
-                    </div>
-                    <a href="#" class="text-blue-600 text-sm underline">Try this scam</a>
+        <!-- Recent Scam Alerts Card -->
+        <div class="bg-white rounded-3xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100">
+            <h2 class="text-[15px] font-medium mb-4 flex items-center gap-2 text-black">
+                🚨 Recent Scam Alerts
+            </h2>
+            <div class="flex flex-col gap-3">
+                
+                <!-- Alert Item 1 -->
+                <div class="bg-[#fefce8] p-4 rounded-2xl flex justify-between items-center gap-4">
+                    <p class="text-gray-800 text-[14px] leading-snug">Fake KBC lottery messages on WhatsApp</p>
+                    <a href="#" class="text-blue-600 text-[13px] whitespace-nowrap hover:underline font-medium">Try this scam</a>
                 </div>
-                <div class="flex justify-between items-start p-3 bg-yellow-50 rounded-xl">
-                    <div>
-                        <p class="font-medium">Fake SBI KYC update SMS - Do not click links</p>
-                    </div>
-                    <a href="#" class="text-blue-600 text-sm underline">Try this scam</a>
+                
+                <!-- Alert Item 2 -->
+                <div class="bg-[#fefce8] p-4 rounded-2xl flex justify-between items-center gap-4">
+                    <p class="text-gray-800 text-[14px] leading-snug">Fake SBI KYC update SMS - Do not click links</p>
+                    <a href="#" class="text-blue-600 text-[13px] whitespace-nowrap hover:underline font-medium">Try this scam</a>
                 </div>
+
             </div>
         </div>
+
     </div>
-
-    <script>
-        function checkContent() {
-            const text = document.getElementById('inputText').value.trim();
-            if (!text) {
-                alert('Please paste something to check!');
-                return;
-            }
-            alert('Scanning: ' + text.substring(0, 100) + '...\n\nResult: This looks suspicious. Be careful! (Demo)');
-        }
-
-        function clearInput() {
-            document.getElementById('inputText').value = '';
-        }
-    </script>
 </body>
 </html>
