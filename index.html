@@ -1,22 +1,181 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyPulse - Master Debug Tool</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>VerifyPulse - Cybersecurity</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+        body { font-family: Arial, sans-serif; background: #f0f4ff; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1e40af; margin-bottom: 5px; }
+        .tagline { color: #475569; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .tab { flex: 1; text-align: center; padding: 10px; background: #e2e8f0; border-radius: 10px; cursor: pointer; }
+        .tab.active { background: #2563eb; color: white; }
+        .tool-panel { display: none; margin-top: 15px; }
+        .tool-panel.active { display: block; }
+        textarea, input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 5px 0; transition: 0.1s; }
+        button:active { transform: scale(0.97); }
+        .result-box { background: #f8fafc; padding: 12px; margin-top: 12px; border-radius: 10px; border-left: 4px solid #2563eb; display: none; }
+        .verdict-safe { background: #22c55e20; border-left-color: #22c55e; }
+        .verdict-danger { background: #ef444420; border-left-color: #ef4444; }
+        .verdict-suspicious { background: #f59e0b20; border-left-color: #f59e0b; }
+        .loading { display: none; text-align: center; padding: 10px; color: #475569; }
+        hr { margin: 15px 0; }
+        .privacy { text-align: center; font-size: 12px; color: #475569; margin-top: 15px; }
+    </style>
 </head>
-<body style="font-family:sans-serif; padding:20px;">
-    <h2>Master Debug Tool</h2>
-    <div id="output"></div>
-    <button id="btn1">Test Click Event</button>
-    <button id="btn2">Test Touch Event</button>
-    <script>
-        function showMessage(msg) {
-            let out = document.getElementById('output');
-            out.innerHTML += `<p>✅ ${new Date().toLocaleTimeString()} - ${msg}</p>`;
-        }
+<body>
+<div class="container">
+    <h1>⚡ VerifyPulse</h1>
+    <div class="tagline">AI-Powered Scam Detection (Demo Mode – Fake API)</div>
 
-        document.getElementById('btn1').onclick = () => { showMessage('Click event fired!'); };
-        document.getElementById('btn2').ontouchstart = () => { showMessage('Touchstart event fired!'); };
-    </script>
+    <div class="tabs" id="mainTabs">
+        <div class="tab active" data-tool="url">URL Scanner</div>
+        <div class="tab" data-tool="phishing">Phishing</div>
+        <div class="tab" data-tool="scam">Scam</div>
+        <div class="tab" data-tool="news">Fake News</div>
+        <div class="tab" data-tool="phone">Phone</div>
+        <div class="tab" data-tool="upi">UPI</div>
+        <div class="tab" data-tool="gmail">Gmail</div>
+        <div class="tab" data-tool="password">Password</div>
+    </div>
+
+    <div id="url-panel" class="tool-panel active">
+        <input type="text" id="urlInput" placeholder="Enter URL...">
+        <button id="urlCheckBtn">Scan URL</button>
+        <div class="loading" id="urlLoading">Scanning...</div>
+        <div class="result-box" id="urlResult"></div>
+    </div>
+    <div id="phishing-panel" class="tool-panel">
+        <textarea id="phishInput" rows="3" placeholder="Paste suspicious email/SMS..."></textarea>
+        <button id="phishCheckBtn">Check Phishing</button>
+        <div class="loading" id="phishLoading">Analyzing...</div>
+        <div class="result-box" id="phishResult"></div>
+    </div>
+    <div id="scam-panel" class="tool-panel">
+        <textarea id="scamInput" rows="3" placeholder="Paste suspicious message..."></textarea>
+        <button id="scamCheckBtn">Detect Scam</button>
+        <div class="loading" id="scamLoading">Analyzing...</div>
+        <div class="result-box" id="scamResult"></div>
+    </div>
+    <div id="news-panel" class="tool-panel">
+        <textarea id="newsInput" rows="3" placeholder="Enter news claim..."></textarea>
+        <button id="newsCheckBtn">Check News</button>
+        <div class="loading" id="newsLoading">Analyzing...</div>
+        <div class="result-box" id="newsResult"></div>
+    </div>
+    <div id="phone-panel" class="tool-panel">
+        <input type="text" id="phoneInput" placeholder="Phone number...">
+        <button id="phoneCheckBtn">Check Number</button>
+        <div class="loading" id="phoneLoading">Checking...</div>
+        <div class="result-box" id="phoneResult"></div>
+    </div>
+    <div id="upi-panel" class="tool-panel">
+        <input type="text" id="upiInput" placeholder="UPI ID (name@upi)">
+        <button id="upiCheckBtn">Check UPI</button>
+        <div class="loading" id="upiLoading">Checking...</div>
+        <div class="result-box" id="upiResult"></div>
+    </div>
+    <div id="gmail-panel" class="tool-panel">
+        <textarea id="gmailInput" rows="3" placeholder="Paste Gmail message..."></textarea>
+        <button id="gmailCheckBtn">Check Gmail</button>
+        <div class="loading" id="gmailLoading">Analyzing...</div>
+        <div class="result-box" id="gmailResult"></div>
+    </div>
+    <div id="password-panel" class="tool-panel">
+        <input type="password" id="passwordInput" placeholder="Enter password" oninput="checkPasswordStrength()">
+        <div id="passwordStrength"></div>
+    </div>
+    <hr>
+    <div class="privacy">🔐 Privacy Protected: No data stored</div>
+</div>
+
+<script>
+    async function callFakeAPI(checkType, text) {
+        await new Promise(r => setTimeout(r, 400));
+        return {
+            verdict: "SAFE",
+            scamType: "Demo Mode",
+            confidence: 95,
+            analysis: "Backend reachable. Touch/click working. Now real AI keys can be restored.",
+            findings: ["Demo mode active"],
+            whatToDo: ["No action needed"]
+        };
+    }
+
+    function showResult(containerId, data) {
+        const container = document.getElementById(containerId);
+        const verdict = data.verdict.toUpperCase();
+        let verdictClass = '';
+        if (verdict === 'SAFE') verdictClass = 'verdict-safe';
+        else if (verdict === 'DANGEROUS' || verdict === 'SCAM' || verdict === 'PHISHING') verdictClass = 'verdict-danger';
+        else verdictClass = 'verdict-suspicious';
+        container.className = `result-box ${verdictClass}`;
+        container.innerHTML = `<strong>${data.verdict}</strong> (${data.confidence}%)<br>${data.analysis}<br><small>Findings: ${data.findings.join(', ')}</small>`;
+        container.style.display = 'block';
+    }
+
+    function showError(containerId, message) {
+        document.getElementById(containerId).innerHTML = `<strong>Error:</strong> ${message}`;
+        document.getElementById(containerId).style.display = 'block';
+    }
+
+    async function handleCheck(checkType, inputId, loadingId, resultId) {
+        const text = document.getElementById(inputId).value.trim();
+        if (!text) { alert('Please enter something'); return; }
+        document.getElementById(loadingId).style.display = 'block';
+        document.getElementById(resultId).style.display = 'none';
+        try {
+            const data = await callFakeAPI(checkType, text);
+            showResult(resultId, data);
+        } catch(err) {
+            showError(resultId, err.message);
+        } finally {
+            document.getElementById(loadingId).style.display = 'none';
+        }
+    }
+
+    function checkPasswordStrength() {
+        const pwd = document.getElementById('passwordInput').value;
+        const resultDiv = document.getElementById('passwordStrength');
+        if (!pwd) { resultDiv.innerHTML = ''; return; }
+        let strength = 0;
+        if (pwd.length >= 8) strength++;
+        if (pwd.length >= 12) strength++;
+        if (/[A-Z]/.test(pwd)) strength++;
+        if (/[a-z]/.test(pwd)) strength++;
+        if (/[0-9]/.test(pwd)) strength++;
+        if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+        let text = (strength <= 2) ? 'Weak' : (strength <= 4) ? 'Moderate' : 'Strong';
+        let cls = (text === 'Weak') ? 'verdict-danger' : (text === 'Moderate') ? 'verdict-suspicious' : 'verdict-safe';
+        resultDiv.innerHTML = `<div class="result-box ${cls}" style="display:block">Strength: ${text}</div>`;
+    }
+
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.tool-panel');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tool = tab.getAttribute('data-tool');
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            panels.forEach(p => p.classList.remove('active'));
+            document.getElementById(`${tool}-panel`).classList.add('active');
+        });
+    });
+
+    // Button listeners
+    document.getElementById('urlCheckBtn').onclick = () => handleCheck('url', 'urlInput', 'urlLoading', 'urlResult');
+    document.getElementById('phishCheckBtn').onclick = () => handleCheck('phishing', 'phishInput', 'phishLoading', 'phishResult');
+    document.getElementById('scamCheckBtn').onclick = () => handleCheck('scam', 'scamInput', 'scamLoading', 'scamResult');
+    document.getElementById('newsCheckBtn').onclick = () => handleCheck('news', 'newsInput', 'newsLoading', 'newsResult');
+    document.getElementById('phoneCheckBtn').onclick = () => handleCheck('phone', 'phoneInput', 'phoneLoading', 'phoneResult');
+    document.getElementById('upiCheckBtn').onclick = () => handleCheck('upi', 'upiInput', 'upiLoading', 'upiResult');
+    document.getElementById('gmailCheckBtn').onclick = () => handleCheck('gmail', 'gmailInput', 'gmailLoading', 'gmailResult');
+    document.getElementById('passwordInput').oninput = checkPasswordStrength;
+</script>
 </body>
 </html>
