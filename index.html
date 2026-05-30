@@ -3,61 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>VerifyPulse - Debug</title>
+  <title>VerifyPulse - Cybersecurity & Fact Check</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
-    body { font-family: Arial; background: #fff; padding: 20px; }
-    .container { max-width: 600px; margin: auto; }
-    button, .btn { width: 100%; padding: 15px; margin: 5px 0; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #ffffff; color: #1e293b; min-height: 100vh; padding: 20px; }
+    .container { max-width: 720px; margin: 0 auto; }
+    header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
+    h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
+    .tagline { color: #475569; font-size: 14px; }
+    .lang-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .lang-btn { padding: 8px 20px; border-radius: 20px; border: 2px solid #2563eb; background: transparent; color: #2563eb; cursor: pointer; font-size: 14px; width: auto; margin: 0; }
+    .lang-btn.active { background: #2563eb; color: #ffffff; }
+    .scam-alert { background: rgba(37,99,235,0.05); border: 1px solid #2563eb; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    .scam-alert h3 { color: #1e40af; margin-bottom: 10px; font-size: 14px; }
+    .scam-item { display: flex; justify-content: space-between; align-items: center; background: rgba(37,99,235,0.05); padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; font-size: 12px; color: #334155; }
+    .scam-item a { color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 11px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+    .stat-card { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
+    .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
+    .tab { flex: 1; min-width: 80px; padding: 8px 5px; background: rgba(37,99,235,0.05); border: 1px solid #cbd5e1; border-radius: 8px; color: #475569; cursor: pointer; text-align: center; font-size: 11px; transition: 0.3s; }
+    .tab.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .section { display: none; }
+    .section.active { display: block; }
+    textarea, input[type="text"], input[type="password"] { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc; color: #1e293b; font-size: 16px; font-family: inherit; margin-bottom: 15px; }
+    textarea { min-height: 100px; resize: vertical; }
+    textarea:focus, input:focus { outline: none; border-color: #2563eb; }
+    button { width: 100%; padding: 15px; background: #2563eb; color: #ffffff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+    button:active { transform: scale(0.98); }
     .btn-clear { background: transparent; border: 2px solid #2563eb; color: #2563eb; }
-    textarea, input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
-    .verdict-box { padding: 15px; border-radius: 8px; margin: 10px 0; text-align: center; color: white; }
-    .verdict-safe { background: #22c55e; }
+    .loading { display: none; text-align: center; color: #475569; padding: 15px; }
     .result { display: none; margin-top: 15px; }
-    .loading { display: none; }
+    .verdict-box { padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #fff; }
+    .verdict-danger { background: #ef4444; }
+    .verdict-suspicious { background: #f59e0b; }
+    .verdict-safe { background: #22c55e; }
+    .verdict-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+    .scam-type-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+    .confidence { font-size: 16px; font-weight: bold; }
+    .analysis-box, .findings-box, .what-to-do-box { background: #f8fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #2563eb; margin-bottom: 10px; }
+    .analysis-box h4, .findings-box h4, .what-to-do-box h4 { color: #1e40af; margin-bottom: 8px; }
+    .analysis-box p { color: #334155; font-size: 14px; line-height: 1.5; }
+    .findings-box ul, .what-to-do-box ul { margin: 0; padding-left: 20px; color: #334155; font-size: 14px; }
+    .share-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+    .share-btn { background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: bold; width: auto; margin: 0; }
+    .privacy { margin-top: 15px; padding: 12px; background: rgba(37,99,235,0.05); border: 1px solid #2563eb; border-radius: 10px; text-align: center; color: #475569; font-size: 13px; }
+    .error-box { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; padding: 15px; border-radius: 10px; margin-top: 15px; }
+    .password-strength { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 14px; }
+    .strength-weak { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; }
+    .strength-medium { background: #fffbeb; border: 1px solid #f59e0b; color: #b45309; }
+    .strength-strong { background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; }
+    .tips { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-top: 15px; }
+    .tips h4 { color: #1e40af; margin-bottom: 10px; }
+    .tip-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 13px; }
+    .big-card-buttons { display: flex; gap: 6px; margin-bottom: 0; }
+    .big-card-btn { flex: 1; padding: 14px 8px; background: transparent; border: 2px solid #2563eb; border-radius: 10px 10px 0 0; color: #2563eb; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; }
+    .big-card-btn.active { background: #2563eb; color: #ffffff; border-bottom: 2px solid #f0f4ff; }
+    .big-card-content { border: 2px solid #2563eb; border-top: none; border-radius: 0 0 10px 10px; padding: 20px; background: #f0f4ff; }
+    .big-card-content h2 { font-size: 20px; color: #1e40af; margin-bottom: 18px; }
+    #moreBtn { font-size: 16px; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; width: 100%; font-weight: bold; margin-top: 15px; }
+    #moreToolsContainer { margin-top: 0; }
+    .try-example { margin-top: 10px; font-size: 12px; color: #475569; }
+    .try-example a { color: #2563eb; text-decoration: underline; cursor: pointer; margin: 0 5px; }
+    .info-section { margin: 20px 0; }
+    .info-section h4 { color: #1e40af; margin-bottom: 10px; }
+    .info-section p { font-size: 14px; color: #334155; line-height: 1.5; }
+    .feedback-btn { background: #22c55e; color: #fff; }
+    .telegram-btn { background: #0088cc; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+    .extension-btn { background: #f0f4ff; color: #2563eb; border: 2px solid #2563eb; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+    @media (max-width: 640px) { .big-card-btn, .tab { font-size: 10px; padding: 8px 4px; } button { padding: 12px; } .container { padding: 0; } }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>⚡ VerifyPulse (Debug)</h1>
-  <button id="debugBtn">Test JavaScript (Click me first)</button>
-  <hr>
-  <input type="text" id="urlInput" placeholder="Paste any link here...">
-  <button id="scanUrlBtn">🔍 Scan URL</button>
-  <div class="loading" id="urlLoading">Scanning...</div>
-  <div class="result" id="urlResult"></div>
+  <header><h1>⚡ VerifyPulse</h1><p class="tagline" id="tagline">AI-Powered Cybersecurity & Fact Checking</p></header>
+  <div class="lang-toggle"><button class="lang-btn active" id="langEn">🇬🇧 English</button><button class="lang-btn" id="langHi">🇮🇳 हिंदी</button></div>
+  <div class="stats"><div class="stat-card"><div class="stat-number" id="totalChecks">0</div><div class="stat-label" id="statLabel1">Total Checks</div></div><div class="stat-card"><div class="stat-number" id="scamsFound">0</div><div class="stat-label" id="statLabel2">Scams Found</div></div><div class="stat-card"><div class="stat-number" id="safeItems">0</div><div class="stat-label" id="statLabel3">Safe Items</div></div></div>
+  <div style="text-align:center; padding:10px 0;"><p style="font-size:20px; font-weight:bold; color:#1e40af;">Check links, messages, and scams before you trust them.</p><p style="font-size:14px; color:#475569;">Fast. Private. Easy to use.</p></div>
+  <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;"><a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration:none;"><button class="telegram-btn">🤖 Try on Telegram</button></a><button class="extension-btn" id="extSoonBtn">💻 Chrome Extension (Soon)</button></div>
+  <div class="big-card-buttons"><button class="big-card-btn active" id="mainUrlBtn">🔗 URL Scanner</button><button class="big-card-btn" id="mainPhishBtn">📧 Phishing Detector</button></div>
+  <div class="big-card-content" id="bigCardContent">
+    <div id="main-url-section"><h2>🔗 URL Scanner</h2><input type="text" id="urlInput" placeholder="Paste any link here..."><button id="scanUrlBtn">🔍 Scan URL</button><button class="btn-clear" id="clearUrlBtn">Clear</button><div class="loading" id="urlLoading">⏳ Scanning...</div><div class="result" id="urlResult"></div></div>
+    <div id="main-phishing-section" style="display:none;"><h2>📧 Phishing Detector</h2><textarea id="phishingInput" placeholder="Paste suspicious email or SMS..."></textarea><button id="checkPhishBtn">🛡️ Check Phishing</button><button class="btn-clear" id="clearPhishBtn">Clear</button><div class="loading" id="phishingLoading">⏳ Analyzing...</div><div class="result" id="phishingResult"></div></div>
+  </div>
+  <button id="moreBtn">🔽 More Tools</button>
+  <div id="moreToolsContainer" style="display:none;">
+    <div class="tabs"><button class="tab active" id="tabNews">📰 Fake News</button><button class="tab" id="tabPassword">🔐 Password</button><button class="tab" id="tabScam">⚠️ Scam</button><button class="tab" id="tabPhone">📞 Phone</button><button class="tab" id="tabUpi">💳 UPI</button><button class="tab" id="tabGmail">📧 Gmail</button></div>
+    <div class="section active" id="news-section"><div class="card"><textarea id="newsInput" placeholder="Enter news or claim..."></textarea><button id="checkNewsBtn">✨ Check News</button><button class="btn-clear" id="clearNewsBtn">Clear</button><div class="loading" id="newsLoading">⏳ AI Analyzing...</div><div class="result" id="newsResult"></div></div></div>
+    <div class="section" id="password-section"><div class="card"><input type="password" id="passwordInput" placeholder="Enter password..."><div id="passwordResult"></div><div class="tips"><h4>💡 Password Tips</h4><div class="tip-item">✅ At least 12 characters</div><div class="tip-item">✅ Mix UPPER & lowercase</div><div class="tip-item">✅ Add numbers & symbols</div><div class="tip-item">❌ Avoid personal info</div></div><div class="privacy" style="margin-top:15px;">🔐 Password checked locally. Never sent to server.</div></div></div>
+    <div class="section" id="scam-section"><div class="card"><textarea id="scamInput" placeholder="Paste suspicious message..."></textarea><button id="checkScamBtn">⚠️ Detect Scam</button><button class="btn-clear" id="clearScamBtn">Clear</button><div class="loading" id="scamLoading">⏳ Analyzing...</div><div class="result" id="scamResult"></div><div class="try-example">Try: <a id="exampleWhatsApp">WhatsApp Scam</a> | <a id="exampleBank">Bank Scam</a> | <a id="exampleJob">Job Scam</a></div></div></div>
+    <div class="section" id="phone-section"><div class="card"><input type="text" id="phoneInput" placeholder="+91 9876543210"><button id="checkPhoneBtn">📞 Check Number</button><button class="btn-clear" id="clearPhoneBtn">Clear</button><div class="loading" id="phoneLoading">⏳ Checking...</div><div class="result" id="phoneResult"></div></div></div>
+    <div class="section" id="upi-section"><div class="card"><input type="text" id="upiInput" placeholder="name@upi"><button id="checkUpiBtn">💳 Check UPI</button><button class="btn-clear" id="clearUpiBtn">Clear</button><div class="loading" id="upiLoading">⏳ Checking...</div><div class="result" id="upiResult"></div></div></div>
+    <div class="section" id="gmail-section"><div class="card"><textarea id="gmailInput" placeholder="Paste suspicious Gmail message..."></textarea><button id="checkGmailBtn">📧 Check Gmail</button><button class="btn-clear" id="clearGmailBtn">Clear</button><div class="loading" id="gmailLoading">⏳ Analyzing...</div><div class="result" id="gmailResult"></div></div></div>
+  </div>
+  <div class="scam-alert" style="margin-top:15px;">
+    <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
+    <div class="scam-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp <a id="tryScam1">Try this scam</a></div>
+    <div class="scam-item" id="alert2">⚠️ Fake SBI KYC update SMS <a id="tryScam2">Try this scam</a></div>
+    <div class="scam-item" id="alert3">⚠️ Job fraud emails <a id="tryScam3">Try this scam</a></div>
+    <div class="scam-item" id="alert4">⚠️ Fake electricity bill emails <a id="tryScam4">Try this scam</a></div>
+  </div>
+  <div class="info-section card"><h4>🔍 How It Works</h4><p>1️⃣ Paste suspicious message, link, or email.<br>2️⃣ AI analyzes patterns.<br>3️⃣ Get instant verdict with confidence score and action steps.</p></div>
+  <div class="info-section card"><h4>🌍 Global Use Cases</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><span style="padding:5px 10px; background:#fef2f2; border-radius:20px;">Amazon Scam</span><span style="padding:5px 10px; background:#fffbeb; border-radius:20px;">PayPal Phishing</span><span style="padding:5px 10px; background:#f0fdf4; border-radius:20px;">Lottery Scam</span><span style="padding:5px 10px; background:#e0e7ff; border-radius:20px;">Fake Delivery</span></div></div>
+  <div class="info-section"><p style="font-style:italic;"><strong>Limitations:</strong> May not be 100% accurate. Always verify through official channels.</p></div>
+  <div class="info-section" style="text-align:center;"><p style="font-size:18px; font-weight:bold; color:#1e40af;">Our Mission: Make the internet safer for everyone.</p></div>
+  <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;"><button class="feedback-btn" style="margin-bottom:15px;">📢 Give Feedback</button></a>
+  <div class="privacy">🔐 <strong>Privacy Protected:</strong> We never store your data. 100% Secure.</div>
+  <div style="text-align:center; margin:20px 0; font-size:14px; color:#22c55e; font-weight:bold;">🔒 Secure Connection · Your data is encrypted · Verified by VerifyPulse</div>
 </div>
 
 <script>
-  // Debug button - यह click होना ही चाहिए
-  document.getElementById('debugBtn').onclick = function() {
-    alert('✅ JavaScript is working! Touch/click is fine.');
-  };
+  // Fake API helper
+  async function callAPI(checkType, inputText) {
+    const res = await fetch('/api/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: inputText, checkType: checkType })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  }
 
-  // Real scan function
-  document.getElementById('scanUrlBtn').onclick = async function() {
-    const url = document.getElementById('urlInput').value.trim();
-    if (!url) { alert('Please enter a URL'); return; }
-    const loading = document.getElementById('urlLoading');
-    const resultDiv = document.getElementById('urlResult');
-    loading.style.display = 'block';
-    resultDiv.style.display = 'none';
-    try {
-      const res = await fetch('/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: url, checkType: 'url' })
-      });
-      const data = await res.json();
-      resultDiv.innerHTML = `<div class="verdict-box verdict-safe"><strong>${data.verdict}</strong><br>Confidence: ${data.confidence}%<br>${data.analysis || ''}</div>`;
-      resultDiv.style.display = 'block';
-    } catch(e) {
-      resultDiv.innerHTML = `<div class="error-box">Error: ${e.message}</div>`;
-      resultDiv.style.display = 'block';
-    } finally {
-      loading.style.display = 'none';
-    }
-  };
-</script>
-</body>
-</html>
+  function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => m==='&'?'&amp;': m==='<'?'&lt;': '&gt;'); }
+  function displayResult(containerId, data) {
+    const container = document.getElementById(containerId);
+    const v = (data.verdict || '').toUpperCase();
+    let verdictClass = '';
+    if (['DANGEROUS','FRAUD','SCAM','PHISHING'].includes(v)) verdictClass = 'verdict-danger';
+    else if (['SUSPICIOUS','MISLEADING'].includes(v)) verdictClass = 'verdict-suspicious';
+    else verdictClass = 'verdict-safe';
+    let html = `<div class="verdict-box ${verdictClass}"><div class="verdict-title">${v==='SAFE'?'✅ Safe':v==='SUSPICIOUS'?'⚠️ Suspicious':'🚨 Dangerous'}</div><div class="confidence">Confidence: ${data.confidence||85}%</div></div><div class="analysis-box"><h4>🔍 Analysis</h4><p>${escapeHtml(data.analysis||'')}</p></div>`;
+    const findings = Array.isArray(data.findings) ? data.findings : [];
+    if (findings.length) { html += `<div class="findings-box"><h4>💡 Findings</h4><ul>`; findings.forEach(f=>html+=`<li>${escapeHtml(f)}</li>`); html+=`</ul></div>`; }
+    const whatToDo = Array.isArray(data.whatToDo) ? data.whatToDo : [];
+    if (whatToDo.length) { html += `<div class="what-to-do-box"><h4>🛡️ What to Do</h4><ul>`; whatToDo.forEach(w=>html+=`<li>${escapeHtml(w)}</li>`); html+=`</ul></div>`; }
+    container.innerHTML = html;
+    container.style.display = 'block';
+    // update stats
+    let total = parseInt(localStorage.getItem('totalChecks')||'0') + 1;
+    localStorage.setItem('totalChecks', total);
+    document.getElementById('totalChecks').innerText = total;
+  }
+  function showError(containerId, msg) {
+    document.getElementById(containerId).innerHTML = `<div class="error-box">❌ ${escapeHtml(msg)}</div>`;
+    document.getElementById(containerId).style.display = 'block';
+  }
+
+  // Tool functions
+  async function checkNews() { const text=document.getElementById('newsInput').value.trim(); if(!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display='block'; document.getElementById('newsResult').style.display='none'; try{ const data=await callAPI('news',text); displayResult('newsResult',data); }catch(e){ showError('newsResult',e.message); }finally{ document.getElementById('newsLoading').style.display='none'; } }
+  async function checkURL() { const url=document.getElementById('urlInput').value.trim(); if(!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display='block'; document.getElementById('urlResult').style.display='none'; try{ const data=await callAPI('url',url); displayResult('urlResult',data); }catch(e){ showError('urlResult',e.message); }finally{ document.getElementById('urlLoading').style.display='none'; } }
+  async function checkPhishing() { const text=document.getElementById('phishingInput').value.trim(); if(!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display='block'; document.getElementById('phishingResult').style.display='none'; try{ const data=await callAPI('phishing',text); displayResult('phishingResult',data); }catch(e){ showError('phishingResult',e.message); }finally{ document.getElementById('phishingLoading').style.display='none'; } }
+  async function checkScam() { const text=document.getElementById('scamInput').value.trim(); if(!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display='block'; document.getElementById('scamResult').style.display='none'; try{ const data=await callAPI('scam',text); displayResult('scamResult',data); }catch(e){ showError('scamResult',e.message); }finally{ document.getElementById('scamLoading').style.display='none'; } }
+  async function checkPhone() { const phone=document.getElementById('phoneInput').value.trim(); if(!phone) return alert('Enter phone number'); document.getElementById('phoneLoading').style.display='block'; document.getElementById('phoneResult').style.display='none'; try{ const data=await callAPI('phone',phone); displayResult('phoneResult',data); }catch(e){ showError('phoneResult',e.message); }finally{ document.getElementById('phoneLoading').style.display='none'; } }
+  async function checkUPI() { const upi=document.getElementById('upiInput').value.trim(); if(!upi) return alert('Enter UPI ID'); document.getElementById('upiLoading').style.display='block'; document.getElementById('upiResult').style.display='none'; try{ const data=await callAPI('upi',upi); displayResult('upiResult',data); }catch(e){ showError('upiResult',e.message); }finally{ document.getElementById('upiLoading').style.display='none'; } }
+  async function checkGmail() { const msg=document.getElementById('gmailInput').value.trim(); if(!msg) return alert('Paste Gmail message'); document.getElementById('gmailLoading').style.display='block'; document.getElementById('gmailResult').style.display='none'; try{ const dat
