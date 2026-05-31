@@ -14,6 +14,16 @@ os.makedirs(os.path.dirname(MASTER_FILE), exist_ok=True)
 FEEDS = [
     "https://openphish.com/feed.txt",
     "https://urlhaus.abuse.ch/downloads/text/",
+    "https://phishing.database.red/phishing-links-NEW-today.txt",
+    "https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt",
+    "https://vxvault.net/URL_List.php",
+    "https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt",
+    "https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt",
+    "https://raw.githubusercontent.com/joshua-s/active-phishing-domains/master/active-phishing-domains.txt",
+    "https://raw.githubusercontent.com/Dshield-ISC/dshield/master/suspicious_domains.txt",
+    "https://urlhaus.abuse.ch/downloads/text_recent/",
+    "https://raw.githubusercontent.com/PolishCERT/CERT-PL-Warning-List/master/warning_list_domains.txt",
+    "https://raw.githubusercontent.com/RPiList/specials/master/Blocklist.txt"
 ]
 
 # Indian specific filters
