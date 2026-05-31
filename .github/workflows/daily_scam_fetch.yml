@@ -1,0 +1,35 @@
+name: Daily Indian Scam Fetcher
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (5:30 AM IST)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows you to manually trigger it from the GitHub Actions tab
+
+jobs:
+  fetch-scams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push data back to your repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Fetcher Script
+        run: |
+          python pipeline/fetch_indian_bulk_scams.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "VerifyPulse Automation Bot"
+          git add pipeline/daily-data/all_scams_master.jsonl
+          git add pipeline/daily-data/latest_scams.json
+          # Only commit if there are actually new scams found today
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Automated update: Added new Indian scam records" && git push)
