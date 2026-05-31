@@ -124,7 +124,7 @@ export default async function handler(req, res) {
           scamType: 'Trusted Brand Message',
           confidence: 99,
           analysis: 'This message/link belongs to a verified trusted domain or official brand.',
-          findings: ['Domain/Text matches trusted whitelist'],
+          findings: ['Domain matches trusted whitelist'],
           whatToDo: ['You can safely proceed.']
         }));
       }
@@ -173,8 +173,11 @@ export default async function handler(req, res) {
     } catch (e) { console.error('Groq failed:', e.message); }
     if (groqSuccess) return res.status(200).json(safeResult(groqResult));
 
-    // ----- FALLBACK: 10 parallel models (OpenRouter + HF) -----
+    // ----- FALLBACK: 10 parallel models (OpenRouter + HF) with Meta-AI Council -----
     const parallelTasks = [];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4500); // 4.5 second strict limit for Council
+
     if (OPENROUTER_KEY) {
       const openRouterModels = [
         'meta-llama/llama-3-8b-instruct', 'mistralai/mistral-7b-instruct', 'google/gemma-3-12b-it',
@@ -186,7 +189,8 @@ export default async function handler(req, res) {
         parallelTasks.push(
           fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}` },
-            body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400, response_format: { type: 'json_object' } })
+            body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400, response_format: { type: 'json_object' } }),
+            signal: controller.signal
           }).then(r => r.json()).then(d => {
             let content = d.choices?.[0]?.message?.content;
             if (content) {
@@ -209,7 +213,8 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             inputs: `You are a cybersecurity expert. Analyze: "${text}". Return JSON with keys: verdict, scamType, confidence, analysis, findings (array), whatToDo (array).`,
             parameters: { max_new_tokens: 300, temperature: 0.3 }
-          })
+          }),
+          signal: controller.signal
         }).then(r => r.json()).then(d => {
           let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
           let m = generated.match(/\{[\s\S]*\}/);
@@ -221,11 +226,49 @@ export default async function handler(req, res) {
 
     if (parallelTasks.length) {
       const results = await Promise.allSettled(parallelTasks);
+      clearTimeout(timeoutId); // clear the timeout since they finished or aborted
+      
+      const validResponses = [];
       for (const r of results) {
-        if (r.status === 'fulfilled' && r.value && r.value.verdict && r.value.confidence > 60) {
-          if (r.value.verdict === 'SAFE' && r.value.confidence < 85) continue; // Prevent hallucinated SAFE from small models
-          return res.status(200).json(safeResult(r.value));
+        if (r.status === 'fulfilled' && r.value && r.value.verdict) {
+          validResponses.push(r.value);
         }
+      }
+
+      if (validResponses.length > 0) {
+        // --- THE META-AI JUDGE ---
+        try {
+          const metaJudgePrompt = `You are the Master Meta-AI Judge. Review these ${validResponses.length} analyses from your AI Council regarding a potential scam.
+          Find the consensus (majority vote) for the verdict (SCAM/FRAUD/SAFE/SUSPICIOUS), and synthesize the best analysis, findings, and whatToDo steps into one perfect JSON response.
+          Input Analyses: ${JSON.stringify(validResponses)}
+          Return only the final JSON object with keys: verdict, scamType, confidence, analysis, findings(array), whatToDo(array).`;
+          
+          const metaRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+             method: 'POST', headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+             body: JSON.stringify({
+               model: 'llama-3.3-70b-versatile', 
+               messages: [
+                 { role: 'system', content: "You are a cybersecurity Meta-AI Judge. Always respond in valid JSON format." },
+                 { role: 'user', content: metaJudgePrompt }
+               ], 
+               temperature: 0.1, 
+               response_format: { type: "json_object" }
+             })
+          });
+          const metaData = await metaRes.json();
+          const metaContent = metaData.choices?.[0]?.message?.content;
+          let parsedMeta;
+          try { parsedMeta = JSON.parse(metaContent); } catch { const m = metaContent.match(/\{[\s\S]*\}/); if (m) parsedMeta = JSON.parse(m[0]); }
+          
+          if (parsedMeta && parsedMeta.verdict) {
+             return res.status(200).json(safeResult(parsedMeta));
+          }
+        } catch(e) {
+          console.error("Meta Judge failed:", e.message);
+        }
+        
+        // If Meta Judge fails, safely fallback to the first valid council response
+        return res.status(200).json(safeResult(validResponses[0]));
       }
     }
 
