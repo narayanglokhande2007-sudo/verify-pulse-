@@ -1,7 +1,7 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { text, checkType } = req.body;
+  const { text, checkType, fileData } = req.body;
   if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
     }
 
     // ----- Whitelist pre-check (fast path) -----
-    if (['scam', 'phishing', 'gmail', 'url'].includes(checkType)) {
+    if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
       if (isTrustedMessage(text)) {
         return res.status(200).json(safeResult({
           verdict: 'SAFE',
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
 
     // Safe Browsing check
-    if (['url', 'phishing', 'scam', 'gmail'].includes(checkType) && SAFE_BROWSING_KEY) {
+    if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
         const urls = text.match(/https?:\/\/[^\s]+/g) || [];
         for (let urlStr of urls) {
@@ -162,6 +162,17 @@ export default async function handler(req, res) {
         const gemRes = await callGemini(text, GEMINI_KEY, 'news', knowledgeLine);
         if (gemRes) return res.status(200).json(safeResult(gemRes));
       } catch (e) {}
+    }
+
+    // ---- Multimodal File Uploads (Images/Audio) ----
+    if (fileData && GEMINI_KEY) {
+      try {
+        const gemRes = await callGemini(text, GEMINI_KEY, 'unified', knowledgeLine, fileData);
+        if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
+      } catch (e) {
+        console.error('Gemini Vision failed:', e);
+        return res.status(200).json(safeResult({ verdict: 'UNCERTAIN', scamType: 'Processing Error', confidence: 50, analysis: 'Failed to analyze the uploaded screenshot or audio file.', findings: [], whatToDo: [] }));
+      }
     }
 
     // ----- PRIMARY: Groq (fastest) -----
@@ -326,10 +337,16 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
   } catch (e) { return { found: false }; }
 }
 
-async function callGemini(text, apiKey, type = 'news', knowledgeLine = '') {
+async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null) {
   const systemPrompt = getPrompt(type, knowledgeLine) + " You must return valid JSON.";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-  const body = { contents: [{ parts: [{ text: `${systemPrompt}\n\nInput: "${text}"` }] }] };
+  
+  let parts = [{ text: `${systemPrompt}\n\nInput: "${text}"` }];
+  if (fileData && fileData.base64 && fileData.mimeType) {
+    parts.push({ inlineData: { mimeType: fileData.mimeType, data: fileData.base64 } });
+  }
+
+  const body = { contents: [{ parts }] };
   const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error('Gemini failed');
   const data = await res.json();
@@ -421,6 +438,7 @@ Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirm
   if (type === 'url') return `Analyze URL for safety. Return JSON.${knowledgeLine}`;
   if (type === 'phishing') return baseSCAM + knowledgeLine;
   if (type === 'scam') return baseSCAM + knowledgeLine;
+  if (type === 'unified') return baseSCAM + knowledgeLine;
   if (type === 'phone') return `Analyze phone number (spam/fraud/safe). Return JSON.${knowledgeLine}`;
   if (type === 'upi') return `Analyze UPI ID for fraud. Return JSON.${knowledgeLine}`;
   if (type === 'gmail') return baseSCAM + knowledgeLine;
