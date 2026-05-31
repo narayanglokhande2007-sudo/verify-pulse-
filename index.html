@@ -21,6 +21,18 @@
             min-height: 100vh;
             padding: 20px;
         }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .container { animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .scam-alert, .info-section { animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: 0.1s; }
+        .result { animation: scaleIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .section.active { animation: fadeSlideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         .container { max-width: 720px; margin: 0 auto; }
         header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
         h1 { color: #1e40af; font-size: 32px; margin-bottom: 5px; }
@@ -41,13 +53,16 @@
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(37,99,235,0.05); padding: 8px 12px; border-radius: 5px;
             margin-bottom: 5px; font-size: 12px; color: #334155;
+            transition: all 0.3s ease;
         }
+        .scam-item:hover { background: rgba(37,99,235,0.1); transform: translateX(4px); }
         .scam-item a { color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 11px; white-space: nowrap; }
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-card {
             background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px;
-            padding: 15px; text-align: center;
+            padding: 15px; text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .stat-card:hover { transform: scale(1.03); background: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .stat-number { font-size: 24px; font-weight: bold; color: #2563eb; }
         .stat-label { font-size: 11px; color: #475569; margin-top: 5px; }
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -61,22 +76,25 @@
         .card {
             background: #ffffff; border: 1px solid #e2e8f0; border-radius: 15px;
             padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.08); }
         .section { display: none; }
         .section.active { display: block; }
         textarea, input[type="text"], input[type="password"] {
             width: 100%; padding: 15px; border: 2px solid #e2e8f0;
             border-radius: 10px; background: #f8fafc; color: #1e293b;
             font-size: 16px; font-family: inherit; margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
         textarea { min-height: 100px; resize: vertical; }
-        textarea:focus, input:focus { outline: none; border-color: #2563eb; }
+        textarea:focus, input:focus { outline: none; border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
         button {
             width: 100%; padding: 15px; background: #2563eb; color: #ffffff;
             border: none; border-radius: 10px; font-size: 16px; font-weight: bold;
-            cursor: pointer; margin-bottom: 10px;
+            cursor: pointer; margin-bottom: 10px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        button:hover { background: #1d4ed8; }
+        button:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37,99,235,0.25); }
         button:active { transform: scale(0.97); }
         .btn-clear {
             background: transparent; border: 2px solid #2563eb; color: #2563eb;
@@ -126,8 +144,9 @@
         .big-card-btn {
             flex: 1; padding: 14px 8px; background: transparent; border: 2px solid #2563eb;
             border-radius: 10px 10px 0 0; color: #2563eb; cursor: pointer; font-size: 15px; font-weight: bold;
-            text-align: center; transition: all 0.2s;
+            text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .big-card-btn:hover:not(.active) { background: rgba(37,99,235,0.05); }
         .big-card-btn.active { background: #2563eb; color: #ffffff; border-bottom: 2px solid #f0f4ff; }
         .big-card-btn:active { transform: scale(0.97); }
         .big-card-content {
@@ -147,6 +166,14 @@
         #moreToolsContainer .tabs { margin-top: 5px; }
         .try-example { margin-top: 10px; font-size: 12px; color: #475569; }
         .try-example a { color: #2563eb; text-decoration: underline; cursor: pointer; margin: 0 5px; }
+        .unified-input-container { position: relative; display: flex; align-items: flex-start; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 10px; margin-bottom: 15px; transition: all 0.3s ease; }
+        .unified-input-container:focus-within { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+        .upload-btn { background: transparent; border: none; color: #2563eb; font-size: 24px; padding: 12px 15px; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
+        .upload-btn:hover { transform: scale(1.1); }
+        .unified-textarea { width: 100%; min-height: 80px; border: none; padding: 15px 15px 15px 0; background: transparent; resize: none; font-size: 16px; color: #1e293b; font-family: inherit; }
+        .unified-textarea:focus { outline: none; box-shadow: none; }
+        .file-preview { display: none; margin-bottom: 15px; padding: 10px 15px; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; color: #15803d; font-size: 14px; align-items: center; justify-content: space-between; font-weight:bold; }
+        .file-clear { background: #ef4444; border: none; color: #fff; cursor: pointer; font-weight: bold; padding: 5px 10px; border-radius:5px; width: auto; margin:0; font-size:12px; }
         .info-section { margin: 20px 0; }
         .info-section h4 { color: #1e40af; margin-bottom: 10px; }
         .info-section p, .info-section li { font-size: 14px; color: #334155; line-height: 1.5; }
@@ -185,27 +212,21 @@
             </a>
         </div>
 
-        <div class="big-card-buttons">
-            <button id="btn-url" class="big-card-btn active" onclick="toggleMain('url')">🔗 URL Scanner</button>
-            <button id="btn-phish" class="big-card-btn" onclick="toggleMain('phishing')">📧 Phishing Detector</button>
-        </div>
-        <div class="big-card-content" id="bigCardContent">
-            <div id="main-url-section">
-                <h2>🔗 URL Scanner</h2>
-                <input type="text" id="urlInput" placeholder="Paste any link here to check if it's safe...">
-                <button onclick="checkURL()">🔍 Scan URL</button>
-                <button class="btn-clear" onclick="clearField('urlInput','urlResult')">Clear</button>
-                <div class="loading" id="urlLoading">⏳ Scanning...</div>
-                <div class="result" id="urlResult"></div>
+        <!-- Unified Scanner Box -->
+        <div class="card" id="unifiedCard" style="border: 2px solid #2563eb; background: #f0f4ff; margin-bottom: 20px; padding: 25px;">
+            <h2 style="font-size: 22px; color: #1e40af; margin-bottom: 15px; text-align: center;">🛡️ Scan Links & Messages</h2>
+            <div class="unified-input-container">
+                <button class="upload-btn" onclick="document.getElementById('fileUpload').click()" title="Upload Screenshot or Audio">➕</button>
+                <input type="file" id="fileUpload" accept="image/*, audio/*" style="display: none;" onchange="handleFileUpload(event)">
+                <textarea id="unifiedInput" class="unified-textarea" placeholder="Paste any links and message here to scan..."></textarea>
             </div>
-            <div id="main-phishing-section" style="display:none;">
-                <h2>📧 Phishing Detector</h2>
-                <textarea id="phishingInput" placeholder="Paste suspicious email or SMS here..."></textarea>
-                <button onclick="checkPhishing()">🛡️ Check Phishing</button>
-                <button class="btn-clear" onclick="clearField('phishingInput','phishingResult')">Clear</button>
-                <div class="loading" id="phishingLoading">⏳ Analyzing...</div>
-                <div class="result" id="phishingResult"></div>
+            <div class="file-preview" id="filePreview">
+                <span>📎 <span id="fileName">image.png</span> attached</span>
+                <button class="file-clear" onclick="clearFile()">Remove</button>
             </div>
+            <button onclick="checkUnified()" style="font-size: 18px; padding: 15px; box-shadow: 0 4px 6px rgba(37,99,235,0.2);">🔍 Scan Now</button>
+            <div class="loading" id="unifiedLoading">⏳ AI Analyzing...</div>
+            <div class="result" id="unifiedResult"></div>
         </div>
         <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
         <div id="moreToolsContainer" style="display:none;">
@@ -293,21 +314,6 @@
             else if (['SCAM','PHISHING','DANGEROUS','FRAUD','FALSE','WEAK'].includes(v)) scamsFoundCount++;
             try { localStorage.setItem('totalChecks', totalChecksCount); localStorage.setItem('scamsFound', scamsFoundCount); localStorage.setItem('safeItems', safeItemsCount); } catch(e) {}
             updateStats();
-        }
-
-        function toggleMain(type) {
-            Array.from(document.querySelectorAll('.big-card-btn')).forEach(b => b.classList.remove('active'));
-            const urlSection = document.getElementById('main-url-section');
-            const phishingSection = document.getElementById('main-phishing-section');
-            if (type === 'url') {
-                document.getElementById('btn-url').classList.add('active');
-                urlSection.style.display = 'block';
-                phishingSection.style.display = 'none';
-            } else {
-                document.getElementById('btn-phish').classList.add('active');
-                urlSection.style.display = 'none';
-                phishingSection.style.display = 'block';
-            }
         }
 
         function switchTab(tabName, el) {
@@ -446,9 +452,63 @@
             }
         }
 
+        let uploadedFileBase64 = null;
+        let uploadedFileMime = null;
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('filePreview').style.display = 'flex';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedFileBase64 = e.target.result.split(',')[1];
+                uploadedFileMime = file.type;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFile() {
+            document.getElementById('fileUpload').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            uploadedFileBase64 = null;
+            uploadedFileMime = null;
+        }
+
+        async function checkUnified() { 
+            const text = document.getElementById('unifiedInput').value.trim(); 
+            if (!text && !uploadedFileBase64) return alert('Paste a message, link, or upload a screenshot/audio'); 
+            
+            document.getElementById('unifiedLoading').style.display = 'block'; 
+            document.getElementById('unifiedResult').style.display = 'none'; 
+            
+            try { 
+                const payload = { text: text || "Analyze this file for scams.", checkType: 'unified' };
+                if (uploadedFileBase64) {
+                    payload.fileData = { mimeType: uploadedFileMime, base64: uploadedFileBase64 };
+                }
+                const response = await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    throw new Error("Server returned an error: " + errorText.substring(0, 50));
+                }
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Server error');
+                if (data.error) throw new Error(data.error);
+                
+                displayEnhancedResult('unifiedResult', data); 
+            } catch (e) { 
+                showError('unifiedResult', e.message); 
+            } finally { 
+                document.getElementById('unifiedLoading').style.display = 'none'; 
+            } 
+        }
+
         async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); displayEnhancedResult('newsResult', data); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
-        async function checkURL() { const url = document.getElementById('urlInput').value.trim(); if (!url) return alert('Enter URL'); document.getElementById('urlLoading').style.display = 'block'; document.getElementById('urlResult').style.display = 'none'; try { const data = await callAPI('url', url); displayEnhancedResult('urlResult', data); } catch (e) { showError('urlResult', e.message); } finally { document.getElementById('urlLoading').style.display = 'none'; } }
-        async function checkPhishing() { const text = document.getElementById('phishingInput').value.trim(); if (!text) return alert('Paste email content'); document.getElementById('phishingLoading').style.display = 'block'; document.getElementById('phishingResult').style.display = 'none'; try { const data = await callAPI('phishing', text); displayEnhancedResult('phishingResult', data); } catch (e) { showError('phishingResult', e.message); } finally { document.getElementById('phishingLoading').style.display = 'none'; } }
         async function checkScam() { const text = document.getElementById('scamInput').value.trim(); if (!text) return alert('Paste scam message'); document.getElementById('scamLoading').style.display = 'block'; document.getElementById('scamResult').style.display = 'none'; try { const data = await callAPI('scam', text); displayEnhancedResult('scamResult', data); } catch (e) { showError('scamResult', e.message); } finally { document.getElementById('scamLoading').style.display = 'none'; } }
         async function checkPhone() { const phone = document.getElementById('phoneInput').value.trim(); if (!phone) return alert('Enter phone number'); document.getElementById('phoneLoading').style.display = 'block'; document.getElementById('phoneResult').style.display = 'none'; try { const data = await callAPI('phone', phone); displayEnhancedResult('phoneResult', data); } catch (e) { showError('phoneResult', e.message); } finally { document.getElementById('phoneLoading').style.display = 'none'; } }
         async function checkUPI() { const upi = document.getElementById('upiInput').value.trim(); if (!upi) return alert('Enter UPI ID'); document.getElementById('upiLoading').style.display = 'block'; document.getElementById('upiResult').style.display = 'none'; try { const data = await callAPI('upi', upi); displayEnhancedResult('upiResult', data); } catch (e) { showError('upiResult', e.message); } finally { document.getElementById('upiLoading').style.display = 'none'; } }
