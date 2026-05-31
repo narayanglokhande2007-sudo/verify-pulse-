@@ -212,17 +212,21 @@
             </a>
         </div>
 
-        <!-- Main Big Feature Cards -->
-        <div class="big-card-buttons">
-            <button class="big-card-btn active" id="btnUrl" onclick="toggleBigCard('url')">🌍 URL Scanner</button>
-            <button class="big-card-btn" id="btnPhish" onclick="toggleBigCard('phishing')">🎣 Phishing Detector</button>
-        </div>
-        <div class="big-card-content" style="margin-bottom: 20px;">
-            <h2 id="mainTitle">🌍 Advanced URL Scanner</h2>
-            <textarea id="mainInput" placeholder="Paste any suspicious link here to scan..."></textarea>
-            <button onclick="checkMain()">🔍 Scan URL Now</button>
-            <div class="loading" id="mainLoading">⏳ AI Analyzing...</div>
-            <div class="result" id="mainResult"></div>
+        <!-- Unified Scanner Box -->
+        <div class="card" id="unifiedCard" style="border: 2px solid #2563eb; background: #f0f4ff; margin-bottom: 20px; padding: 25px;">
+            <h2 style="font-size: 22px; color: #1e40af; margin-bottom: 15px; text-align: center;">🛡️ Scan Links & Messages</h2>
+            <div style="display: flex; border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; margin-bottom: 15px; align-items: stretch; transition: all 0.3s ease;" onfocusin="this.style.borderColor='#2563eb'; this.style.boxShadow='0 0 0 4px rgba(37,99,235,0.1)';" onfocusout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+                <button onclick="document.getElementById('fileUpload').click()" title="Upload Screenshot or Audio" style="background: #f8fafc; border: none; border-right: 2px solid #e2e8f0; color: #2563eb; font-size: 24px; padding: 0 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">➕</button>
+                <input type="file" id="fileUpload" accept="image/*, audio/*" style="display: none;" onchange="handleFileUpload(event)">
+                <textarea id="unifiedInput" placeholder="Paste any links and message here to scan..." style="flex: 1; min-height: 80px; border: none; padding: 20px; background: transparent; resize: none; font-size: 16px; color: #1e293b; font-family: inherit; margin-bottom: 0; text-align: left; outline: none;"></textarea>
+            </div>
+            <div class="file-preview" id="filePreview">
+                <span>📎 <span id="fileName">image.png</span> attached</span>
+                <button class="file-clear" onclick="clearFile()">Remove</button>
+            </div>
+            <button onclick="checkUnified()" style="font-size: 18px; padding: 15px; box-shadow: 0 4px 6px rgba(37,99,235,0.2);">🔍 Scan Now</button>
+            <div class="loading" id="unifiedLoading">⏳ AI Analyzing...</div>
+            <div class="result" id="unifiedResult"></div>
         </div>
         <button id="moreBtn" onclick="toggleMoreTools()">🔽 More Tools</button>
         <div id="moreToolsContainer" style="display:none;">
@@ -277,7 +281,7 @@
     <script>
         const translations = {
             en: { tagline: 'AI-Powered Cybersecurity & Fact Checking', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total Checks', statLabel2: 'Scams Found', statLabel3: 'Safe Items' },
-            hi: { tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC মজลૉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित' }
+            hi: { tagline: 'AI-संचालित साइबर सुरक्षा और तथ्य जांच', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित' }
         };
 
         function setLang(lang, e) {
@@ -472,39 +476,36 @@
             uploadedFileMime = null;
         }
 
-        let currentMainCheck = 'url';
-        function toggleBigCard(type) {
-            currentMainCheck = type;
-            document.getElementById('btnUrl').classList.remove('active');
-            document.getElementById('btnPhish').classList.remove('active');
-            if (type === 'url') {
-                document.getElementById('btnUrl').classList.add('active');
-                document.getElementById('mainTitle').innerHTML = '🌍 Advanced URL Scanner';
-                document.getElementById('mainInput').placeholder = 'Paste any suspicious link here to scan...';
-                document.getElementById('mainInput').value = '';
-                document.getElementById('mainResult').style.display = 'none';
-            } else {
-                document.getElementById('btnPhish').classList.add('active');
-                document.getElementById('mainTitle').innerHTML = '🎣 Phishing Detector';
-                document.getElementById('mainInput').placeholder = 'Paste any suspicious message here to scan...';
-                document.getElementById('mainInput').value = '';
-                document.getElementById('mainResult').style.display = 'none';
-            }
-        }
-        
-        async function checkMain() {
-            const text = document.getElementById('mainInput').value.trim();
-            if (!text) return alert('Please enter text to scan');
-            document.getElementById('mainLoading').style.display = 'block';
-            document.getElementById('mainResult').style.display = 'none';
-            try {
-                const data = await callAPI(currentMainCheck, text);
-                displayEnhancedResult('mainResult', data);
-            } catch (e) {
-                showError('mainResult', e.message);
-            } finally {
-                document.getElementById('mainLoading').style.display = 'none';
-            }
+        async function checkUnified() { 
+            const text = document.getElementById('unifiedInput').value.trim(); 
+            if (!text && !uploadedFileBase64) return alert('Paste a message, link, or upload a screenshot/audio'); 
+            
+            document.getElementById('unifiedLoading').style.display = 'block'; 
+            document.getElementById('unifiedResult').style.display = 'none'; 
+            
+            try { 
+                const payload = { text: text || "Analyze this file for scams.", checkType: 'unified' };
+                if (uploadedFileBase64) {
+                    payload.fileData = { mimeType: uploadedFileMime, base64: uploadedFileBase64 };
+                }
+                const response = await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const errorText = await response.text();
+                    throw new Error("Server returned an error: " + errorText.substring(0, 50));
+                }
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Server error');
+                if (data.error) throw new Error(data.error);
+                
+                displayEnhancedResult('unifiedResult', data); 
+            } catch (e) { 
+                showError('unifiedResult', e.message); 
+            } finally { 
+                document.getElementById('unifiedLoading').style.display = 'none'; 
+            } 
         }
 
         async function checkNews() { const text = document.getElementById('newsInput').value.trim(); if (!text) return alert('Please enter text'); document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; try { const data = await callAPI('news', text); displayEnhancedResult('newsResult', data); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } }
