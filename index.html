@@ -215,10 +215,10 @@
         <!-- Unified Scanner Box -->
         <div class="card" id="unifiedCard" style="border: 2px solid #2563eb; background: #f0f4ff; margin-bottom: 20px; padding: 25px;">
             <h2 style="font-size: 22px; color: #1e40af; margin-bottom: 15px; text-align: center;">🛡️ Scan Links & Messages</h2>
-            <div style="display: flex; border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; margin-bottom: 15px; align-items: stretch; transition: all 0.3s ease;" onfocusin="this.style.borderColor='#2563eb'; this.style.boxShadow='0 0 0 4px rgba(37,99,235,0.1)';" onfocusout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
-                <button onclick="document.getElementById('fileUpload').click()" title="Upload Screenshot or Audio" style="background: #f8fafc; border: none; border-right: 2px solid #e2e8f0; color: #2563eb; font-size: 18px; padding: 0 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">➕</button>
+            <div style="display: flex; flex-direction: row; border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; margin-bottom: 15px; align-items: stretch; transition: all 0.3s ease;" onfocusin="this.style.borderColor='#2563eb'; this.style.boxShadow='0 0 0 4px rgba(37,99,235,0.1)';" onfocusout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+                <button onclick="document.getElementById('fileUpload').click()" title="Upload Screenshot or Audio" style="flex: 0 0 auto; width: 50px; background: #f8fafc; border: none; border-right: 2px solid #e2e8f0; color: #2563eb; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">➕</button>
                 <input type="file" id="fileUpload" accept="image/*, audio/*" style="display: none;" onchange="handleFileUpload(event)">
-                <textarea id="unifiedInput" placeholder="Paste any links and message here to scan..." style="flex: 1; min-height: 80px; border: none; padding: 20px; background: transparent; resize: none; font-size: 16px; color: #1e293b; font-family: inherit; margin-bottom: 0; text-align: left; outline: none;"></textarea>
+                <textarea id="unifiedInput" placeholder="Paste any links and messages here to scan..." style="flex: 1; min-height: 80px; border: none; padding: 20px; background: transparent; resize: none; font-size: 16px; color: #1e293b; font-family: inherit; margin-bottom: 0; text-align: center; outline: none;"></textarea>
             </div>
             <div class="file-preview" id="filePreview">
                 <span>📎 <span id="fileName">image.png</span> attached</span>
