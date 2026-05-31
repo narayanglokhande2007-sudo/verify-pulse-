@@ -402,14 +402,21 @@ function getPrompt(type, knowledgeLine = '') {
 - findings: array of bullet-point red flags
 - whatToDo: array of actionable steps.
 
-CRITICAL RULES FOR PREVENTING FALSE POSITIVES (OBEY STRICTLY):
-1. Official Government alerts (e.g., IMD Heat Wave warnings, environmental warnings, disaster management, health advisories) are ALWAYS SAFE.
-2. Official notifications from verified brands (e.g., Zerodha, Banks, Telecoms) that do NOT ask for sensitive info/money via shady links are SAFE.
-3. Do NOT flag a message as a scam just because it uses "urgent" or "warning" language if it is clearly a public service announcement or weather alert.
-4. If it is a generic news, stock update, or weather alert, mark it as SAFE.
+OFFICIAL COMMUNICATION LAWS OF INDIA (Use these to detect scams):
+1. Indian Banks (SBI, HDFC, ICICI, etc.) NEVER send bit.ly, tinyurl, or random IP address links for KYC. Real KYC is done inside official apps (YONO, iMobile) or official .co.in / .com domains.
+2. Official Entities NEVER ask you to download an .apk file over WhatsApp.
+3. Police, CBI, Telecom (TRAI), and Customs NEVER call threatening to arrest you unless you pay via UPI or Crypto. 
+4. Income Tax Dept NEVER asks for PIN, CVV, or passwords via SMS.
+5. Legitimate companies DO NOT ask you to "Pay Rs 10" to receive a courier package or a gift.
 
-Examples of SCAMS: fake KBC lottery, SBI KYC update link, UPI payment request, OTP sharing, job fraud with advance payment.
-Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirmation, normal marketing SMS from Airtel/Vi/Flipkart.`;
+CRITICAL RULES FOR PREVENTING FALSE POSITIVES (OBEY STRICTLY):
+1. Distinguish Real vs Fake KYC: An official message reminding you to "Visit your branch or use the official YONO app for KYC" is SAFE. A message saying "Your account is blocked, click this random link to update KYC" is a SCAM.
+2. Official Government alerts (e.g., IMD Heat Wave warnings, disaster management, health advisories) are ALWAYS SAFE.
+3. Official notifications from verified brands (e.g., Zerodha trades, Bank balance updates) that do NOT ask for sensitive info/money via shady links are SAFE.
+4. Do NOT flag a message as a scam just because it uses "urgent" language if it is a public service announcement or legitimate weather/stock alert.
+
+Examples of SCAMS: fake KBC lottery, SBI KYC via bit.ly link, "Digital Arrest" calls, FedEx courier scam, job fraud with advance payment.
+Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirmation, official SBI SMS telling you to use the YONO app.`;
   if (type === 'news') return `Determine if news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply JSON.${knowledgeLine}`;
   if (type === 'url') return `Analyze URL for safety. Return JSON.${knowledgeLine}`;
   if (type === 'phishing') return baseSCAM + knowledgeLine;
