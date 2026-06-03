@@ -18,11 +18,17 @@
         
         .app-container { width: 100%; max-width: 480px; background: #ffffff; min-height: 100vh; position: relative; padding-bottom: 80px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
         
+        /* Custom Logo Classes */
+        .custom-logo { width: 28px; height: 28px; vertical-align: middle; object-fit: contain; }
+        .custom-logo-small { width: 14px; height: 14px; vertical-align: middle; object-fit: contain; display: inline-block; }
+        .custom-logo-nav { width: 22px; height: 22px; object-fit: contain; display: block; margin: 0 auto; filter: grayscale(100%) opacity(0.6); transition: 0.2s; }
+        .nav-item.active .custom-logo-nav { filter: grayscale(0%) opacity(1); transform: translateY(-2px); }
+
         /* Header */
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #ffffff; position: sticky; top: 0; z-index: 50; }
-        .logo-icon { color: #2563eb; font-size: 28px; margin-right: 12px; }
+        .logo-icon { margin-right: 12px; display: flex; align-items: center; }
         .header-titles h1 { font-size: 20px; color: #1e3a8a; font-weight: 700; line-height: 1.2; }
-        .header-titles p { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px; }
+        .header-titles p { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
         
         .lang-btn { font-size: 11px; font-weight: bold; cursor: pointer; padding: 6px 12px; border-radius: 20px; background: #f1f5f9; color: #475569; transition: 0.2s; border: 1px solid #e2e8f0; }
         .lang-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
@@ -82,7 +88,7 @@
         /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #ffffff; display: flex; justify-content: space-around; padding: 12px 10px; border-top: 1px solid #e2e8f0; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.03); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; cursor: pointer; flex: 1; gap: 4px; transition: 0.2s; }
-        .nav-icon { font-size: 22px; opacity: 0.8; transition: 0.2s; }
+        .nav-icon { font-size: 22px; opacity: 0.8; transition: 0.2s; display: flex; align-items: center; justify-content: center; height: 24px; }
         .nav-item.active { color: #3b82f6; }
         .nav-item.active .nav-icon { opacity: 1; transform: translateY(-2px); }
         
@@ -106,13 +112,13 @@
 <body>
 
 <div class="app-container">
-    <!-- Top Header with Language Toggle -->
+    <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
         <div style="display:flex; align-items:center;">
-            <div class="logo-icon">🛡️</div>
+            <div class="logo-icon"><img src="logo.jpg" alt="Logo" class="custom-logo"></div>
             <div class="header-titles">
                 <h1>VerifyPulse</h1>
-                <p id="tagline">🛡️ AI scam detector</p>
+                <p><img src="logo.jpg" alt="Logo" class="custom-logo-small"> <span id="tagline">AI scam detector</span></p>
             </div>
         </div>
         <div style="display:flex; gap: 8px;">
@@ -150,7 +156,10 @@
 
         <!-- The Core Scanner -->
         <div class="card text-center" style="border: 2px solid #bfdbfe; background: #f8fafc; padding: 25px 20px;">
-            <h3 style="font-size: 20px;">🛡️ Scan Links & Messages</h3>
+            <h3 style="font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <img src="logo.jpg" alt="Logo" class="custom-logo-small" style="width: 20px; height: 20px;"> 
+                Scan Links & Messages
+            </h3>
             <p style="font-size: 13px;">Paste a message, link, or email — we'll detect if it's a scam.</p>
             
             <div class="unified-container">
@@ -309,43 +318,52 @@
     <div id="tab-pro" class="tab-content">
         <div class="text-center" style="margin-bottom: 20px;">
             <div class="badge" style="background: #fef3c7; color: #b45309;">⭐ PREMIUM</div>
-            <h2 style="color: #1e3a8a;">Stay one step ahead of scammers</h2>
-            <p>Unlock the full power of VerifyPulse's AI engine.</p>
+            <h2 style="color: #1e3a8a;">Power up your security</h2>
+            <p>Get advanced AI protection, unlimited scans, and priority support. Choose the plan that fits you best.</p>
         </div>
 
         <div class="price-card">
-            <h3 style="color: #64748b;">Free</h3>
-            <p style="margin-bottom: 15px; font-size: 12px;">Basic protection</p>
-            <div class="price-amount">₹0</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color: #64748b; font-size: 22px;">Free</h3>
+                <span class="badge" style="background:#f1f5f9; color:#475569;">CURRENT PLAN</span>
+            </div>
+            <p style="margin-bottom: 15px; font-size: 13px; color: #64748b;">Basic protection for everyday use.</p>
+            <div class="price-amount">₹0 <span style="font-size:14px; font-weight:normal; color:#94a3b8;">/ forever</span></div>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 15px 0;">
-            <div class="price-feature">✅ 10 total scans per day</div>
-            <div class="price-feature">✅ Basic text and link check</div>
-            <div class="price-feature">✅ 2 advanced tools / day</div>
+            <div class="price-feature">✅ 10 total AI scans per day</div>
+            <div class="price-feature">✅ Basic text and link checking</div>
+            <div class="price-feature">✅ Access to 2 advanced tools daily</div>
+            <div class="price-feature" style="color: #94a3b8;">❌ Phone App Malware Scanner</div>
+            <div class="price-feature" style="color: #94a3b8;">❌ Multimodal Image & Audio Scans</div>
         </div>
 
-        <div class="price-card bg-blue-gradient text-white">
-            <h3 style="color: white;">Pro</h3>
-            <p style="margin-bottom: 15px; font-size: 12px; color: rgba(255,255,255,0.8);">Personal security expert</p>
+        <div class="price-card bg-blue-gradient text-white" style="transform: scale(1.02); box-shadow: 0 10px 25px rgba(59,130,246,0.3); border: 2px solid #bfdbfe;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color: white; font-size: 24px;">Pro</h3>
+                <span class="badge" style="background:rgba(255,255,255,0.2); color:white;">MOST POPULAR</span>
+            </div>
+            <p style="margin-bottom: 15px; font-size: 13px; color: rgba(255,255,255,0.9);">Your personal digital security expert.</p>
             <div class="price-amount" style="color: white;">₹79 <span style="font-size:14px; font-weight:normal; color: rgba(255,255,255,0.8);">/ month</span></div>
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
-            <div class="price-feature" style="color: white;">✅ Unlimited automated scans</div>
+            <div class="price-feature" style="color: white;">✅ <b>Unlimited</b> automated AI scans</div>
             <div class="price-feature" style="color: white;">✅ Phone App Malware Scanner</div>
-            <div class="price-feature" style="color: white;">✅ Multimodal (Image/Audio) scans</div>
+            <div class="price-feature" style="color: white;">✅ Multimodal (Image/Audio) deep scans</div>
             <div class="price-feature" style="color: white;">✅ Dark web password monitoring</div>
-            <button class="btn-white" style="color: #1d4ed8; margin-top: 20px;">Upgrade to Pro</button>
+            <div class="price-feature" style="color: white;">✅ Ad-free premium experience</div>
+            <button class="btn-white" style="color: #1d4ed8; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Upgrade to Pro</button>
         </div>
 
         <div class="price-card bg-orange-gradient text-white">
-            <div class="badge" style="background: rgba(255,255,255,0.2); color: white;">ULTRA PRO</div>
-            <h3 style="color: white;">Ultra Pro</h3>
-            <p style="margin-bottom: 15px; font-size: 12px; color: rgba(255,255,255,0.8);">Family & Business protection</p>
+            <h3 style="color: white; font-size: 22px;">Ultra Pro</h3>
+            <p style="margin-bottom: 15px; font-size: 13px; color: rgba(255,255,255,0.9);">Complete family & business protection.</p>
             <div class="price-amount" style="color: white;">₹179 <span style="font-size:14px; font-weight:normal; color: rgba(255,255,255,0.8);">/ month</span></div>
             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
-            <div class="price-feature" style="color: white;">✅ Protect up to 5 devices</div>
-            <div class="price-feature" style="color: white;">✅ Live API Access (1M calls)</div>
-            <div class="price-feature" style="color: white;">✅ Full Threat Graph access</div>
-            <div class="price-feature" style="color: white;">✅ Priority 24/7 AI Support</div>
-            <button class="btn-white" style="color: #be123c; margin-top: 20px;">Upgrade to Ultra Pro - ₹179/mo</button>
+            <div class="price-feature" style="color: white;">✅ <b>Everything in Pro, plus:</b></div>
+            <div class="price-feature" style="color: white;">✅ Protect up to 5 devices simultaneously</div>
+            <div class="price-feature" style="color: white;">✅ Live API Access (1M calls/month)</div>
+            <div class="price-feature" style="color: white;">✅ Full Threat Graph & Analytics access</div>
+            <div class="price-feature" style="color: white;">✅ Priority 24/7 AI Security Support</div>
+            <button class="btn-white" style="color: #be123c; margin-top: 20px;">Upgrade to Ultra Pro</button>
         </div>
     </div>
 
@@ -355,7 +373,9 @@
          ========================================== -->
     <div id="tab-about" class="tab-content">
         <div class="card bg-blue-gradient text-white text-center">
-            <div class="nav-icon" style="font-size: 32px; margin-bottom: 10px;">🛡️</div>
+            <div style="margin-bottom: 10px; display: flex; justify-content: center;">
+                <img src="logo.jpg" alt="Logo" style="width: 48px; height: 48px; object-fit: contain; filter: brightness(0) invert(1);">
+            </div>
             <h2>Our Mission</h2>
             <p style="color: rgba(255,255,255,0.9);">Make the internet safer for everyone — especially for Indians navigating the fastest-growing digital economy in the world.</p>
         </div>
@@ -381,7 +401,7 @@
             </div>
         </div>
 
-        <!-- External Integrations (Restored) -->
+        <!-- External Integrations -->
         <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
             <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;">
                 <button style="background: #0088cc; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">🤖 Try on Telegram</button>
@@ -410,7 +430,7 @@
          ========================================== -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchMainTab('scan', this)">
-            <span class="nav-icon">🛡️</span>
+            <span class="nav-icon"><img src="logo.jpg" alt="Logo" class="custom-logo-nav"></span>
             <span>SCAN</span>
         </div>
         <div class="nav-item" onclick="switchMainTab('tools', this)">
@@ -432,10 +452,10 @@
      JAVASCRIPT LOGIC
      ========================================== -->
 <script>
-    // === LANGUAGE TOGGLE LOGIC (Restored) ===
+    // === LANGUAGE TOGGLE LOGIC ===
     const translations = {
-        en: { tagline: '🛡️ AI scam detector', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total scans by you', statLabel2: 'Scams caught', statLabel3: 'Safe links found' },
-        hi: { tagline: '🛡️ AI साइबर सुरक्षा', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित लिंक' }
+        en: { tagline: 'AI scam detector', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total scans by you', statLabel2: 'Scams caught', statLabel3: 'Safe links found' },
+        hi: { tagline: 'AI साइबर सुरक्षा', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित लिंक' }
     };
 
     function setLang(lang) {
