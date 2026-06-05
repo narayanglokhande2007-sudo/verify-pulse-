@@ -34,7 +34,6 @@
         .custom-logo-small { width: 14px; height: 14px; vertical-align: middle; object-fit: contain; display: inline-block; }
         .custom-logo-nav { width: 22px; height: 22px; object-fit: contain; display: block; margin: 0 auto; filter: grayscale(100%) opacity(0.6); transition: 0.2s; }
         .nav-item.active .custom-logo-nav { filter: grayscale(0%) opacity(1); transform: translateY(-2px); }
-
         /* Header */
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #ffffff; position: sticky; top: 0; z-index: 50; }
         .logo-icon { margin-right: 12px; display: flex; align-items: center; }
@@ -43,7 +42,6 @@
         
         .lang-btn { font-size: 11px; font-weight: bold; cursor: pointer; padding: 6px 12px; border-radius: 20px; background: #f1f5f9; color: #475569; transition: 0.2s; border: 1px solid #e2e8f0; }
         .lang-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-
         /* Animations */
         @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -121,7 +119,6 @@
     </style>
 </head>
 <body>
-
 <div class="app-container">
     <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
@@ -137,7 +134,6 @@
             <div id="btn-hi" class="lang-btn" onclick="setLang('hi')">HI</div>
         </div>
     </header>
-
     <!-- ==========================================
          TAB 1: SCAN (HOME)
          ========================================== -->
@@ -159,12 +155,10 @@
             </div>
             <button class="btn-white" onclick="alert('Phone Scanner requires the VerifyPulse Native Android App. Available soon on Play Store!')">🚀 Scan My Phone</button>
         </div>
-
         <div class="card text-center" style="padding: 10px; margin-bottom: 20px;">
             <span style="font-size: 12px; color: #64748b; font-weight: bold;">📊 Daily scans used: <span style="color:#3b82f6;">0</span> / 10 free</span>
             <div style="background: #e2e8f0; height: 4px; border-radius: 2px; margin-top: 5px; width: 80%; margin-left: 10%;"><div style="background: #3b82f6; width: 5%; height: 100%; border-radius: 2px;"></div></div>
         </div>
-
         <!-- The Core Scanner -->
         <div class="card text-center" style="border: 2px solid #bfdbfe; background: #f8fafc; padding: 25px 20px;">
             <h3 style="font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -183,12 +177,10 @@
                 <span>📎 <span id="fileName">image.png</span></span>
                 <button onclick="clearFile()" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px;">Remove</button>
             </div>
-
             <button id="unifiedBtn" class="btn-primary" onclick="checkUnified()">🔍 Scan Now</button>
             <div class="loading" id="unifiedLoading" style="color: #3b82f6;">⏳ AI Analyzing...</div>
             <div class="result-box" id="unifiedResult" style="border: 1px solid #e2e8f0;"></div>
         </div>
-
         <!-- How It Works -->
         <div class="card">
             <h3>🚀 How It Works</h3>
@@ -205,7 +197,6 @@
                 <p>Get instant verdict with confidence score, red flags, and action steps.</p>
             </div>
         </div>
-
         <!-- Use Cases -->
         <div class="card">
             <h3>🌍 Global Use Cases</h3>
@@ -223,8 +214,6 @@
             <p style="color: #b45309; font-size: 13px;">⚠️ <strong>Limitations:</strong> This tool may not be 100% accurate. Always verify sensitive information through official channels.</p>
         </div>
     </div>
-
-
     <!-- ==========================================
          TAB 2: TOOLS
          ========================================== -->
@@ -235,7 +224,6 @@
             <p>UPI, phone numbers, passwords, emails, scam messages and URLs — check anything from one clean dashboard.</p>
             <div class="badge mt-15" style="background: #f8fafc; border: 1px solid #e2e8f0; color: #475569;">Free tools used today: 0 / 2</div>
         </div>
-
         <div class="tools-grid">
             <!-- Tool 1: UPI -->
             <div class="tool-box" id="tool-upi" onclick="expandTool('tool-upi')">
@@ -248,7 +236,6 @@
                     <div class="result-box" id="upiResult" style="color:black;"></div>
                 </div>
             </div>
-
             <!-- Tool 2: Phone -->
             <div class="tool-box" id="tool-phone" onclick="expandTool('tool-phone')">
                 <span class="tool-icon">📱</span>
@@ -260,7 +247,6 @@
                     <div class="result-box" id="phoneResult" style="color:black;"></div>
                 </div>
             </div>
-
             <!-- Tool 3: Password -->
             <div class="tool-box" id="tool-password" onclick="expandTool('tool-password')">
                 <span class="tool-icon">🔑</span>
@@ -271,7 +257,6 @@
                     <p style="font-size:11px; margin-top:10px;">🔐 Checked locally. Never sent to server.</p>
                 </div>
             </div>
-
             <!-- Tool 4: Email -->
             <div class="tool-box" id="tool-email" onclick="expandTool('tool-email')">
                 <span class="tool-icon">📧</span>
@@ -283,7 +268,6 @@
                     <div class="result-box" id="gmailResult" style="color:black;"></div>
                 </div>
             </div>
-
             <!-- Tool 5: Scam Message (Default Expanded) -->
             <div class="tool-box expanded" id="tool-scam" onclick="expandTool('tool-scam')">
                 <span class="tool-icon" style="font-size: 32px;">🚨</span>
@@ -312,7 +296,6 @@
                 </div>
             </div>
         </div>
-
         <div class="card mt-15">
             <h3 id="alertTitle">🚨 Recent Scam Alerts</h3>
             <div class="alert-item" id="alert1">⚠️ Fake KBC lottery messages on WhatsApp</div>
@@ -321,8 +304,6 @@
             <div class="alert-item" id="alert4">⚠️ Fake electricity bill emails with malicious links</div>
         </div>
     </div>
-
-
     <!-- ==========================================
          TAB 3: PRO
          ========================================== -->
@@ -332,7 +313,6 @@
             <h2 style="color: #1e3a8a;">Power up your security</h2>
             <p>Get advanced AI protection, unlimited scans, and priority support. Choose the plan that fits you best.</p>
         </div>
-
         <div class="price-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 style="color: #64748b; font-size: 22px;">Free</h3>
@@ -347,7 +327,6 @@
             <div class="price-feature" style="color: #94a3b8;">❌ Phone App Malware Scanner</div>
             <div class="price-feature" style="color: #94a3b8;">❌ Multimodal Image & Audio Scans</div>
         </div>
-
         <div class="price-card bg-blue-gradient text-white" style="transform: scale(1.02); box-shadow: 0 10px 25px rgba(59,130,246,0.3); border: 2px solid #bfdbfe;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 style="color: white; font-size: 24px;">Pro</h3>
@@ -361,9 +340,8 @@
             <div class="price-feature" style="color: white;">✅ Multimodal (Image/Audio) deep scans</div>
             <div class="price-feature" style="color: white;">✅ Dark web password monitoring</div>
             <div class="price-feature" style="color: white;">✅ Ad-free premium experience</div>
-            <button class="btn-white" style="color: #1d4ed8; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Upgrade to Pro</button>
+            <button class="btn-white" onclick="openPayment()" style="color: #1d4ed8; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Upgrade to Pro</button>
         </div>
-
         <div class="price-card bg-orange-gradient text-white">
             <h3 style="color: white; font-size: 22px;">Ultra Pro</h3>
             <p style="margin-bottom: 15px; font-size: 13px; color: rgba(255,255,255,0.9);">Complete family & business protection.</p>
@@ -374,11 +352,9 @@
             <div class="price-feature" style="color: white;">✅ Live API Access (1M calls/month)</div>
             <div class="price-feature" style="color: white;">✅ Full Threat Graph & Analytics access</div>
             <div class="price-feature" style="color: white;">✅ Priority 24/7 AI Security Support</div>
-            <button class="btn-white" style="color: #be123c; margin-top: 20px;">Upgrade to Ultra Pro</button>
+            <button class="btn-white" onclick="openPayment()" style="color: #be123c; margin-top: 20px;">Upgrade to Ultra Pro</button>
         </div>
     </div>
-
-
     <!-- ==========================================
          TAB 4: ABOUT
          ========================================== -->
@@ -390,13 +366,11 @@
             <h2>Our Mission</h2>
             <p style="color: rgba(255,255,255,0.9);">Make the internet safer for everyone — especially for Indians navigating the fastest-growing digital economy in the world.</p>
         </div>
-
         <div class="card">
             <h3 style="display: flex; align-items: center; gap: 8px;">📖 Our Story</h3>
             <p style="margin-bottom: 10px;">VerifyPulse was built after watching too many friends and family lose money to simple WhatsApp scams, fake KYC SMS, and lottery phishing emails.</p>
             <p>We trained our AI on thousands of real Indian scam patterns so that a regular person doesn't need to be a cybersecurity expert to stay safe online.</p>
         </div>
-
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-num" id="totalChecks">0</div>
@@ -411,7 +385,6 @@
                 <div style="font-size: 11px; color: #64748b; margin-top: 4px;" id="statLabel3">Safe links found</div>
             </div>
         </div>
-
         <!-- External Integrations -->
         <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
             <a href="https://t.me/VerifyPulseScanBot" target="_blank" style="text-decoration: none;">
@@ -421,16 +394,13 @@
                 <button style="background: #f0f4ff; color: #2563eb; border: 2px solid #2563eb; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">💻 Chrome Extension</button>
             </a>
         </div>
-
         <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
             <h3 style="color: #15803d; display: flex; align-items: center; gap: 8px;">🔒 Privacy Protected</h3>
             <p style="color: #166534; font-size: 13px;">We never store your data. The messages, links, and phone numbers you scan are analyzed in-memory and discarded the moment your result is shown. Your connection is encrypted end-to-end.</p>
         </div>
-
         <div class="card" style="background: #eff6ff; border-color: #bfdbfe; text-align: center;">
             <p style="color: #1e3a8a; font-size: 12px; font-weight: 600;">🛡️ Verified by Google Safe Browsing API</p>
         </div>
-
         <div class="text-center mt-15" style="margin-bottom: 30px;">
             <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Found a bug or want a new feature?</p>
             <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;">
@@ -438,8 +408,6 @@
             </a>
         </div>
     </div>
-
-
     <!-- ==========================================
          BOTTOM NAVIGATION BAR
          ========================================== -->
@@ -462,17 +430,68 @@
         </div>
     </nav>
 </div>
-
+<!-- ==========================================
+     PAYMENT MODAL (Hidden by default)
+     ========================================== -->
+<div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:400px; padding:25px; position:relative; background:white; border-radius:15px; animation: slideUp 0.3s ease;">
+        <span onclick="closePayment()" style="position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer; color:#64748b;">&times;</span>
+        <h2 style="margin-bottom:15px; color:#1e3a8a; text-align:center;">Secure Checkout</h2>
+        <p style="text-align:center; color:#64748b; font-size:14px; margin-bottom:20px;">Select your preferred payment method</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+            <button onclick="dummyPay('UPI / PhonePe')" style="background:#f8fafc; border:1px solid #cbd5e1; padding:15px; border-radius:10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; transition:0.2s;">
+                <span style="font-size:24px;">📱</span>
+                <span style="font-size:12px; font-weight:bold; color:#334155;">UPI / PhonePe</span>
+            </button>
+            <button onclick="dummyPay('Google Pay')" style="background:#f8fafc; border:1px solid #cbd5e1; padding:15px; border-radius:10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; transition:0.2s;">
+                <span style="font-size:24px;">🛡️</span>
+                <span style="font-size:12px; font-weight:bold; color:#334155;">Google Pay</span>
+            </button>
+            <button onclick="dummyPay('Net Banking (SBI)')" style="background:#f8fafc; border:1px solid #cbd5e1; padding:15px; border-radius:10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; transition:0.2s;">
+                <span style="font-size:24px;">🏦</span>
+                <span style="font-size:12px; font-weight:bold; color:#334155;">Net Banking (SBI)</span>
+            </button>
+            <button onclick="dummyPay('Credit Card')" style="background:#f8fafc; border:1px solid #cbd5e1; padding:15px; border-radius:10px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; transition:0.2s;">
+                <span style="font-size:24px;">💳</span>
+                <span style="font-size:12px; font-weight:bold; color:#334155;">Credit / Debit</span>
+            </button>
+        </div>
+        
+        <div id="paymentProcessing" style="display:none; text-align:center; padding:10px 0;">
+            <div class="loading" style="display:block; margin:0 auto 10px;">⏳ Connecting to Bank...</div>
+            <p style="font-size:12px; color:#64748b;">Please do not close this window.</p>
+        </div>
+        
+        <div style="text-align:center; margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; display:flex; align-items:center; justify-content:center; gap:5px;">
+            🔒 100% Secure & Encrypted by Razorpay
+        </div>
+    </div>
+</div>
 <!-- ==========================================
      JAVASCRIPT LOGIC
      ========================================== -->
 <script>
+    // === PAYMENT MODAL LOGIC ===
+    function openPayment() {
+        document.getElementById('paymentModal').style.display = 'flex';
+    }
+    function closePayment() {
+        document.getElementById('paymentModal').style.display = 'none';
+        document.getElementById('paymentProcessing').style.display = 'none';
+    }
+    function dummyPay(method) {
+        document.getElementById('paymentProcessing').style.display = 'block';
+        setTimeout(() => {
+            alert(`Payment of ₹79 via ${method} is currently in Developer Test Mode.\n\nNote for Investors: The UI is ready for Razorpay integration. Actual money deduction is disabled for testing.`);
+            closePayment();
+        }, 1500);
+    }
     // === LANGUAGE TOGGLE LOGIC ===
     const translations = {
         en: { tagline: 'AI scam detector', alertTitle: '🚨 Recent Scam Alerts', alert1: '⚠️ Fake KBC lottery messages on WhatsApp', alert2: '⚠️ Fake SBI KYC update SMS - Do not click links', alert3: '⚠️ Job fraud emails asking advance payment', alert4: '⚠️ Fake electricity bill emails with malicious links', statLabel1: 'Total scans by you', statLabel2: 'Scams caught', statLabel3: 'Safe links found' },
         hi: { tagline: 'AI साइबर सुरक्षा', alertTitle: '🚨 हाल के स्कैम अलर्ट', alert1: '⚠️ WhatsApp पर नकली KBC लॉटरी संदेश', alert2: '⚠️ नकली SBI KYC अपडेट SMS - लिंक पर क्लिक न करें', alert3: '⚠️ अग्रिम भुगतान मांगने वाले नौकरी धोखाधड़ी ईमेल', alert4: '⚠️ दुर्भावनापूर्ण लिंक वाले नकली बिजली बिल ईमेल', statLabel1: 'कुल जांच', statLabel2: 'स्कैम मिले', statLabel3: 'सुरक्षित लिंक' }
     };
-
     function setLang(lang) {
         document.getElementById('btn-en').classList.remove('active');
         document.getElementById('btn-hi').classList.remove('active');
@@ -489,7 +508,6 @@
         document.getElementById('statLabel2').textContent = t.statLabel2;
         document.getElementById('statLabel3').textContent = t.statLabel3;
     }
-
     // === TAB & TOOL LOGIC ===
     function switchMainTab(tabId, element) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -498,7 +516,6 @@
         document.getElementById('tab-' + tabId).classList.add('active');
         window.scrollTo(0, 0);
     }
-
     function expandTool(toolId) {
         const toolBox = document.getElementById(toolId);
         if (toolBox.classList.contains('expanded')) return;
@@ -509,14 +526,12 @@
         toolBox.classList.add('expanded');
         toolBox.querySelector('.tool-content').style.display = 'block';
     }
-
     function checkInputState(inputId, btnId) {
         const val = document.getElementById(inputId).value.trim();
         const btn = document.getElementById(btnId);
         if (val.length > 0) btn.classList.add('active-btn');
         else btn.classList.remove('active-btn');
     }
-
     // === STATS TRACKING LOGIC ===
     let totalChecksCount = 0, scamsFoundCount = 0, safeItemsCount = 0;
     try { 
@@ -544,7 +559,6 @@
         } catch(e) {}
         updateStats();
     }
-
     // === API CALL LOGIC ===
     async function callAPI(checkType, inputText) {
         const response = await fetch('/api/verify', { 
@@ -561,12 +575,10 @@
         if (data.error) throw new Error(data.error);
         return data;
     }
-
     function escapeHTML(str) {
         if (str === null || str === undefined) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
-
     function displayEnhancedResult(containerId, data) {
         const container = document.getElementById(containerId);
         let verdictColor = '';
@@ -582,13 +594,10 @@
         else {
             verdictColor = '#22c55e'; verdictIcon = '✅';
         }
-
         recordResult(data.verdict);
-
         const scamType = data.scamType || '';
         const confidence = data.confidence || 85;
         const analysis = data.analysis || '';
-
         let html = `
             <div style="background: ${verdictColor}; padding: 15px; border-radius: 8px; color: white; text-align: center; margin-bottom: 15px;">
                 <h3 style="margin-bottom: 5px; color: white;">${verdictIcon} ${v === 'SAFE' ? 'Safe' : v === 'SUSPICIOUS' ? 'Suspicious' : 'Dangerous'}</h3>
@@ -598,61 +607,19 @@
             </div>
         `;
         if (analysis) {
-            html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit; margin-bottom:15px;">${escapeHTML(analysis)}</p></div>`;
+            html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit;">${escapeHTML(analysis)}</p></div>`;
         }
-
-        let actionSteps = '';
-        if (['DANGEROUS','FRAUD','SCAM','PHISHING','MALICIOUS'].includes(v)) {
-            actionSteps = `
-                <div style="background:#fef2f2; border-left:4px solid #ef4444; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
-                    <h4 style="color:#b91c1c; margin-bottom:5px; font-size:14px;">⚠️ What to do next:</h4>
-                    <ul style="color:#7f1d1d; font-size:13px; padding-left:20px; margin:0;">
-                        <li style="margin-bottom:4px;">Do NOT click any links in the message.</li>
-                        <li style="margin-bottom:4px;">Do NOT share OTPs or personal details.</li>
-                        <li style="margin-bottom:4px;">Block the sender immediately.</li>
-                        <li>Report the number to 1930 or cybercrime.gov.in.</li>
-                    </ul>
-                </div>
-            `;
-        } else if (['SUSPICIOUS','MISLEADING','UNCERTAIN'].includes(v)) {
-            actionSteps = `
-                <div style="background:#fffbeb; border-left:4px solid #f59e0b; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
-                    <h4 style="color:#b45309; margin-bottom:5px; font-size:14px;">🤔 What to do next:</h4>
-                    <ul style="color:#92400e; font-size:13px; padding-left:20px; margin:0;">
-                        <li style="margin-bottom:4px;">Verify the sender's identity through official channels.</li>
-                        <li style="margin-bottom:4px;">Avoid clicking links if you are not 100% sure.</li>
-                        <li>Never pay money upfront for unverified claims.</li>
-                    </ul>
-                </div>
-            `;
-        } else {
-            actionSteps = `
-                <div style="background:#f0fdf4; border-left:4px solid #22c55e; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
-                    <h4 style="color:#15803d; margin-bottom:5px; font-size:14px;">✅ What to do next:</h4>
-                    <ul style="color:#166534; font-size:13px; padding-left:20px; margin:0;">
-                        <li style="margin-bottom:4px;">The link/message appears safe.</li>
-                        <li style="margin-bottom:4px;">You can proceed normally.</li>
-                        <li>Always stay alert for new types of scams.</li>
-                    </ul>
-                </div>
-            `;
-        }
-        html += actionSteps;
-
         container.innerHTML = html;
         container.style.display = 'block';
     }
-
     function showError(containerId, message) {
         const container = document.getElementById(containerId);
         container.innerHTML = `<div style="background:#fef2f2; color:#ef4444; padding:12px; border-radius:8px; font-size:13px; border:1px solid #ef4444;">❌ ${escapeHTML(message)}</div>`;
         container.style.display = 'block';
     }
-
     // === UNIFIED SCANNER LOGIC ===
     let uploadedFileBase64 = null;
     let uploadedFileMime = null;
-
     function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -666,14 +633,12 @@
         };
         reader.readAsDataURL(file);
     }
-
     function clearFile() {
         document.getElementById('fileUpload').value = '';
         document.getElementById('filePreview').style.display = 'none';
         uploadedFileBase64 = null;
         uploadedFileMime = null;
     }
-
     async function checkUnified() { 
         const text = document.getElementById('unifiedInput').value.trim(); 
         if (!text && !uploadedFileBase64) return alert('Paste a message, link, or upload a screenshot'); 
@@ -696,7 +661,6 @@
             document.getElementById('unifiedLoading').style.display = 'none'; 
         } 
     }
-
     // === TOOLS TAB LOGIC ===
     async function checkScam(event) {
         if(event) event.stopPropagation();
@@ -713,7 +677,6 @@
         document.getElementById('upiLoading').style.display = 'block'; document.getElementById('upiResult').style.display = 'none'; 
         try { const data = await callAPI('upi', upi); displayEnhancedResult('upiResult', data); } catch (e) { showError('upiResult', e.message); } finally { document.getElementById('upiLoading').style.display = 'none'; } 
     }
-
     async function checkPhone(event) {
         if(event) event.stopPropagation();
         const phone = document.getElementById('phoneInput').value.trim(); 
@@ -721,7 +684,6 @@
         document.getElementById('phoneLoading').style.display = 'block'; document.getElementById('phoneResult').style.display = 'none'; 
         try { const data = await callAPI('phone', phone); displayEnhancedResult('phoneResult', data); } catch (e) { showError('phoneResult', e.message); } finally { document.getElementById('phoneLoading').style.display = 'none'; } 
     }
-
     async function checkGmail(event) {
         if(event) event.stopPropagation();
         const msg = document.getElementById('gmailInput').value.trim(); 
@@ -737,29 +699,22 @@
         document.getElementById('newsLoading').style.display = 'block'; document.getElementById('newsResult').style.display = 'none'; 
         try { const data = await callAPI('url', text); displayEnhancedResult('newsResult', data); } catch (e) { showError('newsResult', e.message); } finally { document.getElementById('newsLoading').style.display = 'none'; } 
     }
-
     function checkPasswordLive() {
         const pwd = document.getElementById('passwordInput').value;
         const result = document.getElementById('passwordResult');
         if (!pwd) { result.innerHTML = ''; return; }
-        
         let strength = 0;
-        if (pwd.length > 7) strength++;
-        if (pwd.match(/[a-z]+/)) strength++;
-        if (pwd.match(/[A-Z]+/)) strength++;
-        if (pwd.match(/[0-9]+/)) strength++;
-        if (pwd.match(/[$@#&!]+/)) strength++;
-        
-        let bg = '#fef2f2', col = '#ef4444', text = 'WEAK ❌', width = '20%';
-        if (strength >= 4) { bg = '#f0fdf4'; col = '#15803d'; text = 'STRONG ✅'; width = '100%'; }
-        else if (strength >= 2) { bg = '#fffbeb'; col = '#b45309'; text = 'MEDIUM ⚠️'; width = '50%'; }
-        
-        result.innerHTML = `
-            <div style="font-weight:bold; color:${col};">${text}</div>
-            <div style="background:#e2e8f0; height:6px; border-radius:3px; margin-top:8px; overflow:hidden;">
-                <div style="width:${width}; background:${col}; height:100%;"></div>
-            </div>
-        `;
+        if (pwd.length >= 9) strength++;
+        if (pwd.length >= 12) strength++;
+        if (/[A-Z]/.test(pwd)) strength++;
+        if (/[a-z]/.test(pwd)) strength++;
+        if (/[0-9]/.test(pwd)) strength++;
+        if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+        let cls, txt, color;
+        if (strength <= 2) { color = '#ef4444'; txt = 'Weak'; }
+        else if (strength <= 4) { color = '#f59e0b'; txt = 'Moderate'; }
+        else { color = '#22c55e'; txt = 'Strong'; }
+        result.innerHTML = `<div style="color:${color}; font-weight:bold;">🔐 ${txt} (score ${strength}/6)</div>`;
     }
 </script>
 </body>
