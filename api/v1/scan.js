@@ -8,12 +8,10 @@ module.exports = async (req, res) => {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Pre-flight request handle karna
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Sirf POST request allow karna
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed', message: 'Only POST requests are accepted.' });
   }
@@ -21,44 +19,55 @@ module.exports = async (req, res) => {
   try {
     const { url } = req.body;
 
-    // Check karna ki URL bheji gayi hai ya nahi
     if (!url) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'URL is required in the request body.'
-      });
+      return res.status(400).json({ error: 'Bad Request', message: 'URL is required.' });
     }
 
-    const targetUrl = url.toLowerCase();
-
     // -------------------------------------------------------------
-    // MOCK AI LOGIC (Initial Testing ke liye)
-    // Future me ise hata kar hum yahan Google Gemini API lagayenge
+    // CONNECTING TO THE MASTER 13-AI SYSTEM
+    // B2B ki request ko chupchap VerifyPulse ke Master engine me bheja ja raha hai
+    // Bina kisi purane code ko delete ya change kiye!
     // -------------------------------------------------------------
-    const scamKeywords = ['scam', 'free-money', 'lottery', 'fake'];
     
-    // Check karna kya URL me scam keywords hain
-    const isScam = scamKeywords.some(keyword => targetUrl.includes(keyword));
+    // Website ka asli address pata karna (e.g., verify-pulse.vercel.app)
+    const host = req.headers.host;
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const masterEngineUrl = `${protocol}://${host}/api/verify`;
 
-    if (isScam) {
-      return res.status(200).json({
-        status: 'SCAM',
-        threat_level: 'HIGH',
-        message: 'Malicious activity detected by VerifyPulse.'
-      });
-    } else {
-      return res.status(200).json({
-        status: 'SAFE',
-        threat_level: 'LOW',
-        message: 'URL appears secure.'
-      });
+    // Master engine ko data usi format me bhejna jaise Website bhejti hai
+    const response = await fetch(masterEngineUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: url,
+        checkType: 'unified'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Master AI Engine failed to respond.');
     }
+
+    // Master engine se aaya hua 13 AI models ka combined result
+    const masterResult = await response.json();
+
+    // B2B companiyon ko ekdam clean, professional aur detailed result dena
+    return res.status(200).json({
+      status: masterResult.verdict || 'UNCERTAIN',
+      threat_level: (masterResult.verdict === 'DANGEROUS' || masterResult.verdict === 'SCAM' || masterResult.verdict === 'FRAUD') ? 'HIGH' : masterResult.verdict === 'SUSPICIOUS' ? 'MEDIUM' : 'LOW',
+      scam_type: masterResult.scamType || 'Unknown',
+      confidence: masterResult.confidence || 0,
+      message: masterResult.analysis || 'Analysis complete.',
+      action_steps: masterResult.whatToDo || []
+    });
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('B2B API Error:', error);
     return res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Something went wrong while processing the request.'
+      message: 'Failed to process request through the Master AI Engine.'
     });
   }
 };
