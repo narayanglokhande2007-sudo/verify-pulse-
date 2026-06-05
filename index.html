@@ -12,8 +12,7 @@
       gtag('js', new Date());
       gtag('config', 'G-K346QTDXWZ');
     </script>
-    
-    <!-- PWA App Setup -->
+    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <link rel="apple-touch-icon" href="logo.jpg">
@@ -24,7 +23,6 @@
         });
       }
     </script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #f4f7fb; color: #1e293b; display: flex; justify-content: center; min-height: 100vh; }
@@ -429,6 +427,10 @@
             <p style="color: #166534; font-size: 13px;">We never store your data. The messages, links, and phone numbers you scan are analyzed in-memory and discarded the moment your result is shown. Your connection is encrypted end-to-end.</p>
         </div>
 
+        <div class="card" style="background: #eff6ff; border-color: #bfdbfe; text-align: center;">
+            <p style="color: #1e3a8a; font-size: 12px; font-weight: 600;">🛡️ Verified by Google Safe Browsing API</p>
+        </div>
+
         <div class="text-center mt-15" style="margin-bottom: 30px;">
             <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Found a bug or want a new feature?</p>
             <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Feedback" style="text-decoration:none;">
@@ -592,11 +594,51 @@
                 <h3 style="margin-bottom: 5px; color: white;">${verdictIcon} ${v === 'SAFE' ? 'Safe' : v === 'SUSPICIOUS' ? 'Suspicious' : 'Dangerous'}</h3>
                 ${scamType ? `<div style="font-size:12px; opacity:0.9;">${escapeHTML(scamType)}</div>` : ''}
                 <div style="font-weight:bold; margin-top:5px;">Confidence: ${confidence}%</div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 11px; color: rgba(255,255,255,0.95); font-weight: bold; display:flex; align-items:center; justify-content:center; gap:4px;">🛡️ Verified by Google Safe Browsing API</div>
             </div>
         `;
         if (analysis) {
-            html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit;">${escapeHTML(analysis)}</p></div>`;
+            html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit; margin-bottom:15px;">${escapeHTML(analysis)}</p></div>`;
         }
+
+        let actionSteps = '';
+        if (['DANGEROUS','FRAUD','SCAM','PHISHING','MALICIOUS'].includes(v)) {
+            actionSteps = `
+                <div style="background:#fef2f2; border-left:4px solid #ef4444; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
+                    <h4 style="color:#b91c1c; margin-bottom:5px; font-size:14px;">⚠️ What to do next:</h4>
+                    <ul style="color:#7f1d1d; font-size:13px; padding-left:20px; margin:0;">
+                        <li style="margin-bottom:4px;">Do NOT click any links in the message.</li>
+                        <li style="margin-bottom:4px;">Do NOT share OTPs or personal details.</li>
+                        <li style="margin-bottom:4px;">Block the sender immediately.</li>
+                        <li>Report the number to 1930 or cybercrime.gov.in.</li>
+                    </ul>
+                </div>
+            `;
+        } else if (['SUSPICIOUS','MISLEADING','UNCERTAIN'].includes(v)) {
+            actionSteps = `
+                <div style="background:#fffbeb; border-left:4px solid #f59e0b; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
+                    <h4 style="color:#b45309; margin-bottom:5px; font-size:14px;">🤔 What to do next:</h4>
+                    <ul style="color:#92400e; font-size:13px; padding-left:20px; margin:0;">
+                        <li style="margin-bottom:4px;">Verify the sender's identity through official channels.</li>
+                        <li style="margin-bottom:4px;">Avoid clicking links if you are not 100% sure.</li>
+                        <li>Never pay money upfront for unverified claims.</li>
+                    </ul>
+                </div>
+            `;
+        } else {
+            actionSteps = `
+                <div style="background:#f0fdf4; border-left:4px solid #22c55e; padding:10px 15px; margin-top:15px; border-radius:0 8px 8px 0;">
+                    <h4 style="color:#15803d; margin-bottom:5px; font-size:14px;">✅ What to do next:</h4>
+                    <ul style="color:#166534; font-size:13px; padding-left:20px; margin:0;">
+                        <li style="margin-bottom:4px;">The link/message appears safe.</li>
+                        <li style="margin-bottom:4px;">You can proceed normally.</li>
+                        <li>Always stay alert for new types of scams.</li>
+                    </ul>
+                </div>
+            `;
+        }
+        html += actionSteps;
+
         container.innerHTML = html;
         container.style.display = 'block';
     }
@@ -700,20 +742,25 @@
         const pwd = document.getElementById('passwordInput').value;
         const result = document.getElementById('passwordResult');
         if (!pwd) { result.innerHTML = ''; return; }
+        
         let strength = 0;
-        if (pwd.length >= 9) strength++;
-        if (pwd.length >= 12) strength++;
-        if (/[A-Z]/.test(pwd)) strength++;
-        if (/[a-z]/.test(pwd)) strength++;
-        if (/[0-9]/.test(pwd)) strength++;
-        if (/[^A-Za-z0-9]/.test(pwd)) strength++;
-        let cls, txt, color;
-        if (strength <= 2) { color = '#ef4444'; txt = 'Weak'; }
-        else if (strength <= 4) { color = '#f59e0b'; txt = 'Moderate'; }
-        else { color = '#22c55e'; txt = 'Strong'; }
-        result.innerHTML = `<div style="color:${color}; font-weight:bold;">🔐 ${txt} (score ${strength}/6)</div>`;
+        if (pwd.length > 7) strength++;
+        if (pwd.match(/[a-z]+/)) strength++;
+        if (pwd.match(/[A-Z]+/)) strength++;
+        if (pwd.match(/[0-9]+/)) strength++;
+        if (pwd.match(/[$@#&!]+/)) strength++;
+        
+        let bg = '#fef2f2', col = '#ef4444', text = 'WEAK ❌', width = '20%';
+        if (strength >= 4) { bg = '#f0fdf4'; col = '#15803d'; text = 'STRONG ✅'; width = '100%'; }
+        else if (strength >= 2) { bg = '#fffbeb'; col = '#b45309'; text = 'MEDIUM ⚠️'; width = '50%'; }
+        
+        result.innerHTML = `
+            <div style="font-weight:bold; color:${col};">${text}</div>
+            <div style="background:#e2e8f0; height:6px; border-radius:3px; margin-top:8px; overflow:hidden;">
+                <div style="width:${width}; background:${col}; height:100%;"></div>
+            </div>
+        `;
     }
 </script>
-
 </body>
 </html>
