@@ -609,6 +609,16 @@
         if (analysis) {
             html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit;">${escapeHTML(analysis)}</p></div>`;
         }
+        
+        if (data.action_steps && Array.isArray(data.action_steps) && data.action_steps.length > 0) {
+            html += `<div style="margin-top:15px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:left;">`;
+            html += `<h4 style="color:#1e3a8a; margin-bottom:8px; font-size:13px;">📋 What to do next:</h4>`;
+            html += `<ul style="margin-left:20px; font-size:12px; color:#475569;">`;
+            data.action_steps.forEach(step => {
+                html += `<li style="margin-bottom:4px;">${escapeHTML(step)}</li>`;
+            });
+            html += `</ul></div>`;
+        }
         container.innerHTML = html;
         container.style.display = 'block';
     }
