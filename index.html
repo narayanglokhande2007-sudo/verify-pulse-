@@ -12,10 +12,11 @@
       gtag('js', new Date());
       gtag('config', 'G-K346QTDXWZ');
     </script>
-    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <link rel="apple-touch-icon" href="logo.jpg">
+    <!-- Markdown Parser for ChatGPT-like UI -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -237,8 +238,11 @@
             </div>
         </div>
         <style>
-            .msg-bot { background: white; color: #1e293b; padding: 10px; border-radius: 12px; border-bottom-left-radius: 2px; border: 1px solid #e2e8f0; align-self: flex-start; max-width: 85%; word-wrap: break-word; }
-            .msg-user { background: #2563eb; color: white; padding: 10px; border-radius: 12px; border-bottom-right-radius: 2px; align-self: flex-end; max-width: 85%; word-wrap: break-word; }
+            .msg-bot { background: transparent; color: #1e293b; padding: 12px 5px; align-self: stretch; max-width: 100%; word-wrap: break-word; border-bottom: 1px solid #f1f5f9; font-size: 15px; line-height: 1.6; }
+            .msg-bot p { margin-bottom: 8px; }
+            .msg-bot ul, .msg-bot ol { margin-left: 20px; margin-bottom: 8px; }
+            .msg-bot strong { color: #0f172a; }
+            .msg-user { background: #f8fafc; color: #0f172a; padding: 12px 15px; border-radius: 8px; align-self: flex-end; max-width: 90%; word-wrap: break-word; font-size: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
         </style>
     </div>
     <!-- ==========================================
@@ -794,7 +798,8 @@
             
             document.getElementById('pulseCoreTyping').style.display = 'none';
             if(data.reply) {
-                msgs.innerHTML += `<div class="msg-bot">${escapeHTML(data.reply).replace(/\\n/g, '<br>')}</div>`;
+                // Use marked to parse the markdown into beautiful HTML like ChatGPT
+                msgs.innerHTML += `<div class="msg-bot">${marked.parse(data.reply)}</div>`;
             } else {
                 msgs.innerHTML += `<div class="msg-bot">Sorry, I couldn't process that.</div>`;
             }
