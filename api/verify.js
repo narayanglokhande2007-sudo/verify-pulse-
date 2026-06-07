@@ -3,12 +3,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { text, checkType, fileData } = req.body;
   if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
-
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
-
   function safeResult(r) {
     if (typeof r.findings === 'string') r.findings = [r.findings];
     if (!Array.isArray(r.findings)) r.findings = [];
@@ -16,7 +14,6 @@ export default async function handler(req, res) {
     if (!Array.isArray(r.whatToDo)) r.whatToDo = [];
     return r;
   }
-
   // ----- 200+ trusted domains list (all official brands) -----
   function isTrustedMessage(msg) {
     const trustedDomains = [
@@ -64,7 +61,6 @@ export default async function handler(req, res) {
       // Additional trusted (Allen, etc.)
       'allen.ac.in', 'allen.in', 'd.sfmsg.co'
     ];
-
     const urls = msg.match(/https?:\/\/[^\s]+/g) || [];
     
     // Keyword whitelist for text-only messages (no links)
@@ -89,7 +85,6 @@ export default async function handler(req, res) {
       }
       return false;
     }
-
     for (let urlStr of urls) {
       try {
         const cleanUrlStr = urlStr.replace(/[.,;)]+$/, '');
@@ -110,12 +105,41 @@ export default async function handler(req, res) {
     }
     return true;
   }
-
   try {
     if (checkType === 'password') {
       return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
     }
-
+    // ----- CHATBOT: PulseCore -----
+    if (checkType === 'chatbot') {
+      const chatbotPrompt = `You are "PulseCore", a Senior AI Assistant for VerifyPulse. 
+CRITICAL GUARDRAILS:
+1. You MUST ONLY talk about: Indian Banking, Cybersecurity, Net Banking, Scams, and RBI (Reserve Bank of India) guidelines.
+2. If the user asks about ANYTHING else (like movies, weather, politics, general coding, sports, etc.), you MUST reply EXACTLY with this sentence and nothing else:
+"no, i am not made for that, but if you want help on topic like banking,cybersecurity, net banking tips, etc"
+3. You have exhaustive, deep knowledge of ALL RBI rules, Indian net banking policies, and digital payment guidelines. Do not miss any rules when explaining.
+4. You must reply in the exact language the user uses (e.g., Marathi, Hindi, English, etc.). Keep the tone very professional and simple.
+5. EVERY single reply you give MUST end with a conversational question like: "Yee point explain kru kya, ya phir kuch orr puchna hai kya?" (or its equivalent translation in the language you are speaking).`;
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: chatbotPrompt },
+              { role: 'user', content: text }
+            ],
+            temperature: 0.2,
+            max_tokens: 800
+          })
+        });
+        const groqData = await groqRes.json();
+        const replyText = groqData.choices?.[0]?.message?.content || "Sorry, I am facing high traffic. Please try again.";
+        return res.status(200).json({ reply: replyText });
+      } catch (e) {
+        return res.status(200).json({ reply: "PulseCore system is currently busy. Please try again." });
+      }
+    }
     // ----- Whitelist pre-check (fast path) -----
     if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
       if (isTrustedMessage(text)) {
@@ -129,7 +153,6 @@ export default async function handler(req, res) {
         }));
       }
     }
-
     // ---- Live knowledge boost ----
     let recentScamURLs = [];
     try {
@@ -141,7 +164,6 @@ export default async function handler(req, res) {
       }
     } catch (e) {}
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
-
     // Safe Browsing check
     if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
@@ -155,7 +177,6 @@ export default async function handler(req, res) {
         console.error('Safe Browsing check failed:', e.message);
       }
     }
-
     // Gemini for fact‑checking (news)
     if (checkType === 'news' && GEMINI_KEY) {
       try {
@@ -163,7 +184,6 @@ export default async function handler(req, res) {
         if (gemRes) return res.status(200).json(safeResult(gemRes));
       } catch (e) {}
     }
-
     // ---- Multimodal File Uploads (Images/Audio) ----
     if (fileData && GEMINI_KEY) {
       try {
@@ -174,7 +194,6 @@ export default async function handler(req, res) {
         return res.status(200).json(safeResult({ verdict: 'UNCERTAIN', scamType: 'Processing Error', confidence: 50, analysis: 'Failed to analyze the uploaded screenshot or audio file.', findings: [], whatToDo: [] }));
       }
     }
-
     // ----- PRIMARY: Groq (fastest) -----
     let groqSuccess = false;
     let groqResult = null;
@@ -183,12 +202,10 @@ export default async function handler(req, res) {
       if (groqResult && groqResult.verdict && groqResult.confidence > 60) groqSuccess = true;
     } catch (e) { console.error('Groq failed:', e.message); }
     if (groqSuccess) return res.status(200).json(safeResult(groqResult));
-
     // ----- FALLBACK: 10 parallel models (OpenRouter + HF) with Meta-AI Council -----
     const parallelTasks = [];
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4500); // 4.5 second strict limit for Council
-
     if (OPENROUTER_KEY) {
       const openRouterModels = [
         'meta-llama/llama-3-8b-instruct', 'mistralai/mistral-7b-instruct', 'google/gemma-3-12b-it',
@@ -212,7 +229,6 @@ export default async function handler(req, res) {
         );
       });
     }
-
     const hfSpecialists = [
       'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
       'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
@@ -234,7 +250,6 @@ export default async function handler(req, res) {
         }).catch(() => null)
       );
     });
-
     if (parallelTasks.length) {
       const results = await Promise.allSettled(parallelTasks);
       clearTimeout(timeoutId); // clear the timeout since they finished or aborted
@@ -245,7 +260,6 @@ export default async function handler(req, res) {
           validResponses.push(r.value);
         }
       }
-
       if (validResponses.length > 0) {
         // --- THE META-AI JUDGE ---
         try {
@@ -282,13 +296,11 @@ export default async function handler(req, res) {
         return res.status(200).json(safeResult(validResponses[0]));
       }
     }
-
     // Final fallback DeepSeek R1
     try {
       const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
       if (deepRes && deepRes.verdict) return res.status(200).json(safeResult(deepRes));
     } catch(e) {}
-
     // Ultimate fallback Gemini
     if (GEMINI_KEY) {
       try {
@@ -296,14 +308,12 @@ export default async function handler(req, res) {
         if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
       } catch (e) {}
     }
-
     // Ultimate fallback (no crash)
     return res.status(200).json(safeResult({
       verdict: 'UNCERTAIN', scamType: 'Service Issue', confidence: 50,
       analysis: 'AI engines temporarily busy. Try again.',
       findings: ['Temporary API limit'], whatToDo: ['Refresh and retry']
     }));
-
   } catch (error) {
     console.error(error);
     return res.status(200).json(safeResult({
@@ -313,7 +323,6 @@ export default async function handler(req, res) {
     }));
   }
 }
-
 // ========== Helper functions (unchanged – same as before) ==========
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
@@ -336,7 +345,6 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
     return { found: false };
   } catch (e) { return { found: false }; }
 }
-
 async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null) {
   const systemPrompt = getPrompt(type, knowledgeLine) + " You must return valid JSON.";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -345,7 +353,6 @@ async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileD
   if (fileData && fileData.base64 && fileData.mimeType) {
     parts.push({ inlineData: { mimeType: fileData.mimeType, data: fileData.base64 } });
   }
-
   const body = { contents: [{ parts }] };
   const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error('Gemini failed');
@@ -357,7 +364,6 @@ async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileD
   if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
   return parsed;
 }
-
 async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   const systemPrompt = getPrompt(type, knowledgeLine);
   const url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -409,7 +415,6 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   }
   return parsed;
 }
-
 function getPrompt(type, knowledgeLine = '') {
   const baseSCAM = `You are an Indian scam detection expert trained on over 20 Lakh Indian scam records. Analyze the message and return JSON with:
 - verdict: SCAM / FRAUD / SAFE / SUSPICIOUS
@@ -418,20 +423,17 @@ function getPrompt(type, knowledgeLine = '') {
 - analysis: 2-3 sentences
 - findings: array of bullet-point red flags
 - whatToDo: array of actionable steps.
-
 OFFICIAL COMMUNICATION LAWS OF INDIA (Use these to detect scams):
 1. Indian Banks (SBI, HDFC, ICICI, etc.) NEVER send bit.ly, tinyurl, or random IP address links for KYC. Real KYC is done inside official apps (YONO, iMobile) or official .co.in / .com domains.
 2. Official Entities NEVER ask you to download an .apk file over WhatsApp.
 3. Police, CBI, Telecom (TRAI), and Customs NEVER call threatening to arrest you unless you pay via UPI or Crypto. 
 4. Income Tax Dept NEVER asks for PIN, CVV, or passwords via SMS.
 5. Legitimate companies DO NOT ask you to "Pay Rs 10" to receive a courier package or a gift.
-
 CRITICAL RULES FOR PREVENTING FALSE POSITIVES (OBEY STRICTLY):
 1. Distinguish Real vs Fake KYC: An official message reminding you to "Visit your branch or use the official YONO app for KYC" is SAFE. A message saying "Your account is blocked, click this random link to update KYC" is a SCAM.
 2. Official Government alerts (e.g., IMD Heat Wave warnings, disaster management, health advisories) are ALWAYS SAFE.
 3. Official notifications from verified brands (e.g., Zerodha trades, Bank balance updates) that do NOT ask for sensitive info/money via shady links are SAFE.
 4. Do NOT flag a message as a scam just because it uses "urgent" language if it is a public service announcement or legitimate weather/stock alert.
-
 Examples of SCAMS: fake KBC lottery, SBI KYC via bit.ly link, "Digital Arrest" calls, FedEx courier scam, job fraud with advance payment.
 Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirmation, official SBI SMS telling you to use the YONO app.`;
   if (type === 'news') return `Determine if news is TRUE, FALSE, MISLEADING, or UNCERTAIN. Reply JSON.${knowledgeLine}`;
