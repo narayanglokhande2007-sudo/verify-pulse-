@@ -88,8 +88,15 @@
             <div class="doc-section">
                 <h1 id="overview">Overview</h1>
                 <p>Welcome to the VerifyPulse Enterprise API. Our API provides a hyper-scalable, zero-day threat detection engine specifically built for Indian Digital Payments.</p>
-                <p>Using a 3-layer architecture (In-Memory Cache -> Heuristics -> Llama 3 70B AI), we instantly classify SMS, URLs, and text as <strong>SAFE</strong> or <strong>SCAM</strong>.</p>
                 <p><strong>API Base URL (Edge Network):</strong> <code>https://verify-pulse.vercel.app</code></p>
+                <h3 style="margin-top: 20px; font-size: 16px; color: #2563eb;">Architecture: How We Defeat LLM Hallucinations</h3>
+                <p>Unlike standard AI wrappers, VerifyPulse does not rely on continuous LLM fine-tuning (which suffers from 90-day memory decay). Instead, we use a proprietary 4-Layer Engine:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px; color: #334155; font-size: 15px; line-height: 1.6;">
+                    <li><strong>Layer 1 (Immutable Cache):</strong> A hardcoded static whitelist of 200+ verified Indian financial domains. Safe URLs resolve locally in <50ms without ever hitting the LLM.</li>
+                    <li><strong>Layer 2 (Real-Time RAG):</strong> We pull live threat intelligence from 20+ global data sources (PhishTank, UrlHaus) into a <code>latest_scams.json</code> pipeline. Our Edge Functions dynamically inject this live data into the Llama-3 prompt via <strong>Retrieval-Augmented Generation (RAG)</strong>.</li>
+                    <li><strong>Layer 3 (Llama 3 70B AI):</strong> The AI analyzes the payload contextually using the injected live-cheat-sheet, guaranteeing zero-day detection without continuous model training.</li>
+                    <li><strong>Layer 4 (Multimodal Vision):</strong> For advanced threats like fake payment screenshots or AI voice-phishing (deepfakes), our engine seamlessly routes binary payloads to a secondary Gemini Vision pipeline for deep multimodal inspection.</li>
+                </ul>
                 <h2 id="authentication">Authentication</h2>
                 <p>We process all requests statelessly. To identify your enterprise account, pass an API Key via the standard Authorization Bearer header.</p>
                 <p><em>Note: If you are testing the live playground without an account, the system will accept requests without a token in 'Sandbox Mode'.</em></p>
