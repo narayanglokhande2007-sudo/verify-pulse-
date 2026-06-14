@@ -89,7 +89,7 @@
                 <h1 id="overview">Overview</h1>
                 <p>Welcome to the VerifyPulse Enterprise API. Our API provides a hyper-scalable, zero-day threat detection engine specifically built for Indian Digital Payments.</p>
                 <p>Using a 3-layer architecture (In-Memory Cache -> Heuristics -> Llama 3 70B AI), we instantly classify SMS, URLs, and text as <strong>SAFE</strong> or <strong>SCAM</strong>.</p>
-                <p><strong>Base URL:</strong> <code>https://www.verify-pulse.com</code></p>
+                <p><strong>API Base URL (Edge Network):</strong> <code>https://verify-pulse.vercel.app</code></p>
                 <h2 id="authentication">Authentication</h2>
                 <p>We process all requests statelessly. To identify your enterprise account, pass an API Key via the standard Authorization Bearer header.</p>
                 <p><em>Note: If you are testing the live playground without an account, the system will accept requests without a token in 'Sandbox Mode'.</em></p>
@@ -139,7 +139,7 @@
             <div class="code-panel">
                 <div class="code-title">Example Request (cURL)</div>
 <pre>
-curl -X POST https://www.verify-pulse.com/api/verify \
+curl -X POST https://verify-pulse.vercel.app/api/verify \
   -H "Authorization: Bearer vp_live_xxxxx" \
   -H "Content-Type: application/json" \
   -d '{
