@@ -95,7 +95,7 @@
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="logo">VerifyPulse <span>API</span></div>
             <div class="nav-links" style="display: flex; align-items: center;">
-                <a href="#docs" style="margin-right: 20px;">Documentation</a>
+                <a href="docs.html" style="margin-right: 20px;">Documentation</a>
                 <a href="mailto:narayanglokhande2007@gmail.com"><button class="btn-primary">Contact Sales</button></a>
             </div>
         </div>
@@ -180,34 +180,6 @@ analyzeThreat("Your account is blocked. Update KYC here: http://bit.ly/fake");
 // Faint circuit background will pulse blue during network request.</div>
             </div>
         </div>
-    </section>
-    <section id="docs" class="container api-docs">
-        <h2 style="font-size: 32px; margin-bottom: 10px; letter-spacing: -1px;">API Documentation</h2>
-        <p style="color: var(--text-muted); margin-bottom: 40px;">Simple, clean, and RESTful. Integrate in minutes.</p>
-        
-        <h3 style="margin-bottom: 15px;">Endpoint</h3>
-        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px; margin-bottom: 40px;">
-            <span style="background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px;">POST</span>
-            https://verify-pulse.vercel.app/api/verify
-        </div>
-        <h3 style="margin-bottom: 15px;">Request Body</h3>
-        <table class="api-table">
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td><code>text</code></td>
-                <td><span style="color:#2563eb;">string</span> (required)</td>
-                <td>The raw SMS, WhatsApp message, or URL to be analyzed.</td>
-            </tr>
-            <tr>
-                <td><code>checkType</code></td>
-                <td><span style="color:#2563eb;">string</span> (required)</td>
-                <td>Must be exactly <code>"scan"</code>.</td>
-            </tr>
-        </table>
     </section>
     <footer style="text-align: center; padding: 40px 0; border-top: 1px solid var(--border-light); color: var(--text-muted); font-size: 14px; margin-top: 40px;">
         <p>&copy; 2026 VerifyPulse Enterprise. Made for Indian Fintechs.</p>
