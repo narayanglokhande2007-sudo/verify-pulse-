@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation | VerifyPulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #ffffff;
+            --bg-sidebar: #f8fafc;
+            --bg-code: #0f172a;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --accent-blue: #2563eb;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { color: var(--text-main); line-height: 1.6; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* Navbar */
+        nav { display: flex; justify-content: space-between; align-items: center; height: 60px; padding: 0 24px; border-bottom: 1px solid var(--border-light); background: var(--bg-page); z-index: 10; flex-shrink: 0; }
+        .logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; text-decoration: none; color: var(--text-main); }
+        .logo span { color: var(--accent-blue); }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+        .nav-links a:hover { color: var(--text-main); }
+        /* Main Layout */
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        /* Sidebar */
+        .sidebar { width: 250px; background: var(--bg-sidebar); border-right: 1px solid var(--border-light); padding: 30px 20px; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-section { margin-bottom: 30px; }
+        .sidebar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; }
+        .sidebar-link { display: block; font-size: 14px; color: var(--text-main); text-decoration: none; padding: 6px 0; font-weight: 500; transition: 0.2s; }
+        .sidebar-link:hover { color: var(--accent-blue); }
+        .sidebar-link.active { color: var(--accent-blue); font-weight: 600; }
+        /* Content Area */
+        .content-area { flex: 1; display: flex; overflow-y: auto; }
+        .doc-section { padding: 50px; flex: 1; max-width: 800px; }
+        
+        h1 { font-size: 36px; letter-spacing: -1px; margin-bottom: 15px; }
+        h2 { font-size: 24px; margin: 40px 0 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
+        h3 { font-size: 18px; margin: 25px 0 10px; }
+        p { color: #334155; margin-bottom: 15px; font-size: 15px; }
+        
+        .badge { display: inline-block; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 8px; }
+        .badge.post { background: #dcfce7; color: #166534; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-light); }
+        th { color: var(--text-muted); font-weight: 600; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 13px; color: #b91c1c; }
+        /* Code Panel (Right Side) */
+        .code-panel { width: 450px; background: var(--bg-code); padding: 50px 30px; overflow-y: auto; flex-shrink: 0; color: #94a3b8; }
+        .code-title { font-size: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; margin-top: 40px; color: #cbd5e1; }
+        .code-title:first-child { margin-top: 0; }
+        pre { background: #000000; padding: 20px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 12px; overflow-x: auto; margin-bottom: 30px; border: 1px solid #1e293b; color: #e2e8f0; white-space: pre-wrap; }
+        .tag-safe { color: #22c55e; }
+        .tag-danger { color: #ef4444; }
+        .tag-string { color: #93c5fd; }
+        .tag-number { color: #fde047; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="enterprise.html" class="logo">VerifyPulse <span>API</span></a>
+        <div class="nav-links">
+            <a href="enterprise.html">Back to Website</a>
+            <a href="mailto:narayanglokhande2007@gmail.com">Support</a>
+        </div>
+    </nav>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Introduction</div>
+                <a href="#overview" class="sidebar-link active">Overview</a>
+                <a href="#authentication" class="sidebar-link">Authentication</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Endpoints</div>
+                <a href="#scan" class="sidebar-link"><span class="badge post">POST</span> /api/verify</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Errors</div>
+                <a href="#errors" class="sidebar-link">Status Codes</a>
+            </div>
+        </div>
+        <div class="content-area">
+            <!-- Left Text Content -->
+            <div class="doc-section">
+                <h1 id="overview">Overview</h1>
+                <p>Welcome to the VerifyPulse Enterprise API. Our API provides a hyper-scalable, zero-day threat detection engine specifically built for Indian Digital Payments.</p>
+                <p>Using a 3-layer architecture (In-Memory Cache -> Heuristics -> Llama 3 70B AI), we instantly classify SMS, URLs, and text as <strong>SAFE</strong> or <strong>SCAM</strong>.</p>
+                <p><strong>Base URL:</strong> <code>https://www.verify-pulse.com</code></p>
+                <h2 id="authentication">Authentication</h2>
+                <p>We process all requests statelessly. To identify your enterprise account, pass an API Key via the standard Authorization Bearer header.</p>
+                <p><em>Note: If you are testing the live playground without an account, the system will accept requests without a token in 'Sandbox Mode'.</em></p>
+                <h2 id="scan">Analyze Payload</h2>
+                <p><span class="badge post">POST</span> <code>/api/verify</code></p>
+                <p>This is the primary endpoint to scan any text or URL for malicious intent.</p>
+                <h3>Request Parameters</h3>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>text</code></td>
+                        <td><code>string</code></td>
+                        <td><strong>Required.</strong> The raw message or URL to be analyzed.</td>
+                    </tr>
+                    <tr>
+                        <td><code>checkType</code></td>
+                        <td><code>string</code></td>
+                        <td><strong>Required.</strong> Must be exactly <code>scan</code>.</td>
+                    </tr>
+                </table>
+                <h2 id="errors">Error Handling</h2>
+                <p>VerifyPulse uses standard HTTP status codes to indicate the success or failure of a request.</p>
+                <table>
+                    <tr>
+                        <th>Status Code</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>200 OK</code></td>
+                        <td>The payload was successfully analyzed.</td>
+                    </tr>
+                    <tr>
+                        <td><code>400 Bad Request</code></td>
+                        <td>Missing the <code>text</code> or <code>checkType</code> parameters.</td>
+                    </tr>
+                    <tr>
+                        <td><code>500 Internal Error</code></td>
+                        <td>The Edge network timed out. Fallback safely to your app.</td>
+                    </tr>
+                </table>
+            </div>
+            <!-- Right Code Content -->
+            <div class="code-panel">
+                <div class="code-title">Example Request (cURL)</div>
+<pre>
+curl -X POST https://www.verify-pulse.com/api/verify \
+  -H "Authorization: Bearer vp_live_xxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Your SBI KYC is pending. Update here: http://sbi-update.in",
+    "checkType": "scan"
+  }'
+</pre>
+                <div class="code-title">Response: Threat Detected (SCAM)</div>
+<pre>
+{
+  "status": "<span class="tag-danger">SCAM</span>",
+  "threat_level": "<span class="tag-string">HIGH</span>",
+  "scam_type": "<span class="tag-string">Brand Impersonation (SBI)</span>",
+  "confidence": <span class="tag-number">98</span>,
+  "message": "<span class="tag-string">The URL attempts to mimic SBI Bank but uses a fraudulent domain.</span>",
+  "latency_ms": <span class="tag-number">3100</span>,
+  "action_steps": [
+    "<span class="tag-string">Block the transaction.</span>",
+    "<span class="tag-string">Warn the user about KYC fraud.</span>"
+  ]
+}
+</pre>
+                <div class="code-title">Response: Clean Payload (SAFE)</div>
+<pre>
+{
+  "status": "<span class="tag-safe">SAFE</span>",
+  "threat_level": "<span class="tag-string">LOW</span>",
+  "scam_type": "<span class="tag-string">Trusted Brand</span>",
+  "confidence": <span class="tag-number">99</span>,
+  "message": "<span class="tag-string">The domain provided (zerodha.com) is a verified financial entity.</span>",
+  "latency_ms": <span class="tag-number">45</span>,
+  "action_steps": [
+    "<span class="tag-string">Allow transaction.</span>"
+  ]
+}
+</pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
