@@ -218,32 +218,34 @@
     <!-- ==========================================
          TAB PULSECORE AI
          ========================================== -->
-    <div id="tab-pulsecore" class="tab-content" style="display: none; height: calc(100vh - 160px); display: flex; flex-direction: column;">
-        <div class="text-center" style="margin-bottom: 10px;">
-            <div class="badge" style="background: #dcfce7; color: #166534;">💬 PulseCore AI</div>
-            <h2 style="color: #1e3a8a;">Your AI Security Expert</h2>
+    <div id="tab-pulsecore" class="tab-content">
+        <div style="height: calc(100vh - 160px); display: flex; flex-direction: column;">
+            <div class="text-center" style="margin-bottom: 10px;">
+                <div class="badge" style="background: #dcfce7; color: #166534;">💬 PulseCore AI</div>
+                <h2 style="color: #1e3a8a;">Your AI Security Expert</h2>
+            </div>
+            <div class="card" style="flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid #bfdbfe; background: white;">
+                <div style="background: #1e3a8a; color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <div style="width:10px; height:10px; background:#22c55e; border-radius:50%;"></div>
+                    PulseCore AI
+                </div>
+                <div id="pulseCoreMessages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                    <div class="msg-bot" style="background: white; color: #1e293b; padding: 10px; border-radius: 12px; border-bottom-left-radius: 2px; border: 1px solid #e2e8f0; align-self: flex-start; max-width: 85%; word-wrap: break-word;">Hi, Welcome sir/madam. On what topic do you want to talk about? Banking, cybersecurity, net banking tips, etc.</div>
+                </div>
+                <div id="pulseCoreTyping" style="font-size: 11px; color: #64748b; font-style: italic; margin-left: 15px; margin-bottom: 5px; display: none;">PulseCore is typing...</div>
+                <div style="display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px;">
+                    <input type="text" id="pulseCoreInput" placeholder="Type a message..." onkeypress="handlePulseKeyPress(event)" style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 14px;">
+                    <button onclick="sendPulseMessage()" style="background: #2563eb; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">➤</button>
+                </div>
+            </div>
+            <style>
+                .msg-bot { background: transparent; color: #1e293b; padding: 12px 5px; align-self: stretch; max-width: 100%; word-wrap: break-word; border-bottom: 1px solid #f1f5f9; font-size: 15px; line-height: 1.6; }
+                .msg-bot p { margin-bottom: 8px; }
+                .msg-bot ul, .msg-bot ol { margin-left: 20px; margin-bottom: 8px; }
+                .msg-bot strong { color: #0f172a; }
+                .msg-user { background: #f8fafc; color: #0f172a; padding: 12px 15px; border-radius: 8px; align-self: flex-end; max-width: 90%; word-wrap: break-word; font-size: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
+            </style>
         </div>
-        <div class="card" style="flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid #bfdbfe; background: white;">
-            <div style="background: #1e3a8a; color: white; padding: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                <div style="width:10px; height:10px; background:#22c55e; border-radius:50%;"></div>
-                PulseCore AI
-            </div>
-            <div id="pulseCoreMessages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
-                <div class="msg-bot" style="background: white; color: #1e293b; padding: 10px; border-radius: 12px; border-bottom-left-radius: 2px; border: 1px solid #e2e8f0; align-self: flex-start; max-width: 85%; word-wrap: break-word;">Hi, Welcome sir/madam. On what topic do you want to talk about? Banking, cybersecurity, net banking tips, etc.</div>
-            </div>
-            <div id="pulseCoreTyping" style="font-size: 11px; color: #64748b; font-style: italic; margin-left: 15px; margin-bottom: 5px; display: none;">PulseCore is typing...</div>
-            <div style="display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px;">
-                <input type="text" id="pulseCoreInput" placeholder="Type a message..." onkeypress="handlePulseKeyPress(event)" style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 14px;">
-                <button onclick="sendPulseMessage()" style="background: #2563eb; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">➤</button>
-            </div>
-        </div>
-        <style>
-            .msg-bot { background: transparent; color: #1e293b; padding: 12px 5px; align-self: stretch; max-width: 100%; word-wrap: break-word; border-bottom: 1px solid #f1f5f9; font-size: 15px; line-height: 1.6; }
-            .msg-bot p { margin-bottom: 8px; }
-            .msg-bot ul, .msg-bot ol { margin-left: 20px; margin-bottom: 8px; }
-            .msg-bot strong { color: #0f172a; }
-            .msg-user { background: #f8fafc; color: #0f172a; padding: 12px 15px; border-radius: 8px; align-self: flex-end; max-width: 90%; word-wrap: break-word; font-size: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
-        </style>
     </div>
     <!-- ==========================================
          TAB 2: TOOLS
