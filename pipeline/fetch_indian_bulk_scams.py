@@ -2,13 +2,17 @@ import json
 import urllib.request
 import os
 import zipfile
+import sqlite3
 from datetime import datetime, timedelta
 
-MASTER_FILE = 'pipeline/daily-data/all_scams_master.jsonl'
+# File Paths
+INDIA_MASTER = 'pipeline/daily-data/india_scams.jsonl'
+GLOBAL_MASTER = 'pipeline/daily-data/global_scams.jsonl'
 LATEST_FILE = 'pipeline/daily-data/latest_scams.json'
+DB_FILE = 'pipeline/daily-data/scams.db'
 ARCHIVE_DIR = 'pipeline/daily-data/archives'
 
-os.makedirs(os.path.dirname(MASTER_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(INDIA_MASTER), exist_ok=True)
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
 
 # EXACTLY 20 Unique Open-Source Feeds
@@ -32,7 +36,7 @@ FEEDS = [
     "https://phishing.army/download/phishing_army_blocklist_extended.txt",
     "https://raw.githubusercontent.com/dogeloverpi/scam-link-dataset/main/scam_links.txt",
     "https://raw.githubusercontent.com/romainbousseau/digitalside-misp-feed/master/lists/latestips.txt",
-    "https://raw.githubusercontent.com/curbengh/phishing-filter/master/domains.txt"
+    "https://curbengh.github.io/phishing-filter/domains.txt"
 ]
 
 INDIAN_KEYWORDS = [
@@ -43,13 +47,24 @@ INDIAN_KEYWORDS = [
     '.in', '.co.in', 'gov.in', 'nic.in', 'india'
 ]
 
-# SAFELIST: Sites that should NEVER be blocked even if a feed makes a mistake
 SAFELIST = [
     'google.com', 'facebook.com', 'amazon.in', 'flipkart.com', 'youtube.com',
     'sbi.co.in', 'hdfcbank.com', 'icicibank.com', 'axisbank.com', 'pnbindia.in',
     'paytm.com', 'phonepe.com', 'npci.org.in', 'gov.in', 'uidai.gov.in',
     'wikipedia.org', 'twitter.com', 'x.com', 'instagram.com', 'whatsapp.com'
 ]
+
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    # Table for all scams with a region flag
+    c.execute('''CREATE TABLE IF NOT EXISTS scams 
+                 (url TEXT PRIMARY KEY, source TEXT, type TEXT, date_added TEXT, region TEXT)''')
+    # Index for ultra-fast searching
+    c.execute('CREATE INDEX IF NOT EXISTS idx_url ON scams(url)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_region ON scams(region)')
+    conn.commit()
+    return conn
 
 def is_safelisted(url):
     lower_url = url.lower()
@@ -59,9 +74,19 @@ def is_indian_context(url_or_text):
     lower_text = url_or_text.lower()
     return any(keyword in lower_text for keyword in INDIAN_KEYWORDS)
 
-def append_to_master(data_item):
-    with open(MASTER_FILE, 'a', encoding='utf-8') as f:
+def append_to_storage(data_item, region, conn):
+    file_path = INDIA_MASTER if region == 'india' else GLOBAL_MASTER
+    with open(file_path, 'a', encoding='utf-8') as f:
         f.write(json.dumps(data_item) + '\n')
+    
+    # Also add to SQLite Watchman
+    try:
+        c = conn.cursor()
+        c.execute("INSERT OR IGNORE INTO scams (url, source, type, date_added, region) VALUES (?, ?, ?, ?, ?)",
+                  (data_item['url'], data_item['source'], data_item['type'], data_item['date_added'], region))
+        conn.commit()
+    except Exception as e:
+        print(f"DB Insert Error: {e}")
 
 def update_latest_file(new_urls):
     latest = []
@@ -69,119 +94,61 @@ def update_latest_file(new_urls):
         try:
             with open(LATEST_FILE, 'r', encoding='utf-8') as f:
                 latest = json.load(f)
-        except:
-            pass
+        except: pass
     
     updated_latest = new_urls + latest
     seen = set()
     deduped = [x for x in updated_latest if not (x in seen or seen.add(x))]
-    
     final_latest = deduped[:200]
     
     with open(LATEST_FILE, 'w', encoding='utf-8') as f:
         json.dump(final_latest, f, indent=2)
 
-def archive_old_data():
-    if not os.path.exists(MASTER_FILE):
-        return
-        
-    cutoff_date = datetime.now() - timedelta(days=90)
-    retained_records = []
-    archived_records = []
-    
-    with open(MASTER_FILE, 'r', encoding='utf-8') as f:
-        for line in f:
-            try:
-                data = json.loads(line)
-                date_str = data.get('date_added')
-                if date_str:
-                    record_date = datetime.fromisoformat(date_str)
-                    if record_date < cutoff_date:
-                        archived_records.append(data)
-                    else:
-                        retained_records.append(data)
-                else:
-                    retained_records.append(data)
-            except:
-                pass
-                
-    if archived_records:
-        archive_filename = f"archive_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jsonl"
-        archive_path = os.path.join(ARCHIVE_DIR, archive_filename)
-        
-        with open(archive_path, 'w', encoding='utf-8') as f:
-            for rec in archived_records:
-                f.write(json.dumps(rec) + '\n')
-                
-        zip_path = archive_path.replace('.jsonl', '.zip')
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            zipf.write(archive_path, arcname=archive_filename)
-            
-        os.remove(archive_path)
-        
-        with open(MASTER_FILE, 'w', encoding='utf-8') as f:
-            for rec in retained_records:
-                f.write(json.dumps(rec) + '\n')
-                
-        print(f"📦 Archived {len(archived_records)} old records to {zip_path}")
-
 def fetch_and_process():
-    print(f"[{datetime.now()}] Starting Mission 20 Data Source Fetcher...")
+    print(f"[{datetime.now()}] Starting SQLite Watchman Dual-Storage Pipeline...")
+    conn = init_db()
     
-    archive_old_data()
-    
-    existing_urls = set()
-    if os.path.exists(MASTER_FILE):
-        with open(MASTER_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                try:
-                    existing_urls.add(json.loads(line).get('url', ''))
-                except:
-                    pass
+    # Load existing URLs from DB to avoid duplicates
+    c = conn.cursor()
+    c.execute("SELECT url FROM scams")
+    existing_urls = {row[0] for row in c.fetchall()}
 
-    new_urls_added = []
+    new_india_urls = []
+    new_global_count = 0
 
     for feed_url in FEEDS:
-        print(f"Fetching from dataset: {feed_url}")
+        print(f"Fetching: {feed_url}")
         try:
             req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=15) as response:
                 content = response.read().decode('utf-8', errors='ignore')
-                
-                lines = content.split('\n')
-                for line in lines:
+                for line in content.split('\n'):
                     line = line.strip()
-                    if not line or line.startswith('#'):
-                        continue
-                        
+                    if not line or line.startswith('#'): continue
                     parts = line.split()
-                    if len(parts) > 1 and parts[0] in ['0.0.0.0', '127.0.0.1']:
-                        url = parts[1]
-                    else:
-                        url = parts[0]
+                    url = parts[1] if len(parts) > 1 and parts[0] in ['0.0.0.0', '127.0.0.1'] else parts[0]
                     
-                    if url not in existing_urls:
-                        if is_safelisted(url):
-                            continue
-                            
-                        if is_indian_context(url):
-                            append_to_master({
-                                "url": url,
-                                "source": feed_url,
-                                "type": "Phishing/Scam",
-                                "date_added": datetime.now().isoformat()
-                            })
-                            existing_urls.add(url)
-                            new_urls_added.append(url)
+                    if url not in existing_urls and not is_safelisted(url):
+                        region = 'india' if is_indian_context(url) else 'global'
+                        data_item = {
+                            "url": url,
+                            "source": feed_url,
+                            "type": "Phishing/Scam",
+                            "date_added": datetime.now().isoformat()
+                        }
+                        append_to_storage(data_item, region, conn)
+                        existing_urls.add(url)
+                        if region == 'india': new_india_urls.append(url)
+                        else: new_global_count += 1
                             
         except Exception as e:
-            print(f"Failed to fetch {feed_url}: {e}")
+            print(f"Failed {feed_url}: {e}")
 
-    if new_urls_added:
-        update_latest_file(new_urls_added)
+    if new_india_urls:
+        update_latest_file(new_india_urls)
 
-    print(f"✅ Successfully added {len(new_urls_added)} new Indian-specific scam records today.")
-    print(f"Total active records in master dataset: {len(existing_urls)}")
+    print(f"✅ Added {len(new_india_urls)} India records and {new_global_count} Global records.")
+    conn.close()
 
 if __name__ == '__main__':
     fetch_and_process()
