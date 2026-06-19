@@ -152,17 +152,60 @@ CRITICAL GUARDRAILS:
         }));
       }
     }
-    // ---- Live knowledge boost ----
-    let recentScamURLs = [];
+    // ---- Live knowledge boost (RAG with SQLite Watchman) ----
+    let relevantScamURLs = [];
     try {
-      const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
-      const pipelineRes = await fetch(pipelineURL);
-      if (pipelineRes.ok) {
-        const allURLs = await pipelineRes.json();
-        recentScamURLs = allURLs.slice(-20);
+      // 1. Get recent 15 for quick context
+      try {
+        const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
+        const pipelineRes = await fetch(pipelineURL);
+        if (pipelineRes.ok) {
+          const allURLs = await pipelineRes.json();
+          relevantScamURLs = allURLs.slice(-15);
+        }
+      } catch (e) {}
+
+      // 2. Deep Search with SQLite Watchman (Ultra-Fast & Scalable)
+      const sqlite3 = await import('sqlite3');
+      const { open } = await import('sqlite');
+      const db = await open({ filename: './pipeline/daily-data/scams.db', driver: sqlite3.default.Database });
+      
+      const urls = text.match(/https?:\/\/[^\s]+/g) || [];
+      const searchTerms = new Set();
+      urls.forEach(u => {
+        try {
+          const url = new URL(u.replace(/[.,;)]+$/, ''));
+          searchTerms.add(`%${url.hostname}%`);
+        } catch (e) { searchTerms.add(`%${u}%`); }
+      });
+      
+      if (searchTerms.size === 0) {
+        text.split(/\s+/).filter(w => w.length > 5).slice(0, 3).forEach(w => searchTerms.add(`%${w}%`));
       }
-    } catch (e) {}
-    const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
+
+      const masterResults = new Set();
+      for (const term of Array.from(searchTerms).slice(0, 3)) {
+        const rows = await db.all("SELECT url FROM scams WHERE url LIKE ? LIMIT 10", [term]);
+        rows.forEach(row => masterResults.add(row.url));
+        if (masterResults.size >= 20) break;
+      }
+      await db.close();
+      
+      // Merge results
+      relevantScamURLs = Array.from(new Set([...relevantScamURLs, ...masterResults])).slice(0, 35);
+    } catch (e) {
+      console.error("SQLite Watchman Search failed:", e.message);
+      // Fallback to basic grep if SQLite fails
+      try {
+        const { execSync } = await import('child_process');
+        const cmd = `grep -i "${text.substring(0, 20).replace(/"/g, '')}" "./pipeline/daily-data/india_scams.jsonl" | head -n 5`;
+        const output = execSync(cmd).toString();
+        output.split('\n').forEach(line => {
+          try { const data = JSON.parse(line); if (data.url) relevantScamURLs.push(data.url); } catch(e) {}
+        });
+      } catch(e2) {}
+    }
+    const knowledgeLine = relevantScamURLs.length > 0 ? `\n\nVerified Threat Intelligence (Reference these known scams):\n${relevantScamURLs.join('\n')}` : '';
     // Safe Browsing check
     if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && SAFE_BROWSING_KEY) {
       try {
