@@ -1,5 +1,25 @@
-const { analyzeUrl } = require('./ghost_agent');
-const { searchMasterData } = require('./db_helper');
+// Defensive requires — if a module fails to load (e.g. missing optional deps on Vercel),
+// fall back to a stub so the handler ALWAYS returns valid JSON.
+let analyzeUrl;
+try {
+    ({ analyzeUrl } = require('./ghost_agent'));
+} catch (e) {
+    console.warn('[verify] ghost_agent unavailable, using stub:', e.message);
+    analyzeUrl = async () => ({
+        isSuspicious: false,
+        reason: ['Behavioural analysis layer unavailable in this environment.'],
+        detectedBrand: null,
+        fingerprint: {},
+    });
+}
+
+let searchMasterData;
+try {
+    ({ searchMasterData } = require('./db_helper'));
+} catch (e) {
+    console.warn('[verify] db_helper unavailable, using stub:', e.message);
+    searchMasterData = () => ({ found: false });
+}
 
 export default async function handler(req, res) {
     // CORS so the site (and any other clients) can call this endpoint
