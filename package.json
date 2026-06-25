@@ -1,0 +1,12 @@
+{
+  "name": "verifypulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VerifyPulse - AI-powered mobile protection and scam detector for India",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.0.0"
+  }
+}
