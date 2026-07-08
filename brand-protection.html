@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifyPulse Brand Protection | Real-Time Threat Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --accent-red: #dc2626;
+            --accent-yellow: #eab308;
+            --accent-green: #16a34a;
+            --accent-blue: #2563eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-page); color: var(--text-main); line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav { background: var(--bg-card); border-bottom: 1px solid var(--border-light); padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 700; }
+        .logo span { color: var(--accent-blue); }
+        .nav-right { display: flex; gap: 20px; align-items: center; }
+        .bank-selector { padding: 8px 16px; border: 1px solid var(--border-light); border-radius: 6px; background: var(--bg-page); cursor: pointer; font-weight: 500; }
+
+        /* Header Section */
+        .header { padding: 40px 0; }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .header p { color: var(--text-muted); font-size: 16px; }
+
+        /* Dashboard Grid */
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-light); }
+        .stat-card.critical { border-left: 4px solid var(--accent-red); }
+        .stat-card.warning { border-left: 4px solid var(--accent-yellow); }
+        .stat-card.success { border-left: 4px solid var(--accent-green); }
+        .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-value { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
+        .stat-change { font-size: 12px; color: var(--accent-green); }
+
+        /* Threats Table */
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title .badge { background: var(--accent-red); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+        .threats-table { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-light); overflow: hidden; }
+        .table-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 20px; padding: 20px; background: var(--bg-page); font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-light); }
+        .table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 20px; padding: 20px; border-bottom: 1px solid var(--border-light); align-items: center; }
+        .table-row:hover { background: var(--bg-page); }
+        .table-row:last-child { border-bottom: none; }
+
+        .domain-cell { font-family: 'Fira Code', monospace; font-size: 12px; word-break: break-all; }
+        .confidence-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .confidence-critical { background: #fee2e2; color: var(--accent-red); }
+        .confidence-high { background: #fef3c7; color: #b45309; }
+        .confidence-medium { background: #dbeafe; color: var(--accent-blue); }
+
+        .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status-detected { background: #fee2e2; color: var(--accent-red); }
+        .status-investigating { background: #fef3c7; color: #b45309; }
+        .status-resolved { background: #dcfce7; color: var(--accent-green); }
+
+        .action-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-light); background: var(--bg-page); cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent-red); color: white; border-color: var(--accent-red); }
+
+        /* Charts Section */
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 40px; }
+        .chart-card { background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-light); }
+        .chart-card h3 { margin-bottom: 20px; font-size: 16px; font-weight: 700; }
+        .chart-container { position: relative; height: 300px; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state h3 { margin-bottom: 10px; color: var(--text-muted); }
+        .empty-state p { color: var(--text-muted); font-size: 14px; }
+
+        /* Loading */
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--border-light); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .table-header, .table-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">VerifyPulse <span>Brand Protection</span></div>
+            <div class="nav-right">
+                <select class="bank-selector" id="bankSelector">
+                    <option value="">Select Bank...</option>
+                    <option value="sbi">State Bank of India (SBI)</option>
+                    <option value="hdfc">HDFC Bank</option>
+                    <option value="icici">ICICI Bank</option>
+                    <option value="axis">Axis Bank</option>
+                    <option value="paytm">Paytm</option>
+                    <option value="phonepe">PhonePe</option>
+                </select>
+                <button onclick="exportReport()" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Export Report</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Brand Protection Dashboard</h1>
+            <p>Real-time monitoring and threat intelligence for your brand</p>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="dashboard">
+            <div class="stat-card critical">
+                <div class="stat-label">Active Threats</div>
+                <div class="stat-value" id="activeThreatCount">--</div>
+                <div class="stat-change">Detected this week</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Avg Confidence</div>
+                <div class="stat-value" id="avgConfidence">--</div>
+                <div class="stat-change">Detection accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Takedowns Initiated</div>
+                <div class="stat-value" id="takedownCount">--</div>
+                <div class="stat-change">This month</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Visual Matches</div>
+                <div class="stat-value" id="visualMatchCount">--</div>
+                <div class="stat-change">Logo/UI imitation detected</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Threat Severity Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Alert Activity (Last 30 Days)</h3>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Threats Section -->
+        <div class="section">
+            <div class="section-title">
+                Recent Threats
+                <span class="badge" id="threatBadge">0</span>
+            </div>
+            <div class="threats-table">
+                <div class="table-header">
+                    <div>Domain</div>
+                    <div>Detected</div>
+                    <div>Confidence</div>
+                    <div>Status</div>
+                    <div>Visual Match</div>
+                    <div>Action</div>
+                </div>
+                <div id="threatsContainer">
+                    <div class="table-row">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <div class="loading" style="margin: 0 auto;"></div>
+                            <p style="margin-top: 15px; color: var(--text-muted);">Loading threats...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State (if no bank selected) -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>Select a bank to view threats</h3>
+            <p>Choose a bank from the dropdown above to see real-time brand protection data</p>
+        </div>
+    </div>
+
+    <script>
+        let currentBank = null;
+        let severityChart = null;
+        let activityChart = null;
+
+        // Bank Selector
+        document.getElementById('bankSelector').addEventListener('change', async (e) => {
+            currentBank = e.target.value;
+            if (currentBank) {
+                document.getElementById('emptyState').style.display = 'none';
+                await loadDashboard();
+            } else {
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        });
+
+        async function loadDashboard() {
+            try {
+                // Fetch dashboard data
+                const response = await fetch(`/api/brand-protection/dashboard?bank_id=${currentBank}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    alert('Error loading dashboard');
+                    return;
+                }
+
+                const data = result.data;
+
+                // Update statistics
+                document.getElementById('activeThreatCount').textContent = data.statistics.active_threats;
+                document.getElementById('avgConfidence').textContent = data.statistics.average_confidence;
+                document.getElementById('takedownCount').textContent = data.statistics.takedowns_initiated;
+                document.getElementById('visualMatchCount').textContent = data.statistics.visual_imitations_detected;
+                document.getElementById('threatBadge').textContent = data.statistics.active_threats;
+
+                // Update charts
+                updateSeverityChart(data.severity_breakdown);
+                updateActivityChart(data.alert_activity);
+
+                // Update threats table
+                updateThreatsTable(data.recent_threats);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function updateSeverityChart(severityData) {
+            const ctx = document.getElementById('severityChart').getContext('2d');
+            
+            if (severityChart) {
+                severityChart.destroy();
+            }
+
+            severityChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(severityData),
+                    datasets: [{
+                        data: Object.values(severityData),
+                        backgroundColor: ['#dc2626', '#eab308', '#3b82f6'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateActivityChart(activityData) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            if (activityChart) {
+                activityChart.destroy();
+            }
+
+            const dates = activityData.map(a => new Date(a.date).toLocaleDateString());
+            const counts = activityData.map(a => a.alerts_sent);
+
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Alerts Sent',
+                        data: counts,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateThreatsTable(threats) {
+            const container = document.getElementById('threatsContainer');
+            
+            if (threats.length === 0) {
+                container.innerHTML = `
+                    <div class="table-row">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                            No threats detected. Your brand is safe!
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = threats.map(threat => `
+                <div class="table-row">
+                    <div class="domain-cell">${threat.domain}</div>
+                    <div>${new Date(threat.detected).toLocaleDateString()}</div>
+                    <div>
+                        <span class="confidence-badge ${getConfidenceClass(threat.confidence)}">
+                            ${threat.confidence}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="status-badge status-detected">Active</span>
+                    </div>
+                    <div>${threat.visual_imitation ? '✓ Yes' : 'No'}</div>
+                    <div>
+                        <button class="action-btn" onclick="requestTakedown('${threat.id}')">Takedown</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getConfidenceClass(confidence) {
+            const value = parseFloat(confidence);
+            if (value > 80) return 'confidence-critical';
+            if (value > 60) return 'confidence-high';
+            return 'confidence-medium';
+        }
+
+        async function requestTakedown(threatId) {
+            if (!confirm('Request immediate takedown for this threat?')) return;
+
+            try {
+                const response = await fetch('/api/brand-protection/request-takedown', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        threat_id: parseInt(threatId),
+                        bank_id: currentBank,
+                        reason: 'Manual takedown request from dashboard'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Takedown request initiated!');
+                    await loadDashboard();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error requesting takedown:', error);
+                alert('Error requesting takedown');
+            }
+        }
+
+        async function exportReport() {
+            if (!currentBank) {
+                alert('Please select a bank first');
+                return;
+            }
+
+            window.location.href = `/api/brand-protection/export-report?bank_id=${currentBank}&format=csv`;
+        }
+    </script>
+</body>
+</html>

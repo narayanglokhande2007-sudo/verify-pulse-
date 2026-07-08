@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifyPulse Insurance Partners | Cyber Risk Mitigation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #ffffff;
+            --bg-alt: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --accent-blue: #2563eb;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-page); color: var(--text-main); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav { display: flex; justify-content: space-between; align-items: center; height: 80px; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .logo { font-size: 20px; font-weight: 800; }
+        .logo span { color: var(--accent-blue); }
+        .nav-links a { margin-left: 30px; text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 14px; transition: 0.2s; }
+        .nav-links a:hover { color: var(--text-main); }
+
+        /* Hero Section */
+        .hero { padding: 100px 0; text-align: center; }
+        .hero h1 { font-size: 48px; line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+        .hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .cta-buttons { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
+        .btn { padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; border: none; transition: 0.2s; text-decoration: none; display: inline-block; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-outline { background: transparent; color: var(--text-main); border: 2px solid var(--border-light); }
+        .btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* Value Proposition Section */
+        .value-section { padding: 80px 0; background: var(--bg-alt); }
+        .section-title { font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 50px; }
+        .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .value-card { background: white; padding: 40px; border-radius: 16px; border: 1px solid var(--border-light); }
+        .value-card h3 { font-size: 18px; margin-bottom: 15px; }
+        .value-card p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+        .value-icon { font-size: 40px; margin-bottom: 15px; }
+
+        /* Partnership Model Section */
+        .partnership-section { padding: 80px 0; }
+        .partnership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .partnership-content h2 { font-size: 32px; margin-bottom: 20px; }
+        .partnership-content p { color: var(--text-muted); margin-bottom: 20px; line-height: 1.8; }
+        .feature-list { list-style: none; }
+        .feature-list li { padding: 12px 0; padding-left: 30px; position: relative; color: var(--text-muted); }
+        .feature-list li:before { content: "✓"; position: absolute; left: 0; color: var(--accent-green); font-weight: 700; font-size: 18px; }
+
+        /* Pricing/Benefits Table */
+        .benefits-table { margin-top: 40px; }
+        .benefits-table table { width: 100%; border-collapse: collapse; }
+        .benefits-table th, .benefits-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-light); }
+        .benefits-table th { background: var(--bg-alt); font-weight: 600; }
+        .benefits-table tr:hover { background: var(--bg-alt); }
+
+        /* Referral Process Section */
+        .referral-section { padding: 80px 0; background: var(--bg-alt); }
+        .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px; }
+        .process-step { background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border-light); text-align: center; }
+        .step-number { display: inline-block; width: 50px; height: 50px; background: var(--accent-blue); color: white; border-radius: 50%; line-height: 50px; font-weight: 700; font-size: 20px; margin-bottom: 15px; }
+        .process-step h4 { margin-bottom: 10px; font-size: 16px; }
+        .process-step p { font-size: 13px; color: var(--text-muted); }
+
+        /* Contact/Inquiry Section */
+        .inquiry-section { padding: 80px 0; }
+        .inquiry-container { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 60px; border-radius: 16px; }
+        .inquiry-container h2 { font-size: 32px; margin-bottom: 20px; }
+        .inquiry-container p { font-size: 16px; margin-bottom: 30px; opacity: 0.95; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.6); }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; background: rgba(255,255,255,0.15); border-color: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .submit-btn { background: white; color: var(--accent-blue); padding: 14px 40px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+        /* FAQ Section */
+        .faq-section { padding: 80px 0; background: var(--bg-alt); }
+        .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .faq-item { background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--border-light); }
+        .faq-question { font-weight: 700; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { font-size: 14px; color: var(--text-muted); line-height: 1.7; display: none; }
+        .faq-item.active .faq-answer { display: block; }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border-light); color: var(--text-muted); font-size: 13px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .value-grid { grid-template-columns: 1fr; }
+            .partnership-grid { grid-template-columns: 1fr; }
+            .process-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .faq-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">VerifyPulse <span>Insurance</span></div>
+            <div class="nav-links">
+                <a href="#partnership">Partnership Model</a>
+                <a href="#process">How It Works</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contact"><button class="btn btn-primary">Get Started</button></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Reduce Cyber Risk. Reduce Claims.</h1>
+            <p>Partner with VerifyPulse to protect your policyholders from phishing and scam attacks. Our AI-powered threat detection reduces fraud losses and strengthens customer trust.</p>
+            <div class="cta-buttons">
+                <a href="#contact" class="btn btn-primary">Become a Partner</a>
+                <a href="#partnership" class="btn btn-outline">Learn More</a>
+            </div>
+        </section>
+    </div>
+
+    <section class="value-section">
+        <div class="container">
+            <h2 class="section-title">Why Partner With VerifyPulse?</h2>
+            <div class="value-grid">
+                <div class="value-card">
+                    <div class="value-icon">🛡️</div>
+                    <h3>Reduce Claims by 40%+</h3>
+                    <p>Our real-time threat detection prevents phishing attacks before they result in financial losses, directly reducing your cyber insurance claims.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">📊</div>
+                    <h3>Data-Driven Risk Assessment</h3>
+                    <p>Access comprehensive threat intelligence reports to better understand emerging cyber risks and adjust premiums accordingly.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">💼</div>
+                    <h3>Enterprise-Grade Technology</h3>
+                    <p>Leverage our Meta Judge architecture, Ghost Agent sandboxing, and AI Vision forensics—the same tech used by leading financial institutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="partnership-section">
+        <div class="container">
+            <div class="partnership-grid">
+                <div class="partnership-content">
+                    <h2>Our Partnership Model</h2>
+                    <p>VerifyPulse offers a flexible, revenue-sharing partnership model designed to benefit both insurance providers and their policyholders. We integrate seamlessly with your existing infrastructure to deliver immediate value.</p>
+                    <ul class="feature-list">
+                        <li>White-label integration for your customer portal</li>
+                        <li>Real-time threat alerts and incident response</li>
+                        <li>Automated compliance reporting and audit trails</li>
+                        <li>Dedicated account management and technical support</li>
+                        <li>Revenue sharing on referred customers</li>
+                        <li>Quarterly threat intelligence briefings</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="benefits-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tier</th>
+                                    <th>Policyholders</th>
+                                    <th>Revenue Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Starter</strong></td>
+                                    <td>Up to 1,000</td>
+                                    <td>15% recurring</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Growth</strong></td>
+                                    <td>1,001 - 10,000</td>
+                                    <td>20% recurring</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Enterprise</strong></td>
+                                    <td>10,000+</td>
+                                    <td>Custom terms</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="referral-section">
+        <div class="container">
+            <h2 class="section-title">How the Partnership Works</h2>
+            <div class="process-grid">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h4>Integration</h4>
+                    <p>We integrate VerifyPulse into your customer portal with white-label branding and SSO authentication.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h4>Activation</h4>
+                    <p>Your policyholders gain access to real-time threat detection and automated alerts for suspicious emails and websites.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h4>Monitoring</h4>
+                    <p>Our AI continuously monitors for threats targeting your customers, generating weekly threat intelligence reports.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h4>Revenue Share</h4>
+                    <p>Earn recurring revenue from each active user while reducing your cyber insurance claims and improving customer retention.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="inquiry-section">
+        <div class="container">
+            <div class="inquiry-container">
+                <h2>Ready to Partner With Us?</h2>
+                <p>Join leading insurance providers in reducing cyber risk and improving profitability. Let's discuss how VerifyPulse can transform your cyber insurance business.</p>
+                
+                <form id="partnershipForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Company Name *</label>
+                            <input type="text" required placeholder="Your Insurance Company">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Name *</label>
+                            <input type="text" required placeholder="Your Name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" required placeholder="your.email@company.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" placeholder="+91 XXXXX XXXXX">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company Type *</label>
+                        <select required>
+                            <option value="">Select your company type...</option>
+                            <option value="insurance">Insurance Provider</option>
+                            <option value="broker">Insurance Broker</option>
+                            <option value="fintech">Fintech/Banking</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Policyholders</label>
+                        <select>
+                            <option value="">Select range...</option>
+                            <option value="0-1000">0 - 1,000</option>
+                            <option value="1001-10000">1,001 - 10,000</option>
+                            <option value="10001-50000">10,001 - 50,000</option>
+                            <option value="50000+">50,000+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea required placeholder="Tell us about your interest in partnering with VerifyPulse..." rows="5"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Partnership Inquiry</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How long does integration take?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Integration typically takes 2-4 weeks depending on your existing infrastructure. Our technical team provides full support throughout the process.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can we white-label the solution?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, VerifyPulse is fully white-labelable. Your brand will appear throughout the customer experience, and you can customize the user interface to match your branding.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What data do you collect from our customers?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        We follow a strict zero-PII policy. We analyze URLs and email content for threats but never store personal information. All data is processed in ephemeral memory and discarded immediately after analysis.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do you ensure data privacy and compliance?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        VerifyPulse is fully compliant with GDPR, CCPA, and Indian data protection regulations. We undergo regular security audits and maintain ISO 27001 certification.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What kind of support do you provide?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        We provide 24/7 technical support, dedicated account management, quarterly business reviews, and regular training for your team.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can we customize the threat detection rules?</span>
+                        <span>+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, our platform is highly customizable. You can adjust threat detection sensitivity, create custom threat lists, and define specific rules for your customer base.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 VerifyPulse. Protecting Financial Institutions from Cyber Threats. | <a href="/" style="color: var(--accent-blue); text-decoration: none;">Back to Main Site</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Form submission
+        document.getElementById('partnershipForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                // In production, this would send to your backend API
+                alert('Thank you for your interest! Our team will contact you within 24 hours.');
+                e.target.reset();
+            } catch (error) {
+                alert('Error submitting form. Please try again.');
+            }
+        });
+
+        // FAQ toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.closest('.faq-item');
+                item.classList.toggle('active');
+                
+                // Update the toggle symbol
+                const symbol = question.querySelector('span:last-child');
+                symbol.textContent = item.classList.contains('active') ? '−' : '+';
+            });
+        });
+    </script>
+</body>
+</html>
