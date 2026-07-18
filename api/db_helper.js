@@ -15,83 +15,25 @@ function initDb() {
       console.error("Error connecting to database:", err.message);
     } else {
       console.log("Connected to the SQLite database.");
-      db.serialize(() => {
-        db.run(
-          `CREATE TABLE IF NOT EXISTS scams (
-            url TEXT PRIMARY KEY,
-            source TEXT,
-            type TEXT,
-            date_added TEXT,
-            region TEXT
-          )`
-        );
-        db.run(
-          `CREATE TABLE IF NOT EXISTS brands (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE,
-            category TEXT,
-            risk_level TEXT
-          )`
-        );
-        
-        // Seed initial brands if table is empty
-        db.get("SELECT COUNT(*) as count FROM brands", (err, row) => {
-          if (!err && row && row.count === 0) {
-            const initialBrands = [
-              ['SBI', 'Banking', 'High'],
-              ['HDFC', 'Banking', 'High'],
-              ['ICICI', 'Banking', 'High'],
-              ['Axis', 'Banking', 'High'],
-              ['Paytm', 'Fintech', 'High'],
-              ['PhonePe', 'Fintech', 'High'],
-              ['KBC', 'General', 'Medium'],
-              ['Airtel', 'Telecom', 'Medium'],
-              ['Jio', 'Telecom', 'Medium'],
-              ['Google', 'Tech', 'High'],
-              ['Microsoft', 'Tech', 'High'],
-              ['Apple', 'Tech', 'High']
-            ];
-            const stmt = db.prepare("INSERT INTO brands (name, category, risk_level) VALUES (?, ?, ?)");
-            initialBrands.forEach(brand => stmt.run(brand));
-            stmt.finalize();
+      db.run(
+        `CREATE TABLE IF NOT EXISTS scams (
+          url TEXT PRIMARY KEY,
+          source TEXT,
+          type TEXT,
+          date_added TEXT,
+          region TEXT
+        )`,
+        (createErr) => {
+          if (createErr) {
+            console.error("Error creating scams table:", createErr.message);
+          } else {
+            console.log("Scams table ensured.");
           }
-        });
-      });
+        }
+      );
     }
   });
   return db;
-}
-
-/**
- * Fetches the list of brands from the database for dynamic intelligence.
- */
-async function getBrands() {
-  const db = initDb();
-  return new Promise((resolve, reject) => {
-    db.all("SELECT name FROM brands", (err, rows) => {
-      db.close();
-      if (err) {
-        console.error("Error fetching brands:", err.message);
-        return resolve(['SBI', 'HDFC', 'Paytm', 'PhonePe', 'Google', 'Microsoft', 'Apple']); // Fallback
-      }
-      resolve(rows.map(row => row.name));
-    });
-  });
-}
-
-/**
- * Adds a new brand to the dynamic intelligence database.
- */
-async function addBrand(name, category = 'General', riskLevel = 'Medium') {
-  const db = initDb();
-  return new Promise((resolve, reject) => {
-    db.run("INSERT OR IGNORE INTO brands (name, category, risk_level) VALUES (?, ?, ?)", 
-      [name, category, riskLevel], function(err) {
-      db.close();
-      if (err) return reject(err);
-      resolve({ success: true, id: this.lastID });
-    });
-  });
 }
 
 /**
@@ -188,7 +130,5 @@ function updateFallbackCache(data) {
 
 module.exports = {
   searchMasterData,
-  initDb,
-  getBrands,
-  addBrand
+  initDb, // Export initDb for external use if needed
 };
