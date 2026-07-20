@@ -24,9 +24,9 @@ from email.mime.multipart import MIMEMultipart
 # CONFIGURATION
 # ============================================================================
 
-DB_FILE = os.path.join(os.path.dirname(__file__), 'daily-data', 'scams.db')
-BRAND_PROTECTION_DB = os.path.join(os.path.dirname(__file__), 'daily-data', 'brand_protection.db')
-BRAND_ALERTS_LOG = os.path.join(os.path.dirname(__file__), 'daily-data', 'brand_alerts.jsonl')
+DB_FILE = 'pipeline/daily-data/scams.db'
+BRAND_PROTECTION_DB = 'pipeline/daily-data/brand_protection.db'
+BRAND_ALERTS_LOG = 'pipeline/daily-data/brand_alerts.jsonl'
 
 # Indian Banks Configuration (Priority Targets)
 INDIAN_BANKS = {
