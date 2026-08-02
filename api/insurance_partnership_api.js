@@ -4,9 +4,15 @@
  * Manages insurance partnerships, referrals, revenue sharing, and customer onboarding.
  */
 
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const crypto = require('crypto');
+import sqlite3Package from 'sqlite3';
+const sqlite3 = sqlite3Package.verbose();
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const INSURANCE_DB = path.join(__dirname, '../pipeline/daily-data/insurance_partnerships.db');
 
@@ -14,7 +20,7 @@ const INSURANCE_DB = path.join(__dirname, '../pipeline/daily-data/insurance_part
 // DATABASE INITIALIZATION
 // ============================================================================
 
-function initInsuranceDB() {
+export function initInsuranceDB() {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(INSURANCE_DB, (err) => {
             if (err) reject(err);
@@ -114,7 +120,7 @@ function runQuery(db, query, params = []) {
 /**
  * Submit a partnership inquiry from the cyber-insurance.html form.
  */
-async function submitInquiry(req, res) {
+export async function submitInquiry(req, res) {
     try {
         const { company_name, contact_email, contact_name, phone, company_type, policyholders_range, message } = req.body;
 
@@ -165,7 +171,7 @@ async function submitInquiry(req, res) {
 /**
  * Register an approved insurance partner (admin only).
  */
-async function registerPartner(req, res) {
+export async function registerPartner(req, res) {
     try {
         const { company_name, contact_email, contact_name, phone, company_type, tier, policyholders_count } = req.body;
 
@@ -227,7 +233,7 @@ async function registerPartner(req, res) {
 /**
  * Get partner dashboard with referral stats and revenue information.
  */
-async function getPartnerDashboard(req, res) {
+export async function getPartnerDashboard(req, res) {
     try {
         const { partner_id } = req.params;
 
@@ -312,7 +318,7 @@ async function getPartnerDashboard(req, res) {
 /**
  * Refer a new customer through the partner program.
  */
-async function referCustomer(req, res) {
+export async function referCustomer(req, res) {
     try {
         const { partner_id } = req.params;
         const { customer_email, customer_name, subscription_tier } = req.body;
@@ -379,7 +385,7 @@ async function referCustomer(req, res) {
 /**
  * Get all partnership inquiries (admin endpoint).
  */
-async function getInquiries(req, res) {
+export async function getInquiries(req, res) {
     try {
         const db = await getDB();
 
@@ -392,16 +398,16 @@ async function getInquiries(req, res) {
         return res.status(200).json({
             success: true,
             data: {
+                count: inquiries.length,
                 inquiries: inquiries.map(i => ({
                     id: i.id,
-                    company_name: i.company_name,
-                    contact_email: i.contact_email,
-                    contact_name: i.contact_name,
-                    company_type: i.company_type,
-                    policyholders_range: i.policyholders_range,
+                    company: i.company_name,
+                    contact: i.contact_name,
+                    email: i.contact_email,
+                    type: i.company_type,
+                    range: i.policyholders_range,
                     status: i.status,
-                    submitted_at: i.submitted_at,
-                    responded_at: i.responded_at
+                    submitted: i.submitted_at
                 }))
             }
         });
@@ -414,68 +420,3 @@ async function getInquiries(req, res) {
         });
     }
 }
-
-// ============================================================================
-// ENDPOINT: POST /api/insurance/admin/calculate-revenue
-// ============================================================================
-/**
- * Calculate and record monthly revenue for all partners (admin/scheduled task).
- */
-async function calculateMonthlyRevenue(req, res) {
-    try {
-        const db = await getDB();
-        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-
-        // Get all active partners
-        const partners = await runQuery(db, 'SELECT id, revenue_share_percentage FROM insurance_partners WHERE status = "active"');
-
-        for (const partner of partners) {
-            // Get active customer count
-            const customers = await runQuery(db,
-                'SELECT COUNT(*) as count FROM referred_customers WHERE partner_id = ? AND status = "active"',
-                [partner.id]
-            );
-
-            const customer_count = customers[0].count;
-            const monthly_fee = 99.0; // Standard monthly fee
-            const total_revenue = customer_count * monthly_fee;
-            const partner_share = total_revenue * (partner.revenue_share_percentage / 100);
-
-            // Insert revenue record
-            db.run(`
-                INSERT OR REPLACE INTO revenue_tracking 
-                (partner_id, month, total_customers, total_revenue, partner_share, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `, [partner.id, currentMonth, customer_count, total_revenue, partner_share, 'pending']);
-        }
-
-        db.close();
-
-        return res.status(200).json({
-            success: true,
-            message: 'Monthly revenue calculated for all partners',
-            month: currentMonth
-        });
-
-    } catch (error) {
-        console.error('Error calculating revenue:', error);
-        return res.status(500).json({
-            error: 'Internal server error',
-            code: 'SERVER_ERROR'
-        });
-    }
-}
-
-// ============================================================================
-// EXPORT HANDLERS
-// ============================================================================
-
-module.exports = {
-    initInsuranceDB,
-    submitInquiry,
-    registerPartner,
-    getPartnerDashboard,
-    referCustomer,
-    getInquiries,
-    calculateMonthlyRevenue
-};

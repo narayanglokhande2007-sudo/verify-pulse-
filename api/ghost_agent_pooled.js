@@ -1,6 +1,6 @@
-const puppeteer = require('puppeteer-core');
-const dns = require('dns').promises;
-const { getBrands } = require('./db_helper');
+import puppeteer from 'puppeteer-core';
+import { promises as dns } from 'dns';
+import { getBrands } from './db_helper.js';
 
 // Browser Pool Configuration
 const POOL_SIZE = 5; // Number of browser instances to maintain
@@ -12,7 +12,7 @@ let poolInitialized = false;
  * This significantly improves performance by avoiding the overhead of launching
  * a new browser instance for each request.
  */
-async function initializeBrowserPool() {
+export async function initializeBrowserPool() {
     if (poolInitialized) return;
     
     console.log(`Initializing browser pool with ${POOL_SIZE} instances...`);
@@ -73,7 +73,7 @@ function releaseBrowser(browser) {
  * Analyzes a URL using a pooled browser instance.
  * This is the optimized version of the original analyzeUrl function.
  */
-async function analyzeUrl(url) {
+export async function analyzeUrl(url) {
     let browser;
     try {
         browser = await acquireBrowser();
@@ -200,7 +200,7 @@ async function analyzeUrl(url) {
  * Gracefully shuts down the browser pool.
  * Should be called when the application is terminating.
  */
-async function shutdownBrowserPool() {
+export async function shutdownBrowserPool() {
     console.log("Shutting down browser pool...");
     for (const poolItem of browserPool) {
         try {
@@ -213,5 +213,3 @@ async function shutdownBrowserPool() {
     poolInitialized = false;
     console.log("Browser pool shut down.");
 }
-
-module.exports = { analyzeUrl, initializeBrowserPool, shutdownBrowserPool };

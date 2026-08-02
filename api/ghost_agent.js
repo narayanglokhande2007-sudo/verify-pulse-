@@ -1,7 +1,7 @@
-const puppeteer = require('puppeteer-core');
-const dns = require('dns').promises;
+import puppeteer from 'puppeteer-core';
+import { promises as dns } from 'dns';
 
-async function analyzeUrl(url) {
+export async function analyzeUrl(url) {
     let browser;
     try {
         browser = await puppeteer.launch({
@@ -127,5 +127,3 @@ async function analyzeUrl(url) {
         if (browser) await browser.close();
     }
 }
-
-module.exports = { analyzeUrl };

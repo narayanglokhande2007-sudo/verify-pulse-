@@ -5,8 +5,14 @@
  * Provides real-time monitoring, threat intelligence, and automated reporting.
  */
 
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import sqlite3Package from 'sqlite3';
+const sqlite3 = sqlite3Package.verbose();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const BRAND_PROTECTION_DB = path.join(__dirname, '../pipeline/daily-data/brand_protection.db');
 
@@ -43,7 +49,7 @@ function runQuery(db, query, params = []) {
  *   - limit: (optional) Max results (default: 50)
  *   - offset: (optional) Pagination offset (default: 0)
  */
-async function getBrandThreats(req, res) {
+export async function getBrandThreats(req, res) {
     try {
         const { bank_id, status = 'detected', limit = 50, offset = 0 } = req.query;
 
@@ -134,7 +140,7 @@ async function getBrandThreats(req, res) {
  * Get comprehensive brand protection dashboard for a bank.
  * Includes statistics, recent threats, and actionable insights.
  */
-async function getBrandDashboard(req, res) {
+export async function getBrandDashboard(req, res) {
     try {
         const { bank_id } = req.query;
 
@@ -245,7 +251,7 @@ async function getBrandDashboard(req, res) {
  * Allow banks to manually report suspected threats.
  * Integrates with the automated detection system.
  */
-async function reportThreat(req, res) {
+export async function reportThreat(req, res) {
     try {
         const { bank_id, domain, description } = req.body;
 
@@ -311,7 +317,7 @@ async function reportThreat(req, res) {
 /**
  * Request immediate takedown action for a detected threat.
  */
-async function requestTakedown(req, res) {
+export async function requestTakedown(req, res) {
     try {
         const { threat_id, bank_id, reason } = req.body;
 
@@ -378,7 +384,7 @@ async function requestTakedown(req, res) {
 /**
  * Export comprehensive brand protection report in JSON or CSV format.
  */
-async function exportReport(req, res) {
+export async function exportReport(req, res) {
     try {
         const { bank_id, format = 'json', days = 30 } = req.query;
 
@@ -418,23 +424,18 @@ async function exportReport(req, res) {
             success: true,
             data: {
                 bank_id,
-                report_period_days: parseInt(days),
-                generated_at: new Date().toISOString(),
-                total_threats: threats.length,
+                report_date: new Date().toISOString(),
+                threat_count: threats.length,
                 threats: threats.map(t => ({
                     domain: t.domain,
-                    bank_brand: t.bank_brand,
-                    detected_at: t.detection_date,
+                    detected: t.detection_date,
                     status: t.status,
-                    confidence: `${(t.confidence_score * 100).toFixed(2)}%`,
-                    visual_imitation: t.visual_match === 1,
-                    behavioral_risk: t.behavioral_risk,
+                    confidence: t.confidence_score,
+                    visual_match: t.visual_match === 1,
                     infrastructure: {
                         ip: t.ip_address,
                         hosting: t.hosting_provider
-                    },
-                    alert_sent: t.alert_sent === 1,
-                    takedown_requested: t.takedown_requested === 1
+                    }
                 }))
             }
         });
@@ -447,15 +448,3 @@ async function exportReport(req, res) {
         });
     }
 }
-
-// ============================================================================
-// EXPORT HANDLERS
-// ============================================================================
-
-module.exports = {
-    getBrandThreats,
-    getBrandDashboard,
-    reportThreat,
-    requestTakedown,
-    exportReport
-};

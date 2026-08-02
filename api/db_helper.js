@@ -1,6 +1,12 @@
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-const fs = require("fs");
+import sqlite3Package from "sqlite3";
+const sqlite3 = sqlite3Package.verbose();
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const DB_FILE = path.join(__dirname, "../pipeline/daily-data/scams.db");
 const FALLBACK_CACHE = path.join(__dirname, "../pipeline/daily-data/scam_cache.json");
@@ -9,7 +15,7 @@ const FALLBACK_CACHE = path.join(__dirname, "../pipeline/daily-data/scam_cache.j
  * Initializes the SQLite database and creates the 'scams' table if it doesn't exist.
  * This ensures the database is ready for use.
  */
-function initDb() {
+export function initDb() {
   const db = new sqlite3.Database(DB_FILE, (err) => {
     if (err) {
       console.error("Error connecting to database:", err.message);
@@ -41,7 +47,7 @@ function initDb() {
  * @param {string} input The URL or text to search for.
  * @returns {Promise<{found: boolean, details: any[]}>} Search result.
  */
-async function searchMasterData(input) {
+export async function searchMasterData(input) {
   try {
     const db = initDb();
     return new Promise((resolve, reject) => {
@@ -93,7 +99,7 @@ async function searchMasterData(input) {
 /**
  * Searches the local JSON fallback cache if the database is unavailable.
  */
-function searchFallbackCache(input) {
+export function searchFallbackCache(input) {
   if (!fs.existsSync(FALLBACK_CACHE)) return { found: false, details: [] };
   try {
     const cache = JSON.parse(fs.readFileSync(FALLBACK_CACHE, "utf8"));
@@ -110,7 +116,7 @@ function searchFallbackCache(input) {
 /**
  * Updates the local JSON fallback cache with the latest results.
  */
-function updateFallbackCache(data) {
+export function updateFallbackCache(data) {
   let cache = [];
   if (fs.existsSync(FALLBACK_CACHE)) {
     try {
@@ -128,7 +134,11 @@ function updateFallbackCache(data) {
   }
 }
 
-module.exports = {
-  searchMasterData,
-  initDb, // Export initDb for external use if needed
-};
+/**
+ * Returns a list of brands to monitor.
+ * In a real scenario, this could be fetched from the database.
+ */
+export async function getBrands() {
+  return ['SBI', 'HDFC', 'ICICI', 'Axis', 'Paytm', 'PhonePe', 'KBC', 'Airtel', 'Jio', 'Google', 'Microsoft', 'Apple'];
+}
+
