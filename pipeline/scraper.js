@@ -1,7 +1,12 @@
-// pipeline/scraper.js – 30-Source Phishing Feed Collector with Auto-Dedup
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+// pipeline/scraper.js – 30-Source Phishing Feed Collector with Auto-Dedup (ESM Version)
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const SCAM_FILE = path.join(__dirname, 'daily-data', 'latest_scams.json');
 
