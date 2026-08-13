@@ -10,7 +10,10 @@ INTEGRITY_LOG = os.path.join(os.path.dirname(__file__), 'integrity_log.jsonl')
 # List of critical files to monitor (relative to project root)
 CRITICAL_FILES = [
     'api/verify.js',
+    'api/privacy_guard.js',
+    'api/canary_engine.js',
     'api/ghost_agent.js',
+    'api/ghost_agent_pooled.js',
     'api/db_helper.js',
     'api/brand_protection_api.js',
     'api/insurance_partnership_api.js',
@@ -18,7 +21,8 @@ CRITICAL_FILES = [
     'pipeline/brand_protection.py',
     'pipeline/threat_intelligence_report.py',
     'pipeline/pulse_agent_war_games.py',
-    'pipeline/integrity_monitor.py' # Monitor itself as well
+    'pipeline/integrity_monitor.py',
+    'pipeline/self_healing.py' # Controlled recovery planner
 ]
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

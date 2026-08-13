@@ -1,12 +1,16 @@
 {
-  "api/verify.js": "c38f951d92d7905bbeef6f1ee6e86e986c39881da9f05e863f17d0b6e96a586f",
-  "api/ghost_agent.js": "6988a2bfa0af98336895d8317dc6e4b885ec96d0549b7b38fdbb21433917010c",
-  "api/db_helper.js": "68b6196e9ece460b92e0d66e6e649bae96cf16c2c3681c79534f0c420ed23a19",
-  "api/brand_protection_api.js": "6044d8997d987e2dbb62631db10ce5bd8adf8e8a7b99d5d4776a2939cd65a6d4",
-  "api/insurance_partnership_api.js": "d7341066cc5f6f07f5f8769ad4e77caa7304508fe9ad2893f7ff0e0a71f1a81f",
-  "pipeline/scam_hunter.py": "f06f6e9ce8afd699e26a02899a8313f8737ad812b9d83974e2399e9a483edcfe",
-  "pipeline/brand_protection.py": "0067b2b1f8c1d64788dd84951e1c691bfb0cd5e2baabd82ac151097819b53bf1",
-  "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b",
+  "api/brand_protection_api.js": "6bc964ffe72450172abfbfc27f0d33cf03c5d1a516295f948716131b35206732",
+  "api/canary_engine.js": "d89e12786bd228b5a4056c6bbb762579997e6f0dd515affa0215565fc073e9db",
+  "api/db_helper.js": "5a4779b5527eba0831215c139aa1f731b37cb0a28a54f613e130a6b57bbd41fa",
+  "api/ghost_agent.js": "94a5333785102c94325bed6c8349e1e82dca02d10b893092a4a476f261ced58a",
+  "api/ghost_agent_pooled.js": "0e3fd94789dc5fda9a88ebe5e8e3415bb2d31113393b7e83e1d16e00262e76c1",
+  "api/insurance_partnership_api.js": "d222ce5fe3d27db95a1a244350367db15d9a5eb65d1a8661eaca389ae4fbeee7",
+  "api/privacy_guard.js": "fa5913ae33e1258727fd4b487f9ea574b5aab4a85e5ff2d219886d199cc3a1b3",
+  "api/verify.js": "359a9432db377d7a56944e16ecbbdc2d5d4d36aa124f000a87aa6deee3e028c9",
+  "pipeline/brand_protection.py": "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
+  "pipeline/integrity_monitor.py": "08ac4cabee0abf979d8c31ab127e3bc6c9ddd8d9254731dc5a60679f51358b81",
   "pipeline/pulse_agent_war_games.py": "a0ace078eb779049a08415886d63034fdf71ce86d3cc6af1def292f73f9cf6a1",
-  "pipeline/integrity_monitor.py": "b080a5bc1c2e0c02444542df9e83b27d11ac6d9f7744d79656c911a9c293b349"
+  "pipeline/scam_hunter.py": "e807b5ec892cdc35172db056ce3b20737712cbbdfdb7b8421ddfa71a1dc13703",
+  "pipeline/self_healing.py": "427c2906d0e9862fc82756f545d0d248e42ee11b6e2b915fccabc9493ebf45a5",
+  "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b"
 }

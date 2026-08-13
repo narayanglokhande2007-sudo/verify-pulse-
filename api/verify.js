@@ -1,8 +1,10 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
+import { hasCredentialLikeData, sanitizeForExternalAnalysis } from './privacy_guard.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { text, checkType, fileData } = req.body;
+  const { text, checkType, fileData, externalProcessingConsent = false } = req.body;
   if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
+  const externalAnalysisText = sanitizeForExternalAnalysis(text);
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
@@ -106,8 +108,17 @@ export default async function handler(req, res) {
     return true;
   }
   try {
-    if (checkType === 'password') {
-      return res.status(200).json(safeResult({ verdict: 'SAFE', confidence: 95, analysis: 'Checked locally', findings: [] }));
+    if (checkType === 'password' || hasCredentialLikeData(text)) {
+      // Passwords, OTPs, PINs, payment data, and government IDs must not be
+      // transmitted to external AI services or represented as safe merely because
+      // they were received by this endpoint.
+      return res.status(200).json(safeResult({
+        verdict: 'CAUTION',
+        confidence: 100,
+        analysis: 'Sensitive credentials or identifiers were detected. VerifyPulse did not send them to external AI services.',
+        findings: ['Never share passwords, OTPs, PINs, card details, or government identifiers with a website or an AI service.'],
+        whatToDo: ['Change any credential that was already shared.', 'Contact the relevant bank or provider through its official channel if you believe the information was exposed.']
+      }));
     }
     // ----- CHATBOT: PulseCore -----
     if (checkType === 'chatbot') {
@@ -126,7 +137,7 @@ CRITICAL GUARDRAILS:
             model: 'llama-3.3-70b-versatile',
             messages: [
               { role: 'system', content: chatbotPrompt },
-              { role: 'user', content: text }
+              { role: 'user', content: externalAnalysisText }
             ],
             temperature: 0.2,
             max_tokens: 800
@@ -185,8 +196,17 @@ CRITICAL GUARDRAILS:
     }
     // ---- Multimodal File Uploads (Images/Audio) ----
     if (fileData && GEMINI_KEY) {
+      if (!externalProcessingConsent) {
+        return res.status(400).json(safeResult({
+          verdict: 'CONSENT_REQUIRED',
+          confidence: 100,
+          analysis: 'File analysis may send the uploaded file to an external AI provider and therefore requires explicit consent.',
+          findings: ['No uploaded file was sent for external processing.'],
+          whatToDo: ['Show a clear consent notice in the client and resend only after the user agrees.']
+        }));
+      }
       try {
-        const gemRes = await callGemini(text, GEMINI_KEY, 'unified', knowledgeLine, fileData);
+        const gemRes = await callGemini(externalAnalysisText, GEMINI_KEY, 'unified', knowledgeLine, fileData);
         if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
       } catch (e) {
         console.error('Gemini Vision failed:', e);
@@ -197,7 +217,7 @@ CRITICAL GUARDRAILS:
     let groqSuccess = false;
     let groqResult = null;
     try {
-      groqResult = await callGroq(GROQ_KEY, text, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
+      groqResult = await callGroq(GROQ_KEY, externalAnalysisText, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
       if (groqResult && groqResult.verdict && groqResult.confidence > 60) groqSuccess = true;
     } catch (e) { console.error('Groq failed:', e.message); }
     if (groqSuccess) return res.status(200).json(safeResult(groqResult));
@@ -211,7 +231,7 @@ CRITICAL GUARDRAILS:
         'qwen/qwen2.5-7b', 'deepseek/deepseek-r1', 'meta-llama/llama-3.1-8b-instruct',
         'huggingfaceh4/zephyr-7b-beta', 'microsoft/phi-3-medium-128k-instruct'
       ];
-      const prompt = `You are a scam detection expert. Analyze: "${text}". Return JSON: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings(array), whatToDo(array).`;
+      const prompt = `You are a scam detection expert. Analyze: "${externalAnalysisText}". Return JSON: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings(array), whatToDo(array).`;
       openRouterModels.forEach(model => {
         parallelTasks.push(
           fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -237,7 +257,7 @@ CRITICAL GUARDRAILS:
         fetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            inputs: `You are a cybersecurity expert. Analyze: "${text}". Return JSON with keys: verdict, scamType, confidence, analysis, findings (array), whatToDo (array).`,
+            inputs: `You are a cybersecurity expert. Analyze: "${externalAnalysisText}". Return JSON with keys: verdict, scamType, confidence, analysis, findings (array), whatToDo (array).`,
             parameters: { max_new_tokens: 300, temperature: 0.3 }
           }),
           signal: controller.signal
@@ -297,13 +317,13 @@ CRITICAL GUARDRAILS:
     }
     // Final fallback DeepSeek R1
     try {
-      const deepRes = await callGroq(GROQ_KEY, text, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
+      const deepRes = await callGroq(GROQ_KEY, externalAnalysisText, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
       if (deepRes && deepRes.verdict) return res.status(200).json(safeResult(deepRes));
     } catch(e) {}
     // Ultimate fallback Gemini
     if (GEMINI_KEY) {
       try {
-        const gemRes = await callGemini(text, GEMINI_KEY, checkType, knowledgeLine);
+        const gemRes = await callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine);
         if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
       } catch (e) {}
     }
@@ -415,14 +435,14 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   return parsed;
 }
 function getPrompt(type, knowledgeLine = '') {
-  const baseSCAM = `You are an Indian scam detection expert trained on over 20 Lakh Indian scam records. Analyze the message and return JSON with:
+  const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return JSON with:
 - verdict: SCAM / FRAUD / SAFE / SUSPICIOUS
 - scamType: one of [Phishing Attack, Fake Reward Scam, OTP Fraud, UPI Fraud, Job Scam, Loan Fraud, Bank Impersonation, Safe Content]
 - confidence: 65-99
 - analysis: 2-3 sentences
 - findings: array of bullet-point red flags
 - whatToDo: array of actionable steps.
-OFFICIAL COMMUNICATION LAWS OF INDIA (Use these to detect scams):
+Practical risk-analysis guidelines (do not present these as legal advice or proof that a message is legitimate):
 1. Indian Banks (SBI, HDFC, ICICI, etc.) NEVER send bit.ly, tinyurl, or random IP address links for KYC. Real KYC is done inside official apps (YONO, iMobile) or official .co.in / .com domains.
 2. Official Entities NEVER ask you to download an .apk file over WhatsApp.
 3. Police, CBI, Telecom (TRAI), and Customs NEVER call threatening to arrest you unless you pay via UPI or Crypto. 
