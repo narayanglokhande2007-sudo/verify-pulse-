@@ -636,6 +636,7 @@
         const confidence = data.confidence || 85;
         const analysis = data.analysis || '';
         const evidenceSources = Array.isArray(data.evidenceSources) ? data.evidenceSources.filter(Boolean) : [];
+        const explainability = data.explainability && typeof data.explainability === 'object' ? data.explainability : null;
         const verdictLabel = v === 'SAFE' ? 'Safe'
             : v === 'SUSPICIOUS' ? 'Suspicious'
             : v === 'UNCERTAIN' ? 'Needs Review'
@@ -654,6 +655,26 @@
         `;
         if (analysis) {
             html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit;">${escapeHTML(analysis)}</p></div>`;
+        }
+        if (explainability) {
+            const explanationEvidence = Array.isArray(explainability.evidence) ? explainability.evidence : [];
+            const explanationLimits = Array.isArray(explainability.limitations) ? explainability.limitations : [];
+            html += `<details style="margin-top:15px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; text-align:left;">`;
+            html += `<summary style="cursor:pointer; color:#1e3a8a; font-size:13px; font-weight:700;">Why this result?</summary>`;
+            if (explainability.summary) html += `<p style="font-size:12px; color:#334155; margin:10px 0 8px;">${escapeHTML(explainability.summary)}</p>`;
+            if (explanationEvidence.length > 0) {
+                html += `<ul style="margin:0 0 8px 20px; font-size:12px; color:#334155;">`;
+                explanationEvidence.forEach(item => {
+                    const source = item && item.source ? `${item.source}: ` : '';
+                    const detail = item && item.detail ? item.detail : '';
+                    if (source || detail) html += `<li style="margin-bottom:4px;"><strong>${escapeHTML(source)}</strong>${escapeHTML(detail)}</li>`;
+                });
+                html += `</ul>`;
+            }
+            if (explanationLimits.length > 0) {
+                html += `<p style="font-size:11px; color:#475569; margin:8px 0 0;"><strong>Important:</strong> ${escapeHTML(explanationLimits.join(' '))}</p>`;
+            }
+            html += `</details>`;
         }
         
         let actionSteps = [];

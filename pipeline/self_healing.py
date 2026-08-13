@@ -26,6 +26,7 @@ PIPELINE_DIR = PROJECT_ROOT / "pipeline"
 MANIFEST_PATH = PIPELINE_DIR / "critical_files_manifest.json"
 
 CRITICAL_FILES = (
+    "package.json",
     "index.html",
     "vercel.json",
     "api/verify.js",

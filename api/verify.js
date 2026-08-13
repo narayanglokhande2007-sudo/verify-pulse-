@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     if (!Array.isArray(r.whatToDo)) r.whatToDo = [];
     if (!Array.isArray(r.evidenceSources)) r.evidenceSources = [...evidenceSources];
     r.evidenceSources = [...new Set(r.evidenceSources)];
+    r.explainability = buildExplainability(r);
     return r;
   }
   // ----- 200+ trusted domains list (all official brands) -----
@@ -128,6 +129,88 @@ export default async function handler(req, res) {
     return highRisk ? { score, signals } : null;
   }
 
+  function buildExplainability(result) {
+    const verdict = String(result.verdict || 'UNCERTAIN').toUpperCase();
+    const sources = Array.isArray(result.evidenceSources) ? result.evidenceSources : [];
+    const findings = Array.isArray(result.findings) ? result.findings.slice(0, 5) : [];
+    const evidence = [];
+
+    if (sources.includes('Google Safe Browsing')) {
+      evidence.push({
+        source: 'Google Safe Browsing',
+        type: 'external-url-reputation',
+        detail: verdict === 'DANGEROUS'
+          ? 'The submitted URL matched a known malicious threat result.'
+          : 'A URL reputation lookup completed; no threat match is implied by this entry alone.'
+      });
+    }
+    if (sources.includes('Trusted domain registry')) {
+      evidence.push({
+        source: 'Trusted domain registry',
+        type: 'deterministic-domain-match',
+        detail: 'The parsed URL hostname matched the VerifyPulse trusted-domain registry.'
+      });
+    }
+    if (sources.includes('Local social-engineering rules')) {
+      evidence.push({
+        source: 'Local social-engineering rules',
+        type: 'deterministic-text-signals',
+        detail: findings.length
+          ? `Detected signals: ${findings.join(', ')}.`
+          : 'A configured authority-impersonation risk rule was triggered.'
+      });
+    }
+    if (sources.includes('Privacy guard')) {
+      evidence.push({
+        source: 'Privacy guard',
+        type: 'local-data-protection-control',
+        detail: verdict === 'CONSENT_REQUIRED'
+          ? 'External file analysis was not started because explicit consent was missing.'
+          : 'Potential credentials or identifiers were protected from external AI analysis.'
+      });
+    }
+    if (evidence.length === 0) {
+      evidence.push({
+        source: 'Model-assisted assessment',
+        type: 'model-generated-assessment',
+        detail: 'No deterministic reputation match or trusted-domain shortcut was used for this verdict.'
+      });
+    }
+
+    let summary;
+    if (verdict === 'CAUTION' || verdict === 'CONSENT_REQUIRED') {
+      summary = 'This result was produced by a privacy protection control, not by a scam classification.';
+    } else if (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS') {
+      summary = 'A known-malicious URL reputation match contributed to this high-risk result.';
+    } else if (sources.includes('Trusted domain registry')) {
+      summary = 'The result is based on an exact parsed-hostname registry match; it does not authenticate a message sender.';
+    } else if (sources.includes('Local social-engineering rules')) {
+      summary = 'The result is based on detectable authority-impersonation and social-engineering signals in the text.';
+    } else {
+      summary = 'The result is model-assisted and should be treated as a risk assessment, not proof of fraud or safety.';
+    }
+
+    const hasDeterministicEvidence = sources.includes('Trusted domain registry')
+      || sources.includes('Local social-engineering rules')
+      || (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS');
+    const isPrivacyProtection = sources.includes('Privacy guard');
+
+    return {
+      version: 'vp-explain-1',
+      assessmentType: isPrivacyProtection
+        ? 'privacy-protection'
+        : hasDeterministicEvidence
+          ? 'evidence-backed'
+          : 'model-assisted',
+      summary,
+      evidence,
+      limitations: [
+        'A SAFE result does not authenticate the sender or guarantee future safety.',
+        'A risk result should be verified through an official channel before taking action.'
+      ]
+    };
+  }
+
   try {
     if (checkType === 'password' || hasCredentialLikeData(text)) {
       // Passwords, OTPs, PINs, payment data, and government IDs must not be
@@ -138,7 +221,8 @@ export default async function handler(req, res) {
         confidence: 100,
         analysis: 'Sensitive credentials or identifiers were detected. VerifyPulse did not send them to external AI services.',
         findings: ['Never share passwords, OTPs, PINs, card details, or government identifiers with a website or an AI service.'],
-        whatToDo: ['Change any credential that was already shared.', 'Contact the relevant bank or provider through its official channel if you believe the information was exposed.']
+        whatToDo: ['Change any credential that was already shared.', 'Contact the relevant bank or provider through its official channel if you believe the information was exposed.'],
+        evidenceSources: ['Privacy guard']
       }));
     }
     // ----- CHATBOT: PulseCore -----
@@ -240,7 +324,8 @@ CRITICAL GUARDRAILS:
           confidence: 100,
           analysis: 'File analysis may send the uploaded file to an external AI provider and therefore requires explicit consent.',
           findings: ['No uploaded file was sent for external processing.'],
-          whatToDo: ['Show a clear consent notice in the client and resend only after the user agrees.']
+          whatToDo: ['Show a clear consent notice in the client and resend only after the user agrees.'],
+          evidenceSources: ['Privacy guard']
         }));
       }
       try {
