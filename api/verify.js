@@ -1,6 +1,6 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
-import { hasCredentialLikeData, sanitizeForExternalAnalysis } from './privacy_guard.js';
-import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from './security_controls.js';
+import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 

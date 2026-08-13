@@ -3,7 +3,7 @@ import {
   getConfiguredLimit,
   setRateLimitHeaders,
   validateB2bApiKey,
-} from '../security_controls.js';
+} from '../../lib/security_controls.js';
 
 function setApiSecurityHeaders(res) {
   res.setHeader('Cache-Control', 'no-store');
