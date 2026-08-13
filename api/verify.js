@@ -1,6 +1,11 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
+import { randomUUID } from 'node:crypto';
 import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
 import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
+import { createServiceUnavailableResult, fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
+
+const threatFeedCache = { values: [], expiresAt: 0 };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -24,6 +29,8 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
+  const requestId = randomUUID();
+  res.setHeader('X-VerifyPulse-Request-Id', requestId);
   const evidenceSources = [];
   function safeResult(r) {
     if (typeof r.findings === 'string') r.findings = [r.findings];
@@ -32,6 +39,7 @@ export default async function handler(req, res) {
     if (!Array.isArray(r.whatToDo)) r.whatToDo = [];
     if (!Array.isArray(r.evidenceSources)) r.evidenceSources = [...evidenceSources];
     r.evidenceSources = [...new Set(r.evidenceSources)];
+    r.requestId = requestId;
     r.explainability = buildExplainability(r);
     return r;
   }
@@ -169,6 +177,20 @@ export default async function handler(req, res) {
           : 'Potential credentials or identifiers were protected from external AI analysis.'
       });
     }
+    if (sources.includes('Local high-confidence fallback rules')) {
+      evidence.push({
+        source: 'Local high-confidence fallback rules',
+        type: 'deterministic-text-signals',
+        detail: findings.length ? `Detected high-confidence signals: ${findings.join(', ')}.` : 'Configured high-confidence scam indicators were detected.'
+      });
+    }
+    if (sources.includes('Service health monitor')) {
+      evidence.push({
+        source: 'Service health monitor',
+        type: 'service-availability-status',
+        detail: 'External model analysis did not return a usable verdict during this request. This is not a SAFE result.'
+      });
+    }
     if (evidence.length === 0) {
       evidence.push({
         source: 'Model-assisted assessment',
@@ -184,14 +206,17 @@ export default async function handler(req, res) {
       summary = 'A known-malicious URL reputation match contributed to this high-risk result.';
     } else if (sources.includes('Trusted domain registry')) {
       summary = 'The result is based on an exact parsed-hostname registry match; it does not authenticate a message sender.';
-    } else if (sources.includes('Local social-engineering rules')) {
-      summary = 'The result is based on detectable authority-impersonation and social-engineering signals in the text.';
+    } else if (sources.includes('Local social-engineering rules') || sources.includes('Local high-confidence fallback rules')) {
+      summary = 'The result is based on deterministic high-confidence social-engineering signals in the text.';
+    } else if (sources.includes('Service health monitor')) {
+      summary = 'External analysis was temporarily unavailable; this response does not assess the content as safe.';
     } else {
       summary = 'The result is model-assisted and should be treated as a risk assessment, not proof of fraud or safety.';
     }
 
     const hasDeterministicEvidence = sources.includes('Trusted domain registry')
       || sources.includes('Local social-engineering rules')
+      || sources.includes('Local high-confidence fallback rules')
       || (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS');
     const isPrivacyProtection = sources.includes('Privacy guard');
 
@@ -199,9 +224,11 @@ export default async function handler(req, res) {
       version: 'vp-explain-1',
       assessmentType: isPrivacyProtection
         ? 'privacy-protection'
-        : hasDeterministicEvidence
-          ? 'evidence-backed'
-          : 'model-assisted',
+        : sources.includes('Service health monitor')
+          ? 'service-status'
+          : hasDeterministicEvidence
+            ? 'evidence-backed'
+            : 'model-assisted',
       summary,
       evidence,
       limitations: [
@@ -271,16 +298,8 @@ CRITICAL GUARDRAILS:
       }));
     }
 
-    // ---- Live knowledge boost ----
-    let recentScamURLs = [];
-    try {
-      const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
-      const pipelineRes = await fetch(pipelineURL);
-      if (pipelineRes.ok) {
-        const allURLs = await pipelineRes.json();
-        recentScamURLs = allURLs.slice(-20);
-      }
-    } catch (e) {}
+    // ---- Cached live knowledge boost ----
+    const recentScamURLs = await getRecentScamUrls();
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
     // Safe Browsing check
     if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && SAFE_BROWSING_KEY) {
@@ -328,144 +347,101 @@ CRITICAL GUARDRAILS:
           evidenceSources: ['Privacy guard']
         }));
       }
-      try {
-        const gemRes = await callGemini(externalAnalysisText, GEMINI_KEY, 'unified', knowledgeLine, fileData);
-        if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
-      } catch (e) {
-        console.error('Gemini Vision failed:', e);
-        return res.status(200).json(safeResult({ verdict: 'UNCERTAIN', scamType: 'Processing Error', confidence: 50, analysis: 'Failed to analyze the uploaded screenshot or audio file.', findings: [], whatToDo: [] }));
-      }
-    }
-    // ----- PRIMARY: Groq (fastest) -----
-    let groqSuccess = false;
-    let groqResult = null;
-    try {
-      groqResult = await callGroq(GROQ_KEY, externalAnalysisText, checkType, 'llama-3.3-70b-versatile', knowledgeLine);
-      if (groqResult && groqResult.verdict && groqResult.confidence > 60) groqSuccess = true;
-    } catch (e) { console.error('Groq failed:', e.message); }
-    if (groqSuccess) return res.status(200).json(safeResult(groqResult));
-    // ----- FALLBACK: 10 parallel models (OpenRouter + HF) with Meta-AI Council -----
-    const parallelTasks = [];
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4500); // 4.5 second strict limit for Council
-    if (OPENROUTER_KEY) {
-      const openRouterModels = [
-        'meta-llama/llama-3-8b-instruct', 'mistralai/mistral-7b-instruct', 'google/gemma-3-12b-it',
-        'qwen/qwen2.5-7b', 'deepseek/deepseek-r1', 'meta-llama/llama-3.1-8b-instruct',
-        'huggingfaceh4/zephyr-7b-beta', 'microsoft/phi-3-medium-128k-instruct'
-      ];
-      const prompt = `You are a scam detection expert. Analyze: "${externalAnalysisText}". Return JSON: verdict (SCAM/SAFE/SUSPICIOUS), scamType, confidence (0-100), analysis, findings(array), whatToDo(array).`;
-      openRouterModels.forEach(model => {
-        parallelTasks.push(
-          fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}` },
-            body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 400, response_format: { type: 'json_object' } }),
-            signal: controller.signal
-          }).then(r => r.json()).then(d => {
-            let content = d.choices?.[0]?.message?.content;
-            if (content) {
-              try { return JSON.parse(content); } catch { let m = content.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); }
-            }
-            return null;
-          }).catch(() => null)
-        );
+      const visionAttempt = await runProviderAttempt({
+        requestId,
+        stage: 'file_analysis',
+        provider: 'gemini',
+        operation: () => callGemini(externalAnalysisText, GEMINI_KEY, 'unified', knowledgeLine, fileData)
       });
-    }
-    const hfSpecialists = [
-      'https://api-inference.huggingface.co/models/AcuteShrewdSecurity/Llama-Phishsense-1B',
-      'https://api-inference.huggingface.co/models/entrick/Security-SLM-Gemma-4-E2B-it-GGUF'
-    ];
-    hfSpecialists.forEach(url => {
-      parallelTasks.push(
-        fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inputs: `You are a cybersecurity expert. Analyze: "${externalAnalysisText}". Return JSON with keys: verdict, scamType, confidence, analysis, findings (array), whatToDo (array).`,
-            parameters: { max_new_tokens: 300, temperature: 0.3 }
-          }),
-          signal: controller.signal
-        }).then(r => r.json()).then(d => {
-          let generated = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text || '';
-          let m = generated.match(/\{[\s\S]*\}/);
-          if (m) try { return JSON.parse(m[0]); } catch(e) {}
-          return null;
-        }).catch(() => null)
-      );
-    });
-    if (parallelTasks.length) {
-      const results = await Promise.allSettled(parallelTasks);
-      clearTimeout(timeoutId); // clear the timeout since they finished or aborted
-      
-      const validResponses = [];
-      for (const r of results) {
-        if (r.status === 'fulfilled' && r.value && r.value.verdict) {
-          validResponses.push(r.value);
-        }
+      if (visionAttempt.ok && visionAttempt.result?.verdict) {
+        return res.status(200).json(safeResult(visionAttempt.result));
       }
-      if (validResponses.length > 0) {
-        // --- THE META-AI JUDGE ---
-        try {
-          const metaJudgePrompt = `You are the Master Meta-AI Judge. Review these ${validResponses.length} analyses from your AI Council regarding a potential scam.
-          Find the consensus (majority vote) for the verdict (SCAM/FRAUD/SAFE/SUSPICIOUS), and synthesize the best analysis, findings, and whatToDo steps into one perfect JSON response.
-          Input Analyses: ${JSON.stringify(validResponses)}
-          Return only the final JSON object with keys: verdict, scamType, confidence, analysis, findings(array), whatToDo(array).`;
-          
-          const metaRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-             method: 'POST', headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
-             body: JSON.stringify({
-               model: 'llama-3.3-70b-versatile', 
-               messages: [
-                 { role: 'system', content: "You are a cybersecurity Meta-AI Judge. Always respond in valid JSON format." },
-                 { role: 'user', content: metaJudgePrompt }
-               ], 
-               temperature: 0.1, 
-               response_format: { type: "json_object" }
-             })
-          });
-          const metaData = await metaRes.json();
-          const metaContent = metaData.choices?.[0]?.message?.content;
-          let parsedMeta;
-          try { parsedMeta = JSON.parse(metaContent); } catch { const m = metaContent.match(/\{[\s\S]*\}/); if (m) parsedMeta = JSON.parse(m[0]); }
-          
-          if (parsedMeta && parsedMeta.verdict) {
-             return res.status(200).json(safeResult(parsedMeta));
-          }
-        } catch(e) {
-          console.error("Meta Judge failed:", e.message);
-        }
-        
-        // If Meta Judge fails, safely fallback to the first valid council response
-        return res.status(200).json(safeResult(validResponses[0]));
-      }
+      return res.status(503).json(safeResult(createServiceUnavailableResult({
+        requestId,
+        failedProviders: [{ provider: 'gemini', errorCode: visionAttempt.errorCode || 'invalid_provider_verdict' }]
+      })));
     }
-    // Final fallback DeepSeek R1
-    try {
-      const deepRes = await callGroq(GROQ_KEY, externalAnalysisText, checkType, 'deepseek-r1-distill-llama-70b', knowledgeLine);
-      if (deepRes && deepRes.verdict) return res.status(200).json(safeResult(deepRes));
-    } catch(e) {}
-    // Ultimate fallback Gemini
+    // ----- BOUNDED PROVIDER ROUTER -----
+    // One primary and independent fallbacks are intentionally used instead of a large fan-out.
+    // This reduces latency, makes failures observable, and prevents one request from exhausting many providers.
+    const failedProviders = [];
+    const hasUsableVerdict = (result) => {
+      const verdict = String(result?.verdict || '').trim().toUpperCase();
+      return Boolean(verdict) && !['UNCERTAIN', 'SERVICE_UNAVAILABLE'].includes(verdict);
+    };
+    const attempt = async ({ stage, provider, operation }) => {
+      const result = await runProviderAttempt({ requestId, stage, provider, operation });
+      if (!result.ok) failedProviders.push({ provider, errorCode: result.errorCode });
+      if (result.ok && !hasUsableVerdict(result.result)) {
+        failedProviders.push({ provider, errorCode: 'invalid_provider_verdict' });
+        logScanReliabilityEvent({ requestId, stage, provider, outcome: 'failure', errorCode: 'invalid_provider_verdict' });
+        return null;
+      }
+      return result.ok ? result.result : null;
+    };
+
+    if (GROQ_KEY) {
+      const groqResult = await attempt({
+        stage: 'primary_scan', provider: 'groq',
+        operation: () => callGroq(GROQ_KEY, externalAnalysisText, checkType, 'llama-3.3-70b-versatile', knowledgeLine)
+      });
+      if (groqResult) return res.status(200).json(safeResult(groqResult));
+    } else {
+      failedProviders.push({ provider: 'groq', errorCode: 'provider_not_configured' });
+    }
+
     if (GEMINI_KEY) {
-      try {
-        const gemRes = await callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine);
-        if (gemRes && gemRes.verdict) return res.status(200).json(safeResult(gemRes));
-      } catch (e) {}
+      const geminiResult = await attempt({
+        stage: 'fallback_scan', provider: 'gemini',
+        operation: () => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine)
+      });
+      if (geminiResult) return res.status(200).json(safeResult(geminiResult));
+    } else {
+      failedProviders.push({ provider: 'gemini', errorCode: 'provider_not_configured' });
     }
-    // Ultimate fallback (no crash)
-    return res.status(200).json(safeResult({
-      verdict: 'UNCERTAIN', scamType: 'Service Issue', confidence: 50,
-      analysis: 'AI engines temporarily busy. Try again.',
-      findings: ['Temporary API limit'], whatToDo: ['Refresh and retry']
-    }));
+
+    if (OPENROUTER_KEY) {
+      const openRouterResult = await attempt({
+        stage: 'secondary_fallback_scan', provider: 'openrouter',
+        operation: () => callOpenRouter(OPENROUTER_KEY, externalAnalysisText, checkType, knowledgeLine)
+      });
+      if (openRouterResult) return res.status(200).json(safeResult(openRouterResult));
+    } else {
+      failedProviders.push({ provider: 'openrouter', errorCode: 'provider_not_configured' });
+    }
+
+    const localRisk = assessHighConfidenceFallbackRisk(text);
+    if (localRisk && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
+      logScanReliabilityEvent({ requestId, stage: 'local_high_confidence_fallback', provider: 'local_rules', outcome: 'success' });
+      return res.status(200).json(safeResult(localRisk));
+    }
+
+    logScanReliabilityEvent({ requestId, stage: 'scan_router', outcome: 'service_unavailable', errorCode: failedProviders.map((entry) => entry.errorCode).join(',') });
+    return res.status(503).json(safeResult(createServiceUnavailableResult({ requestId, failedProviders })));
   } catch (error) {
-    console.error(error);
-    return res.status(200).json(safeResult({
-      verdict: 'UNCERTAIN', scamType: 'Internal Error', confidence: 30,
-      analysis: 'Internal error occurred. Working on it.',
-      findings: [error.message], whatToDo: ['Retry after some time']
-    }));
+    logScanReliabilityEvent({ requestId, stage: 'handler', outcome: 'service_unavailable', errorCode: 'internal_processing_error' });
+    return res.status(503).json(safeResult(createServiceUnavailableResult({
+      requestId,
+      failedProviders: [{ provider: 'verify_handler', errorCode: 'internal_processing_error' }]
+    })));
   }
 }
-// ========== Helper functions (unchanged – same as before) ==========
+
+async function getRecentScamUrls() {
+  if (Date.now() < threatFeedCache.expiresAt) return threatFeedCache.values;
+  try {
+    const pipelineURL = 'https://raw.githubusercontent.com/narayanglokhande2007-sudo/verify-pulse-/main/pipeline/daily-data/latest_scams.json';
+    const allURLs = await fetchJsonWithTimeout(pipelineURL, {}, { provider: 'threat_feed', timeoutMs: 1200 });
+    threatFeedCache.values = Array.isArray(allURLs) ? allURLs.slice(-20) : [];
+    threatFeedCache.expiresAt = Date.now() + 60_000;
+  } catch {
+    // A stale or unavailable enrichment feed must never create a SAFE verdict.
+    threatFeedCache.expiresAt = Date.now() + 15_000;
+  }
+  return threatFeedCache.values;
+}
+
+// ========== Helper functions ==========
 async function checkWithSafeBrowsing(inputUrl, apiKey) {
   try {
     const payload = {
@@ -476,11 +452,9 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
         threatEntries: [{ url: inputUrl }]
       }
     };
-    const resp = await fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
+    const data = await fetchJsonWithTimeout(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
       method: 'POST', body: JSON.stringify(payload)
-    });
-    if (!resp.ok) throw new Error('Safe Browsing failed');
-    const data = await resp.json();
+    }, { provider: 'google_safe_browsing', timeoutMs: 2500 });
     if (data.matches) {
       return {
         found: true,
@@ -503,9 +477,7 @@ async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileD
     parts.push({ inlineData: { mimeType: fileData.mimeType, data: fileData.base64 } });
   }
   const body = { contents: [{ parts }] };
-  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!res.ok) throw new Error('Gemini failed');
-  const data = await res.json();
+  const data = await fetchJsonWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, { provider: 'gemini', timeoutMs: 3200 });
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) throw new Error('Empty Gemini response');
   let parsed;
@@ -516,7 +488,7 @@ async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileD
 async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   const systemPrompt = getPrompt(type, knowledgeLine);
   const url = 'https://api.groq.com/openai/v1/chat/completions';
-  const res = await fetch(url, {
+  const data = await fetchJsonWithTimeout(url, {
     method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model, messages: [
@@ -524,9 +496,7 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
         { role: 'user', content: systemPrompt + `\n\nInput: "${text}"` }
       ], temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
     })
-  });
-  if (!res.ok) throw new Error('Groq failed');
-  const data = await res.json();
+  }, { provider: 'groq', timeoutMs: 3200 });
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error('Empty Groq response');
   let parsed;
@@ -564,6 +534,62 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   }
   return parsed;
 }
+async function callOpenRouter(apiKey, text, type, knowledgeLine = '') {
+  const prompt = `${getPrompt(type, knowledgeLine)}\n\nInput: "${text}"`;
+  const data = await fetchJsonWithTimeout('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: 'google/gemma-3-12b-it',
+      messages: [
+        { role: 'system', content: 'You are a cybersecurity scam detector. Return only valid JSON with verdict, scamType, confidence, analysis, findings, and whatToDo.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1,
+      max_tokens: 450,
+      response_format: { type: 'json_object' }
+    })
+  }, { provider: 'openrouter', timeoutMs: 2800 });
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Empty OpenRouter response');
+  try { return JSON.parse(content); } catch {
+    const match = content.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Invalid OpenRouter JSON');
+  }
+}
+
+function assessHighConfidenceFallbackRisk(msg) {
+  const value = String(msg || '');
+  const hasUrl = /https?:\/\/[^\s]+/i.test(value);
+  const shortenedOrObscuredUrl = /https?:\/\/(?:bit\.ly|tinyurl\.com|t\.co|is\.gd|cutt\.ly|rb\.gy|[0-9]{1,3}(?:\.[0-9]{1,3}){3})(?:\/|\b)/i.test(value);
+  const apkDownload = /\b(?:download|install|update)\b[^\n]{0,80}\.(?:apk|exe|msi)\b|\.(?:apk|exe|msi)\b[^\n]{0,80}\b(?:download|install|update)\b/i.test(value);
+  const sensitiveRequest = /\b(?:otp|pin|cvv|password|card details?|bank account details?|screen share|remote access|aadhaar|kyc)\b/i.test(value);
+  const paymentRequest = /(?:₹|\brs\.?\s*\d|\binr\s*\d|upi|collect request|processing fee|verification fee|pay now|payment)/i.test(value);
+  const pressure = /\b(?:within|minutes?|hours?|immediately|urgent|freeze|blocked|suspend|arrest|fir|penalty|last chance)\b/i.test(value);
+  const authority = /\b(?:rbi|reserve bank|income tax|cbi|cyber crime|police|trai|customs|court|government|bank)\b/i.test(value);
+  const untrustedContact = /\b(?:whatsapp|telegram|reply\s+(?:yes|ok)|verification call|video call|call now)\b/i.test(value);
+  const highRisk = (apkDownload && (pressure || untrustedContact || paymentRequest))
+    || (hasUrl && shortenedOrObscuredUrl && (sensitiveRequest || paymentRequest || (authority && pressure)))
+    || (authority && pressure && paymentRequest && (sensitiveRequest || untrustedContact));
+  if (!highRisk) return null;
+  const findings = [];
+  if (apkDownload) findings.push('The message pressures you to download or install an executable application file.');
+  if (shortenedOrObscuredUrl) findings.push('The message uses a shortened, obscured, or direct-IP link.');
+  if (sensitiveRequest) findings.push('The message requests sensitive credentials, identity information, screen sharing, or KYC action.');
+  if (paymentRequest) findings.push('The message asks for payment, a collect request, or a verification fee.');
+  if (authority && pressure) findings.push('The message combines an authority claim with urgent pressure.');
+  return {
+    verdict: 'SUSPICIOUS',
+    scamType: 'High-Confidence Social Engineering Risk',
+    confidence: 88,
+    analysis: 'External model analysis is temporarily unavailable, but local high-confidence scam signals were detected. Treat this content as risky and verify independently.',
+    findings,
+    whatToDo: ['Do not click links, install files, pay, or share OTPs, PINs, passwords, or personal documents.', 'Contact the claimed organisation through an official website or helpline you find yourself.', 'Report suspected financial fraud quickly through 1930.'],
+    evidenceSources: ['Local high-confidence fallback rules']
+  };
+}
+
 function getPrompt(type, knowledgeLine = '') {
   const baseSCAM = `You are an Indian scam detection expert. Analyze the message and return JSON with:
 - verdict: SCAM / FRAUD / SAFE / SUSPICIOUS

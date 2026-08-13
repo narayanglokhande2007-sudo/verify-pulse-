@@ -5,7 +5,9 @@
   "type": "module",
   "description": "VerifyPulse - AI-powered mobile protection and scam detector for India",
   "scripts": {
-    "test:india-regression": "node tests/run_india_regression.mjs"
+    "test:india-regression": "node tests/run_india_regression.mjs",
+    "test:scan-reliability": "node tests/run_scan_reliability.mjs",
+    "test": "npm run test:india-regression && npm run test:scan-reliability"
   },
   "engines": {
     "node": ">=18.0.0"
