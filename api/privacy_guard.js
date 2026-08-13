@@ -2,9 +2,13 @@ import crypto from 'crypto';
 
 const MAX_EXTERNAL_ANALYSIS_LENGTH = 12000;
 
+// Match an actual credential value only when it is associated with a credential label.
+// This intentionally does not match educational phrases such as "never share OTP/PIN".
+const CREDENTIAL_VALUE_PATTERN = /\b(?:otp|one[-\s]?time(?:\s+password)?|passcode|password|pin)\s*(?:is\s+|[:=\-]\s*|\s+)(?:\d{4,8}|[A-Za-z0-9!@#$%^&*]{6,})\b/gi;
+
 const REDACTION_RULES = [
-  // Passwords, OTPs, and one-time codes must never leave the service.
-  { pattern: /\b(?:otp|one[-\s]?time(?:\s+password)?|passcode|password|pin)\s*[:=\-]?\s*\S+/gi, replacement: '[REDACTED_CREDENTIAL]' },
+  // Redact labelled OTP/PIN/password values before any external analysis.
+  { pattern: CREDENTIAL_VALUE_PATTERN, replacement: '[REDACTED_CREDENTIAL]' },
   // Payment card numbers, including spaces or hyphens.
   { pattern: /\b(?:\d[ -]*?){13,19}\b/g, replacement: '[REDACTED_PAYMENT_NUMBER]' },
   // Aadhaar-like 12-digit values. This is intentionally broad to avoid disclosure.
@@ -38,7 +42,8 @@ export function sanitizeForExternalAnalysis(input) {
 
 export function hasCredentialLikeData(input) {
   const value = String(input || '');
-  return /\b(?:otp|one[-\s]?time(?:\s+password)?|passcode|password|pin)\b/i.test(value)
+  CREDENTIAL_VALUE_PATTERN.lastIndex = 0;
+  return CREDENTIAL_VALUE_PATTERN.test(value)
     || /\b(?:\d[ -]*?){13,19}\b/.test(value)
     || /\b\d{4}[ -]?\d{4}[ -]?\d{4}\b/.test(value);
 }
@@ -49,6 +54,6 @@ export function createPrivacyReceipt(originalInput, sanitizedInput) {
     inputFingerprint: crypto.createHash('sha256').update(String(originalInput || '')).digest('hex'),
     // This receipt is safe to log only if the application policy allows it. Do not
     // log originalInput, request bodies, credentials, OTPs, or uploaded file data.
-    policyVersion: 'vp-privacy-1'
+    policyVersion: 'vp-privacy-2'
   };
 }

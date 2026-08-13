@@ -24,11 +24,14 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
+  const evidenceSources = [];
   function safeResult(r) {
     if (typeof r.findings === 'string') r.findings = [r.findings];
     if (!Array.isArray(r.findings)) r.findings = [];
     if (typeof r.whatToDo === 'string') r.whatToDo = [r.whatToDo];
     if (!Array.isArray(r.whatToDo)) r.whatToDo = [];
+    if (!Array.isArray(r.evidenceSources)) r.evidenceSources = [...evidenceSources];
+    r.evidenceSources = [...new Set(r.evidenceSources)];
     return r;
   }
   // ----- 200+ trusted domains list (all official brands) -----
@@ -80,28 +83,9 @@ export default async function handler(req, res) {
     ];
     const urls = msg.match(/https?:\/\/[^\s]+/g) || [];
     
-    // Keyword whitelist for text-only messages (no links)
-    if (urls.length === 0) {
-      const lowerMsg = msg.toLowerCase();
-      // Extensive dataset of trusted entities
-      const trustedKeywords = [
-        'imd', 'india meteorological department', 'heat wave', 'heatwave', 'environmental warning',
-        'government of india', 'ministry of health', 'disaster management', 'ndma',
-        'zerodha', 'nse', 'bse', 'cdsl', 'nsdl', 'income tax department',
-        'reserve bank of india', 'rbi', 'sbi', 'hdfc', 'icici', 'axis bank'
-      ];
-      // Extensive dataset of scam indicators
-      const scamKeywords = ['lottery', 'winner', 'crore', 'prize', 'pay now', 'click here', 'kyc update', 'blocked', 'suspend'];
-      
-      const hasSuspicious = scamKeywords.some(w => lowerMsg.includes(w));
-      const hasTrusted = trustedKeywords.some(w => lowerMsg.includes(w));
-      
-      // If it mentions a trusted entity and has no scam links/keywords, it's safe
-      if (hasTrusted && !hasSuspicious) {
-        return true;
-      }
-      return false;
-    }
+    // A text-only message cannot prove that its claimed brand or authority is authentic.
+    // It must continue to the scam-analysis flow rather than receiving a SAFE shortcut.
+    if (urls.length === 0) return false;
     for (let urlStr of urls) {
       try {
         const cleanUrlStr = urlStr.replace(/[.,;)]+$/, '');
@@ -122,6 +106,28 @@ export default async function handler(req, res) {
     }
     return true;
   }
+
+  function assessTextOnlySocialEngineering(msg) {
+    const urls = String(msg || '').match(/https?:\/\/[^\s]+/g) || [];
+    if (urls.length > 0) return null;
+
+    const value = String(msg || '');
+    const signals = {
+      authorityClaim: /\b(?:rbi|reserve bank|income tax|cbi|cyber crime|cybercell|police|sebi|gst|epfo|customs|court|government)\b/i.test(value),
+      sensitiveAction: /\b(?:bank account details?|otp|pin|cvv|card details?|aadhaar|id proof|kyc|video verification|screen share)\b/i.test(value),
+      pressure: /\b(?:within|minutes?|hours?|immediately|urgent|freeze|blocked|suspend|arrest|fir|penalty)\b/i.test(value),
+      untrustedContact: /\b(?:whatsapp|reply\s+(?:yes|ok)|verification call|video call|collect request)\b/i.test(value),
+      paymentDemand: /(?:₹|\brs\.?\s*\d|\binr\s*\d|payment|collect request|processing fee|verification fee)/i.test(value),
+      secrecyDemand: /\b(?:kisi ko(?:\s+bhi)?\s+(?:mat|mana)|do not tell|keep this secret)\b/i.test(value)
+    };
+    const score = Object.values(signals).filter(Boolean).length;
+    const highRisk = signals.authorityClaim
+      && (signals.untrustedContact || signals.paymentDemand || signals.secrecyDemand || (signals.sensitiveAction && signals.pressure))
+      && score >= 2;
+
+    return highRisk ? { score, signals } : null;
+  }
+
   try {
     if (checkType === 'password' || hasCredentialLikeData(text)) {
       // Passwords, OTPs, PINs, payment data, and government IDs must not be
@@ -165,19 +171,22 @@ CRITICAL GUARDRAILS:
         return res.status(200).json({ reply: "PulseCore system is currently busy. Please try again." });
       }
     }
-    // ----- Whitelist pre-check (fast path) -----
-    if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
-      if (isTrustedMessage(text)) {
-        return res.status(200).json(safeResult({
-          verdict: 'SAFE',
-          scamType: 'Trusted Brand Message',
-          confidence: 99,
-          analysis: 'This message/link belongs to a verified trusted domain or official brand.',
-          findings: ['Domain matches trusted whitelist'],
-          whatToDo: ['You can safely proceed.']
-        }));
-      }
+    const textRisk = assessTextOnlySocialEngineering(text);
+    if (textRisk && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
+      const activeSignals = Object.entries(textRisk.signals)
+        .filter(([, present]) => present)
+        .map(([name]) => name.replace(/([A-Z])/g, ' $1').toLowerCase());
+      return res.status(200).json(safeResult({
+        verdict: 'SUSPICIOUS',
+        scamType: 'Potential Authority-Impersonation Scam',
+        confidence: 82,
+        analysis: 'This text makes an authority claim while asking for sensitive action, urgent action, money, secrecy, or an untrusted contact channel. Verify it only through an official channel you find independently.',
+        findings: activeSignals,
+        whatToDo: ['Do not reply, pay, share details, or join a verification call from this message.', 'Contact the claimed organisation through its official website or helpline.', 'Report suspected financial fraud promptly through 1930.'],
+        evidenceSources: ['Local social-engineering rules']
+      }));
     }
+
     // ---- Live knowledge boost ----
     let recentScamURLs = [];
     try {
@@ -196,11 +205,25 @@ CRITICAL GUARDRAILS:
         for (let urlStr of urls) {
           const cleanUrl = urlStr.replace(/[.,;)]+$/, '');
           const sbResult = await checkWithSafeBrowsing(cleanUrl, SAFE_BROWSING_KEY);
-          if (sbResult && sbResult.found) return res.status(200).json(sbResult);
+          if (sbResult?.checked) evidenceSources.push('Google Safe Browsing');
+          if (sbResult && sbResult.found) return res.status(200).json(safeResult(sbResult));
         }
       } catch (e) {
         console.error('Safe Browsing check failed:', e.message);
       }
+    }
+    // A SAFE shortcut is allowed only for a parsed URL whose canonical hostname
+    // matches the registry. Safe Browsing evidence is included only when that check ran.
+    if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType) && isTrustedMessage(text)) {
+      return res.status(200).json(safeResult({
+        verdict: 'SAFE',
+        scamType: 'Trusted Domain URL',
+        confidence: 99,
+        analysis: 'The submitted URL matches the trusted-domain registry. This is not an authentication of the message sender.',
+        findings: ['Parsed hostname matches the trusted-domain registry.'],
+        whatToDo: ['Use only official contact channels for sensitive account actions.'],
+        evidenceSources: [...evidenceSources, 'Trusted domain registry']
+      }));
     }
     // Gemini for fact‑checking (news)
     if (checkType === 'news' && GEMINI_KEY) {
@@ -374,10 +397,17 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
     if (!resp.ok) throw new Error('Safe Browsing failed');
     const data = await resp.json();
     if (data.matches) {
-      return { verdict: 'DANGEROUS', confidence: 100, analysis: 'Known malicious link detected by Google Safe Browsing.', findings: [] };
+      return {
+        found: true,
+        verdict: 'DANGEROUS',
+        confidence: 100,
+        analysis: 'Known malicious link detected by Google Safe Browsing.',
+        findings: [],
+        evidenceSources: ['Google Safe Browsing']
+      };
     }
-    return { found: false };
-  } catch (e) { return { found: false }; }
+    return { found: false, checked: true };
+  } catch (e) { return { found: false, checked: false }; }
 }
 async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null) {
   const systemPrompt = getPrompt(type, knowledgeLine) + " You must return valid JSON.";

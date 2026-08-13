@@ -432,7 +432,7 @@
             <p style="color: #166534; font-size: 13px;">We never store your data. The messages, links, and phone numbers you scan are analyzed in-memory and discarded the moment your result is shown. Your connection is encrypted end-to-end.</p>
         </div>
         <div class="card" style="background: #eff6ff; border-color: #bfdbfe; text-align: center;">
-            <p style="color: #1e3a8a; font-size: 12px; font-weight: 600;">🛡️ Verified by Google Safe Browsing API</p>
+            <p style="color: #1e3a8a; font-size: 12px; font-weight: 600;">🛡️ URL reputation checks are used only when you submit a URL.</p>
         </div>
         <div class="text-center mt-15" style="margin-bottom: 30px;">
             <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Found a bug or want a new feature?</p>
@@ -625,7 +625,7 @@
         if (['DANGEROUS','FRAUD','SCAM','PHISHING','MALICIOUS'].includes(v)) {
             verdictColor = '#ef4444'; verdictIcon = '🚨';
         }
-        else if (['SUSPICIOUS','MISLEADING','UNCERTAIN'].includes(v)) {
+        else if (['SUSPICIOUS','MISLEADING','UNCERTAIN','CAUTION'].includes(v)) {
             verdictColor = '#f59e0b'; verdictIcon = '⚠️';
         }
         else {
@@ -635,12 +635,21 @@
         const scamType = data.scamType || '';
         const confidence = data.confidence || 85;
         const analysis = data.analysis || '';
+        const evidenceSources = Array.isArray(data.evidenceSources) ? data.evidenceSources.filter(Boolean) : [];
+        const verdictLabel = v === 'SAFE' ? 'Safe'
+            : v === 'SUSPICIOUS' ? 'Suspicious'
+            : v === 'UNCERTAIN' ? 'Needs Review'
+            : v === 'CAUTION' ? 'Caution'
+            : 'Dangerous';
+        const evidenceHtml = evidenceSources.length > 0
+            ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 11px; color: rgba(255,255,255,0.95); font-weight: bold;">🛡️ Evidence: ${escapeHTML(evidenceSources.join(' · '))}</div>`
+            : '';
         let html = `
             <div style="background: ${verdictColor}; padding: 15px; border-radius: 8px; color: white; text-align: center; margin-bottom: 15px;">
-                <h3 style="margin-bottom: 5px; color: white;">${verdictIcon} ${v === 'SAFE' ? 'Safe' : v === 'SUSPICIOUS' ? 'Suspicious' : 'Dangerous'}</h3>
+                <h3 style="margin-bottom: 5px; color: white;">${verdictIcon} ${verdictLabel}</h3>
                 ${scamType ? `<div style="font-size:12px; opacity:0.9;">${escapeHTML(scamType)}</div>` : ''}
                 <div style="font-weight:bold; margin-top:5px;">Confidence: ${confidence}%</div>
-                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 11px; color: rgba(255,255,255,0.95); font-weight: bold; display:flex; align-items:center; justify-content:center; gap:4px;">🛡️ Verified by Google Safe Browsing API</div>
+                ${evidenceHtml}
             </div>
         `;
         if (analysis) {
