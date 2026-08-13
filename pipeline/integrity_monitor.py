@@ -10,6 +10,8 @@ INTEGRITY_LOG = os.path.join(os.path.dirname(__file__), 'integrity_log.jsonl')
 # List of critical files to monitor (relative to project root)
 CRITICAL_FILES = [
     'api/verify.js',
+    'api/security_controls.js',
+    'api/v1/scan.js',
     'api/privacy_guard.js',
     'api/canary_engine.js',
     'api/ghost_agent.js',

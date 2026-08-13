@@ -27,6 +27,8 @@ MANIFEST_PATH = PIPELINE_DIR / "critical_files_manifest.json"
 
 CRITICAL_FILES = (
     "api/verify.js",
+    "api/security_controls.js",
+    "api/v1/scan.js",
     "api/privacy_guard.js",
     "api/canary_engine.js",
     "api/ghost_agent.js",

@@ -6,11 +6,13 @@
   "api/ghost_agent_pooled.js": "0e3fd94789dc5fda9a88ebe5e8e3415bb2d31113393b7e83e1d16e00262e76c1",
   "api/insurance_partnership_api.js": "d222ce5fe3d27db95a1a244350367db15d9a5eb65d1a8661eaca389ae4fbeee7",
   "api/privacy_guard.js": "fa5913ae33e1258727fd4b487f9ea574b5aab4a85e5ff2d219886d199cc3a1b3",
-  "api/verify.js": "359a9432db377d7a56944e16ecbbdc2d5d4d36aa124f000a87aa6deee3e028c9",
+  "api/security_controls.js": "7779bd1288d4b82b324f445ced04a6ffbd6a0c52f2cc4dcf22d884988b2b1f9e",
+  "api/v1/scan.js": "de5eb396cf6e48ca11e5a811dfd2737050d0d88d12343945257fd7e3ac00dc9f",
+  "api/verify.js": "0f54f304b9cadbe4f0f8fec6ee3b861d286f18d8343897668e7804d45ff074fe",
   "pipeline/brand_protection.py": "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
-  "pipeline/integrity_monitor.py": "08ac4cabee0abf979d8c31ab127e3bc6c9ddd8d9254731dc5a60679f51358b81",
+  "pipeline/integrity_monitor.py": "90b0e1cbc273a368c2c39497cd47ac2425a129c156e5d2b275b7415fe87609fc",
   "pipeline/pulse_agent_war_games.py": "a0ace078eb779049a08415886d63034fdf71ce86d3cc6af1def292f73f9cf6a1",
   "pipeline/scam_hunter.py": "e807b5ec892cdc35172db056ce3b20737712cbbdfdb7b8421ddfa71a1dc13703",
-  "pipeline/self_healing.py": "427c2906d0e9862fc82756f545d0d248e42ee11b6e2b915fccabc9493ebf45a5",
+  "pipeline/self_healing.py": "bd1bd08c853c842cc9bbeb019e89f6d772ddc2a6697bb943a56515b2236789a9",
   "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b"
 }

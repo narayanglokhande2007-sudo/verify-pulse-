@@ -1,7 +1,22 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
 import { hasCredentialLikeData, sanitizeForExternalAnalysis } from './privacy_guard.js';
+import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from './security_controls.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const rateLimit = enforceRateLimit(req, {
+    scope: 'verify',
+    limit: getConfiguredLimit('VERIFYPULSE_VERIFY_RATE_LIMIT_MAX', 20),
+  });
+  setRateLimitHeaders(res, rateLimit);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({
+      error: 'RATE_LIMITED',
+      message: 'Too many verification requests. Please retry shortly.',
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
+  }
+
   const { text, checkType, fileData, externalProcessingConsent = false } = req.body;
   if (!text || !checkType) return res.status(400).json({ error: 'Missing text or checkType' });
   const externalAnalysisText = sanitizeForExternalAnalysis(text);
