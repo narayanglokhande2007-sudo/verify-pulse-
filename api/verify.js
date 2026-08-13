@@ -29,6 +29,8 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+  const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
   const requestId = randomUUID();
   res.setHeader('X-VerifyPulse-Request-Id', requestId);
   const evidenceSources = [];
@@ -400,6 +402,16 @@ CRITICAL GUARDRAILS:
       failedProviders.push({ provider: 'gemini', errorCode: 'provider_not_configured' });
     }
 
+    if (ANTHROPIC_KEY) {
+      const anthropicResult = await attempt({
+        stage: 'secondary_fallback_scan', provider: 'anthropic',
+        operation: () => callAnthropic(ANTHROPIC_KEY, externalAnalysisText, checkType, ANTHROPIC_MODEL, knowledgeLine)
+      });
+      if (anthropicResult) return res.status(200).json(safeResult(anthropicResult));
+    } else {
+      failedProviders.push({ provider: 'anthropic', errorCode: 'provider_not_configured' });
+    }
+
     if (OPENROUTER_KEY) {
       const openRouterResult = await attempt({
         stage: 'secondary_fallback_scan', provider: 'openrouter',
@@ -534,6 +546,31 @@ async function callGroq(apiKey, text, type, model, knowledgeLine = '') {
   }
   return parsed;
 }
+async function callAnthropic(apiKey, text, type, model, knowledgeLine = '') {
+  const data = await fetchJsonWithTimeout('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 450,
+      temperature: 0.1,
+      system: 'You are a cybersecurity scam detector. Return only valid JSON with verdict, scamType, confidence, analysis, findings, and whatToDo.',
+      messages: [{ role: 'user', content: `${getPrompt(type, knowledgeLine)}\n\nInput: "${text}"` }]
+    })
+  }, { provider: 'anthropic', timeoutMs: 3200 });
+  const content = data.content?.find((block) => block?.type === 'text')?.text;
+  if (!content) throw new Error('Empty Anthropic response');
+  try { return JSON.parse(content); } catch {
+    const match = content.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Invalid Anthropic JSON');
+  }
+}
+
 async function callOpenRouter(apiKey, text, type, knowledgeLine = '') {
   const prompt = `${getPrompt(type, knowledgeLine)}\n\nInput: "${text}"`;
   const data = await fetchJsonWithTimeout('https://openrouter.ai/api/v1/chat/completions', {

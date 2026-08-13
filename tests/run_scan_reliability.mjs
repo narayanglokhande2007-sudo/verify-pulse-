@@ -33,11 +33,13 @@ const originalEnv = {
   GROQ_API_KEY: process.env.GROQ_API_KEY,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   SAFE_BROWSING_API_KEY: process.env.SAFE_BROWSING_API_KEY,
 };
 process.env.GROQ_API_KEY = 'fixture-groq-key';
 process.env.GEMINI_API_KEY = 'fixture-gemini-key';
 process.env.OPENROUTER_API_KEY = 'fixture-openrouter-key';
+process.env.ANTHROPIC_API_KEY = 'fixture-anthropic-key';
 process.env.SAFE_BROWSING_API_KEY = 'fixture-safe-browsing-key';
 
 let mode = 'all-providers-fail';
@@ -47,6 +49,17 @@ global.fetch = async (url) => {
   if (target.includes('safebrowsing.googleapis.com')) return jsonResponse(200, {});
   if (target.includes('api.groq.com')) return jsonResponse(429, { error: { message: 'rate limited' } });
   if (target.includes('generativelanguage.googleapis.com')) return jsonResponse(503, { error: { message: 'upstream unavailable' } });
+  if (target.includes('api.anthropic.com')) {
+    if (mode === 'anthropic-success') {
+      return jsonResponse(200, {
+        content: [{ type: 'text', text: JSON.stringify({
+          verdict: 'SAFE', scamType: 'Benign reminder', confidence: 83,
+          analysis: 'No high-risk signal is present in this synthetic reminder.', findings: [], whatToDo: ['Use official channels for sensitive actions.']
+        }) }]
+      });
+    }
+    return jsonResponse(503, { error: { message: 'upstream unavailable' } });
+  }
   if (target.includes('openrouter.ai')) {
     if (mode === 'openrouter-success') {
       return jsonResponse(200, {
@@ -85,10 +98,21 @@ try {
   assert.ok(unavailable.headers['X-VerifyPulse-Request-Id']);
   results.push({ case: 'explicit service unavailable', status: unavailable.statusCode, verdict: unavailable.body.verdict });
 
+  mode = 'anthropic-success';
+  const anthropicFallback = await scan({
+    text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
+    address: '198.51.100.203'
+  });
+  assert.equal(anthropicFallback.statusCode, 200);
+  assert.equal(anthropicFallback.body?.verdict, 'SAFE');
+  assert.equal(anthropicFallback.body?.explainability.assessmentType, 'model-assisted');
+  assert.ok(anthropicFallback.headers['X-VerifyPulse-Request-Id']);
+  results.push({ case: 'configured Anthropic fallback', status: anthropicFallback.statusCode, verdict: anthropicFallback.body.verdict });
+
   mode = 'openrouter-success';
   const secondaryFallback = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
-    address: '198.51.100.203'
+    address: '198.51.100.204'
   });
   assert.equal(secondaryFallback.statusCode, 200);
   assert.equal(secondaryFallback.body?.verdict, 'SAFE');
@@ -103,4 +127,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/3 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/4 focused reliability cases.`);
