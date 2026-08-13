@@ -10,9 +10,10 @@
   "api/v1/scan.js": "de5eb396cf6e48ca11e5a811dfd2737050d0d88d12343945257fd7e3ac00dc9f",
   "api/verify.js": "0f54f304b9cadbe4f0f8fec6ee3b861d286f18d8343897668e7804d45ff074fe",
   "pipeline/brand_protection.py": "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
-  "pipeline/integrity_monitor.py": "90b0e1cbc273a368c2c39497cd47ac2425a129c156e5d2b275b7415fe87609fc",
+  "pipeline/integrity_monitor.py": "d1f21e5c60675ffb398f6872020289d4290966aa00236f3fd7a9ccb443526725",
   "pipeline/pulse_agent_war_games.py": "a0ace078eb779049a08415886d63034fdf71ce86d3cc6af1def292f73f9cf6a1",
   "pipeline/scam_hunter.py": "e807b5ec892cdc35172db056ce3b20737712cbbdfdb7b8421ddfa71a1dc13703",
-  "pipeline/self_healing.py": "bd1bd08c853c842cc9bbeb019e89f6d772ddc2a6697bb943a56515b2236789a9",
-  "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b"
+  "pipeline/self_healing.py": "8971c0d20cfaebd8205e5d949df7af8424fccef22e7559532be08739f052e1ae",
+  "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b",
+  "vercel.json": "e731373ad6489c141c687fc8ef0b3d4df66c412fd7b13f0db84a4a2c9a7fb7cd"
 }
