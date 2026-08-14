@@ -11,7 +11,8 @@
     "test:threat-intelligence": "node tests/run_threat_intelligence.mjs",
     "test:request-budget": "node tests/run_request_budget.mjs",
     "test:input-controls": "node tests/run_input_controls.mjs",
-    "test": "npm run test:india-regression && npm run test:url-forensics && npm run test:threat-intelligence && npm run test:request-budget && npm run test:input-controls && npm run test:scan-reliability"
+    "test:verdict-contract": "node tests/run_verdict_contract.mjs",
+    "test": "npm run test:india-regression && npm run test:url-forensics && npm run test:threat-intelligence && npm run test:request-budget && npm run test:input-controls && npm run test:verdict-contract && npm run test:scan-reliability"
   },
   "engines": {
     "node": ">=18.0.0"

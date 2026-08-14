@@ -616,32 +616,37 @@
         if (str === null || str === undefined) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
+    function getVerdictPresentation(verdict) {
+        const v = String(verdict || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+        const presentations = {
+            SAFE: { color: '#22c55e', icon: '✅', label: 'Safe', defaultSteps: ['No major risk signal was found.', 'Continue to use normal caution with unexpected messages.'] },
+            DANGEROUS: { color: '#ef4444', icon: '🚨', label: 'Dangerous', defaultSteps: ['Do not click links, pay, or share sensitive information.', 'Verify through an official channel you open yourself.', 'Report suspected financial fraud quickly through 1930.'] },
+            SCAM: { color: '#ef4444', icon: '🚨', label: 'Dangerous', defaultSteps: ['Do not click links, pay, or share sensitive information.', 'Verify through an official channel you open yourself.'] },
+            FRAUD: { color: '#ef4444', icon: '🚨', label: 'Dangerous', defaultSteps: ['Do not click links, pay, or share sensitive information.', 'Verify through an official channel you open yourself.'] },
+            PHISHING: { color: '#ef4444', icon: '🚨', label: 'Dangerous', defaultSteps: ['Do not click links, pay, or share sensitive information.', 'Verify through an official channel you open yourself.'] },
+            SUSPICIOUS: { color: '#f59e0b', icon: '⚠️', label: 'Suspicious', defaultSteps: ['Do not click links, pay, or share sensitive information.', 'Verify the request through an official channel.'] },
+            NEEDS_VERIFICATION: { color: '#2563eb', icon: '🔎', label: 'Needs Verification', defaultSteps: ['This is not a SAFE result.', 'Verify the sender or transaction in the official app or website you open yourself.'] },
+            CAUTION: { color: '#d97706', icon: '⚠️', label: 'Caution', defaultSteps: ['Remove sensitive details before continuing.', 'Do not share credentials, OTPs, or payment details.'] },
+            CONSENT_REQUIRED: { color: '#4f46e5', icon: '🔒', label: 'Consent Required', defaultSteps: ['Review the privacy notice before allowing external file analysis.'] },
+            SERVICE_UNAVAILABLE: { color: '#64748b', icon: '⏳', label: 'Analysis Temporarily Unavailable', defaultSteps: ['This is not a SAFE result.', 'Verify independently through an official app or website and try again later.'] }
+        };
+        // Unknown values must be treated as review-required, never as SAFE.
+        return presentations[v] || { color: '#2563eb', icon: '🔎', label: 'Needs Verification', defaultSteps: ['This result requires independent verification before you act on it.'] };
+    }
+
     function displayEnhancedResult(containerId, data) {
         const container = document.getElementById(containerId);
-        let verdictColor = '';
-        let verdictIcon = '';
-        const v = (data.verdict || '').toUpperCase();
-        
-        if (['DANGEROUS','FRAUD','SCAM','PHISHING','MALICIOUS'].includes(v)) {
-            verdictColor = '#ef4444'; verdictIcon = '🚨';
-        }
-        else if (['SUSPICIOUS','MISLEADING','UNCERTAIN','CAUTION'].includes(v)) {
-            verdictColor = '#f59e0b'; verdictIcon = '⚠️';
-        }
-        else {
-            verdictColor = '#22c55e'; verdictIcon = '✅';
-        }
-        recordResult(data.verdict);
+        const v = String(data.verdict || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+        const presentation = getVerdictPresentation(v);
+        const verdictColor = presentation.color;
+        const verdictIcon = presentation.icon;
+        recordResult(v);
         const scamType = data.scamType || '';
-        const confidence = data.confidence || 85;
+        const confidence = Number.isFinite(Number(data.confidence)) ? Math.max(0, Math.min(100, Number(data.confidence))) : null;
         const analysis = data.analysis || '';
         const evidenceSources = Array.isArray(data.evidenceSources) ? data.evidenceSources.filter(Boolean) : [];
         const explainability = data.explainability && typeof data.explainability === 'object' ? data.explainability : null;
-        const verdictLabel = v === 'SAFE' ? 'Safe'
-            : v === 'SUSPICIOUS' ? 'Suspicious'
-            : v === 'UNCERTAIN' ? 'Needs Review'
-            : v === 'CAUTION' ? 'Caution'
-            : 'Dangerous';
+        const verdictLabel = presentation.label;
         const evidenceHtml = evidenceSources.length > 0
             ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 11px; color: rgba(255,255,255,0.95); font-weight: bold;">🛡️ Evidence: ${escapeHTML(evidenceSources.join(' · '))}</div>`
             : '';
@@ -649,7 +654,7 @@
             <div style="background: ${verdictColor}; padding: 15px; border-radius: 8px; color: white; text-align: center; margin-bottom: 15px;">
                 <h3 style="margin-bottom: 5px; color: white;">${verdictIcon} ${verdictLabel}</h3>
                 ${scamType ? `<div style="font-size:12px; opacity:0.9;">${escapeHTML(scamType)}</div>` : ''}
-                <div style="font-weight:bold; margin-top:5px;">Confidence: ${confidence}%</div>
+                ${confidence === null ? '' : `<div style="font-weight:bold; margin-top:5px;">Confidence: ${confidence}%</div>`}
                 ${evidenceHtml}
             </div>
         `;
@@ -677,20 +682,9 @@
             html += `</details>`;
         }
         
-        let actionSteps = [];
-        if (v === 'SAFE') {
-            actionSteps = [
-                "No action is required as the URL/Message is safe",
-                "You can safely proceed if you need to",
-                "Be cautious of any future messages that may seem suspicious"
-            ];
-        } else {
-            actionSteps = [
-                "Do not click on any links or provide sensitive information",
-                "Verify the authenticity through official channels",
-                "Report this to Cyber Crime (1930) or the respective company's customer support"
-            ];
-        }
+        const actionSteps = Array.isArray(data.whatToDo) && data.whatToDo.filter(Boolean).length > 0
+            ? data.whatToDo.filter(Boolean)
+            : presentation.defaultSteps;
         if (actionSteps.length > 0) {
             html += `<div style="margin-top:15px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:left;">`;
             html += `<h4 style="color:#1e3a8a; margin-bottom:8px; font-size:13px;">📋 What to do next:</h4>`;

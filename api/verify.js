@@ -2,8 +2,8 @@
 import { randomUUID } from 'node:crypto';
 import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
 import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
-import { createServiceUnavailableResult, fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
-import { analyzeMessageForensics } from '../lib/url_forensics.js';
+import { fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
+import { analyzeMessageForensics, canonicalizeUrl, extractUrlCandidates } from '../lib/url_forensics.js';
 import { lookupThreatIntelligence } from '../lib/threat_intelligence.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 
@@ -45,7 +45,19 @@ export default async function handler(req, res) {
   const requestBudget = createRequestBudget();
   res.setHeader('X-VerifyPulse-Request-Id', requestId);
   const evidenceSources = [];
+  function normalizeVerdict(value) {
+    const verdict = String(value || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+    if (['SAFE', 'LEGITIMATE', 'LEGIT', 'NO_SCAM', 'BENIGN'].includes(verdict)) return 'SAFE';
+    if (['DANGEROUS', 'SCAM', 'FRAUD', 'PHISHING', 'MALICIOUS', 'HIGH_RISK'].includes(verdict)) return 'DANGEROUS';
+    if (['SUSPICIOUS', 'POTENTIAL_SCAM', 'POTENTIAL_FRAUD', 'RISKY', 'UNCERTAIN'].includes(verdict)) return 'SUSPICIOUS';
+    if (['NEEDS_VERIFICATION', 'VERIFY', 'REVIEW_REQUIRED'].includes(verdict)) return 'NEEDS_VERIFICATION';
+    if (['CAUTION', 'CONSENT_REQUIRED'].includes(verdict)) return verdict;
+    // Unknown provider strings must never fall through to an implied SAFE result.
+    return 'NEEDS_VERIFICATION';
+  }
+
   function safeResult(r) {
+    r.verdict = normalizeVerdict(r.verdict);
     if (typeof r.findings === 'string') r.findings = [r.findings];
     if (!Array.isArray(r.findings)) r.findings = [];
     if (typeof r.whatToDo === 'string') r.whatToDo = [r.whatToDo];
@@ -113,28 +125,19 @@ export default async function handler(req, res) {
       // Additional trusted (Allen, etc.)
       'allen.ac.in', 'allen.in', 'd.sfmsg.co'
     ];
-    const urls = msg.match(/https?:\/\/[^\s]+/g) || [];
-    
+    const urls = extractUrlCandidates(msg).map(canonicalizeUrl).filter(Boolean);
+    // An official domain reference does not make a message safe when it asks for
+    // credentials, money, an urgent action, or an untrusted contact channel.
+    // This prevents a scammer from attaching a legitimate link as camouflage.
+    const riskyAction = /\b(?:otp|pin|cvv|password|card details?|bank account details?|screen share|remote access|collect request|verification fee|processing fee|pay now|payment|urgent|immediately|within \d+|freeze|blocked|arrest|whatsapp|telegram|reply yes|call now)\b|तुरंत|ओटीपी|पिन|చెల్లించ|వెంటనే/i.test(String(msg || ''));
+
     // A text-only message cannot prove that its claimed brand or authority is authentic.
     // It must continue to the scam-analysis flow rather than receiving a SAFE shortcut.
-    if (urls.length === 0) return false;
-    for (let urlStr of urls) {
-      try {
-        const cleanUrlStr = urlStr.replace(/[.,;)]+$/, '');
-        const parsedUrl = new URL(cleanUrlStr);
-        const hostname = parsedUrl.hostname.toLowerCase();
-        
-        let matched = false;
-        for (let domain of trustedDomains) {
-          if (hostname === domain || hostname.endsWith('.' + domain)) {
-            matched = true;
-            break;
-          }
-        }
-        if (!matched) return false;
-      } catch (e) {
-        return false;
-      }
+    if (urls.length === 0 || riskyAction) return false;
+    for (const parsedUrl of urls) {
+      const hostname = parsedUrl.hostname;
+      const matched = trustedDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+      if (!matched) return false;
     }
     return true;
   }
@@ -571,14 +574,31 @@ CRITICAL GUARDRAILS:
       return res.status(200).json(safeResult(localRisk));
     }
 
-    logScanReliabilityEvent({ requestId, stage: 'scan_router', outcome: 'service_unavailable', errorCode: failedProviders.map((entry) => entry.errorCode).join(',') });
-    return res.status(503).json(safeResult(createServiceUnavailableResult({ requestId, failedProviders })));
+    logScanReliabilityEvent({ requestId, stage: 'scan_router', outcome: 'degraded_verification_response', errorCode: failedProviders.map((entry) => entry.errorCode).join(',') });
+    return res.status(200).json(safeResult({
+      verdict: 'NEEDS_VERIFICATION',
+      scamType: 'Independent Verification Recommended',
+      confidence: 0,
+      analysis: 'Live model analysis is temporarily unavailable. VerifyPulse did not find a high-confidence local scam signal, but this is not a SAFE result. Please verify the sender, offer, or transaction through an official app or website you open yourself.',
+      findings: ['External analysis providers were unavailable or exceeded the request time budget.', 'No high-confidence local rule or reputation match was available for this content.'],
+      whatToDo: ['Do not share OTPs, PINs, passwords, payment details, or documents based only on this message.', 'Open the claimed organisation’s official app or website manually to verify the request.', 'Try the scan again later if you still need an AI-assisted assessment.'],
+      evidenceSources: ['Service health monitor'],
+      serviceStatus: 'degraded',
+      failedProviders
+    }));
   } catch (error) {
-    logScanReliabilityEvent({ requestId, stage: 'handler', outcome: 'service_unavailable', errorCode: 'internal_processing_error' });
-    return res.status(503).json(safeResult(createServiceUnavailableResult({
-      requestId,
+    logScanReliabilityEvent({ requestId, stage: 'handler', outcome: 'degraded_verification_response', errorCode: 'internal_processing_error' });
+    return res.status(200).json(safeResult({
+      verdict: 'NEEDS_VERIFICATION',
+      scamType: 'Independent Verification Recommended',
+      confidence: 0,
+      analysis: 'VerifyPulse could not complete the live analysis for this request. This is not a SAFE result; verify independently through an official channel.',
+      findings: ['An internal analysis step did not complete.'],
+      whatToDo: ['Do not act on payment, credential, or verification requests until independently confirmed.', 'Use an official app, manually entered website, or published customer-support channel.', 'Try the scan again later if you need AI-assisted analysis.'],
+      evidenceSources: ['Service health monitor'],
+      serviceStatus: 'degraded',
       failedProviders: [{ provider: 'verify_handler', errorCode: 'internal_processing_error' }]
-    })));
+    }));
   }
 }
 

@@ -93,12 +93,13 @@ try {
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
     address: '198.51.100.202'
   });
-  assert.equal(unavailable.statusCode, 503);
-  assert.equal(unavailable.body?.verdict, 'SERVICE_UNAVAILABLE');
+  assert.equal(unavailable.statusCode, 200);
+  assert.equal(unavailable.body?.verdict, 'NEEDS_VERIFICATION');
   assert.equal(unavailable.body?.explainability.assessmentType, 'service-status');
-  assert.ok(unavailable.body?.serviceStatus?.failureCodes.includes('provider_rate_limited'));
+  assert.equal(unavailable.body?.serviceStatus, 'degraded');
+  assert.ok(unavailable.body?.failedProviders.some((entry) => entry.errorCode === 'provider_rate_limited'));
   assert.ok(unavailable.headers['X-VerifyPulse-Request-Id']);
-  results.push({ case: 'explicit service unavailable', status: unavailable.statusCode, verdict: unavailable.body.verdict });
+  results.push({ case: 'degraded verification response', status: unavailable.statusCode, verdict: unavailable.body.verdict });
 
   resetProviderCircuits();
   mode = 'anthropic-success';
@@ -128,9 +129,11 @@ try {
   mode = 'all-providers-fail';
   await scan({ text: 'Community office closes at 5 PM today.', address: '198.51.100.205' });
   const circuitProtected = await scan({ text: 'Community office closes at 5 PM today.', address: '198.51.100.206' });
-  assert.equal(circuitProtected.statusCode, 503);
-  assert.ok(circuitProtected.body?.serviceStatus?.failureCodes.includes('provider_circuit_open'));
-  results.push({ case: 'circuit breaker skips exhausted providers', status: circuitProtected.statusCode, verdict: circuitProtected.body.verdict });
+  assert.equal(circuitProtected.statusCode, 200);
+  assert.equal(circuitProtected.body?.verdict, 'NEEDS_VERIFICATION');
+  assert.equal(circuitProtected.body?.serviceStatus, 'degraded');
+  assert.ok(circuitProtected.body?.failedProviders.some((entry) => entry.errorCode === 'provider_circuit_open'));
+  results.push({ case: 'circuit breaker returns verification state', status: circuitProtected.statusCode, verdict: circuitProtected.body.verdict });
 } finally {
   global.fetch = originalFetch;
   for (const [key, value] of Object.entries(originalEnv)) {
