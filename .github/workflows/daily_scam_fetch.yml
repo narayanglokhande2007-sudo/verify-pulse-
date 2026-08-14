@@ -25,11 +25,18 @@ jobs:
         run: |
           python pipeline/fetch_indian_bulk_scams.py
 
+      - name: Build source-aware threat intelligence snapshot
+        run: |
+          python pipeline/build_threat_intelligence.py
+
       - name: Commit and Push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "VerifyPulse Automation Bot"
-          git add pipeline/daily-data/all_scams_master.jsonl
+          git add pipeline/daily-data/india_scams.jsonl
+          git add pipeline/daily-data/global_scams.jsonl
           git add pipeline/daily-data/latest_scams.json
+          git add pipeline/daily-data/latest_threat_intel.json
+          git add pipeline/daily-data/threat_intel_stats.json
           # Only commit if there are actually new scams found today
           git diff --quiet && git diff --staged --quiet || (git commit -m "Automated update: Added new Indian scam records" && git push)

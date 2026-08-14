@@ -1,11 +1,19 @@
 {
   "suite": "VerifyPulse India-focused regression cases",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "dataHandling": "All entries are synthetic, non-live test fixtures. They must never be added to production threat feeds, blocklists, dashboards, or marketing metrics.",
+  "acceptancePolicy": {
+    "positiveAlertVerdicts": ["SUSPICIOUS", "DANGEROUS", "SCAM", "FRAUD"],
+    "benignVerdicts": ["SAFE", "NEEDS_VERIFICATION"],
+    "minimumScamAlertRecall": 1,
+    "maximumBenignFalsePositiveRate": 0,
+    "note": "NEEDS_VERIFICATION is a non-scam alert. It is used only for routine-looking financial notifications that cannot be authenticated from message text alone."
+  },
   "cases": [
     {
       "id": "digital-arrest-authority-impersonation",
       "classification": "synthetic-scam",
+      "riskClass": "scam",
       "input": "CBI Cyber Crime wing: Aapke Aadhaar se illegal bank accounts link mile hain. FIR close karne ke liye 30 minutes ke andar video verification call join karein aur apna ID proof WhatsApp karein. Kisi ko batana mana hai.",
       "checkType": "unified",
       "expectedVerdict": "SUSPICIOUS",
@@ -14,6 +22,7 @@
     {
       "id": "upi-collect-request-pressure",
       "classification": "synthetic-scam",
+      "riskClass": "scam",
       "input": "Dear Customer, RBI compliance ke under aapka account 6 PM par debit freeze ho jayega. Re-KYC ke liye Rs. 2 verification collect request approve karein. OTP/PIN share nahi karna hai.",
       "checkType": "unified",
       "expectedVerdict": "SUSPICIOUS",
@@ -22,31 +31,152 @@
     {
       "id": "income-tax-verification-call",
       "classification": "synthetic-scam",
+      "riskClass": "scam",
       "input": "Income Tax Department: Refund processing ke liye bank account details verify karni hain. Is message ka reply YES karein; aapko secure verification call aayega.",
       "checkType": "unified",
       "expectedVerdict": "SUSPICIOUS",
       "expectedEvidenceSource": "Local social-engineering rules"
     },
     {
+      "id": "fake-festival-cashback-short-link",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "Raksha Bandhan special: Rs 5,999 cashback unlock karne ke liye abhi bit.ly/demo-cashback par click karke UPI PIN verify karo. Offer 10 minutes mein expire hoga.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "fake-courier-fee-short-link",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "Courier delivery failed. Parcel release ke liye Rs 25 processing fee abhi https://tinyurl.com/demo-parcel par pay karo, warna parcel return ho jayega.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "fake-fastag-ip-link",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "NHAI FASTag notice: aapka tag block hone wala hai. KYC update ke liye http://198.51.100.10/fastag par card details aur OTP submit karein within 15 minutes.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "fake-apk-bank-update",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "Bank security update compulsory hai. Account block hone se bachne ke liye VerifySecure.apk download aur install karein, phir screen share support call join karein.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "hindi-police-threat-payment",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "Cyber Police se suchna: aapke naam par FIR register hai. Giraftari rokne ke liye turant Rs 5000 UPI se verification fee bhejein aur kisi ko mat batayein.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    },
+    {
+      "id": "marathi-bank-kyc-pressure",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "RBI नियमांनुसार तुमचे खाते आज बंद होईल. KYC साठी WhatsApp वर आधार आणि OTP पाठवा, नाहीतर पैसे गोठवले जातील.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    },
+    {
+      "id": "telugu-lottery-fee-scam",
+      "classification": "synthetic-scam",
+      "riskClass": "scam",
+      "input": "మీరు రూ. 25 లక్షల లాటరీ గెలిచారు. బహుమతి విడుదలకు వెంటనే ప్రాసెసింగ్ ఫీజు చెల్లించి WhatsApp లో మీ బ్యాంక్ వివరాలు పంపండి.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
       "id": "legitimate-anti-fraud-advisory",
       "classification": "synthetic-benign-advisory",
+      "riskClass": "benign",
       "input": "Security alert: Never share your UPI PIN, OTP, CVV or screen-sharing code with anyone. To report financial cyber fraud in India, call 1930 or use the National Cyber Crime Reporting Portal.",
       "checkType": "unified",
       "expectedVerdict": "SAFE",
       "expectedEvidenceSource": null
     },
     {
-      "id": "actual-otp-protection",
-      "classification": "synthetic-sensitive-input",
-      "input": "My OTP is 123456.",
+      "id": "routine-bank-debit-notification",
+      "classification": "synthetic-benign-notification",
+      "riskClass": "benign",
+      "input": "Your account has been debited by Rs 1,250 on 14-Aug. Available balance: Rs 8,920. If this transaction is not yours, check your official banking app.",
       "checkType": "unified",
-      "expectedVerdict": "CAUTION",
-      "expectedEvidenceSource": "Privacy guard"
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "routine-upi-cashback-notification",
+      "classification": "synthetic-benign-notification",
+      "riskClass": "benign",
+      "input": "UPI cashback of Rs 50 credited. UPI Ref No 123456789012. Check transaction details in your official UPI app.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "routine-dbt-credit-notification",
+      "classification": "synthetic-benign-notification",
+      "riskClass": "benign",
+      "input": "DBT benefit of Rs 1,500 credited to your bank account. UTR number 123456789012. Please check your account statement for confirmation.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "routine-refund-credit-notification",
+      "classification": "synthetic-benign-notification",
+      "riskClass": "benign",
+      "input": "Refund of Rs 299 has been credited to your account. Transaction completed successfully. Review the entry in the official app if required.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "legitimate-banking-app-kyc-advisory",
+      "classification": "synthetic-benign-advisory",
+      "riskClass": "benign",
+      "input": "For KYC updates, please visit your branch or use your official banking app. Never share OTP, PIN, card number or CVV with anyone.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "legitimate-courier-tracking-advisory",
+      "classification": "synthetic-benign-advisory",
+      "riskClass": "benign",
+      "input": "For delivery updates, use the courier company's official website or app. Do not pay a fee through unknown links or share OTPs with delivery callers.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
     },
     {
       "id": "official-rbi-url",
       "classification": "benign-public-url",
+      "riskClass": "benign",
       "input": "https://www.rbi.org.in/",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": "Trusted domain registry"
+    },
+    {
+      "id": "official-sbi-url",
+      "classification": "benign-public-url",
+      "riskClass": "benign",
+      "input": "https://www.onlinesbi.sbi/",
       "checkType": "unified",
       "expectedVerdict": "SAFE",
       "expectedEvidenceSource": "Trusted domain registry"
@@ -54,14 +184,25 @@
     {
       "id": "safe-browsing-known-malicious-fixture",
       "classification": "synthetic-url-reputation-match",
+      "riskClass": "scam",
       "input": "https://rbi-kyc.example/verify",
       "checkType": "unified",
       "expectedVerdict": "DANGEROUS",
       "expectedEvidenceSource": "Google Safe Browsing"
     },
     {
+      "id": "actual-otp-protection",
+      "classification": "synthetic-sensitive-input",
+      "riskClass": "privacy",
+      "input": "My OTP is 123456.",
+      "checkType": "unified",
+      "expectedVerdict": "CAUTION",
+      "expectedEvidenceSource": "Privacy guard"
+    },
+    {
       "id": "file-analysis-consent-required",
       "classification": "synthetic-privacy-control",
+      "riskClass": "privacy",
       "input": "Analyze this uploaded image for scam indicators.",
       "checkType": "unified",
       "fileData": {

@@ -90,7 +90,12 @@ try {
       assert.equal(response.body.explainability.assessmentType, 'model-assisted', `${testCase.id}: benign advisory should remain model-assisted.`);
       assert.ok(response.body.explainability.evidence.some((item) => item.source === 'Model-assisted assessment'), `${testCase.id}: model-assisted source is missing.`);
     }
-    results.push({ id: testCase.id, verdict: response.body.verdict, assessmentType: response.body.explainability.assessmentType });
+    results.push({
+      id: testCase.id,
+      riskClass: testCase.riskClass || 'other',
+      verdict: response.body.verdict,
+      assessmentType: response.body.explainability.assessmentType
+    });
   }
 } finally {
   global.fetch = originalFetch;
@@ -99,5 +104,32 @@ try {
   if (originalSafeBrowsing === undefined) delete process.env.SAFE_BROWSING_API_KEY; else process.env.SAFE_BROWSING_API_KEY = originalSafeBrowsing;
 }
 
+const positiveAlertVerdicts = new Set(fixtureSuite.acceptancePolicy?.positiveAlertVerdicts || ['SUSPICIOUS', 'DANGEROUS', 'SCAM', 'FRAUD']);
+const scamResults = results.filter((result) => result.riskClass === 'scam');
+const benignResults = results.filter((result) => result.riskClass === 'benign');
+const scamAlerts = scamResults.filter((result) => positiveAlertVerdicts.has(result.verdict)).length;
+const benignFalsePositives = benignResults.filter((result) => positiveAlertVerdicts.has(result.verdict)).length;
+const scamAlertRecall = scamResults.length ? scamAlerts / scamResults.length : 1;
+const benignFalsePositiveRate = benignResults.length ? benignFalsePositives / benignResults.length : 0;
+const metrics = {
+  fixtureCount: results.length,
+  scamCaseCount: scamResults.length,
+  scamAlerts,
+  scamAlertRecall,
+  benignCaseCount: benignResults.length,
+  benignFalsePositives,
+  benignFalsePositiveRate
+};
+
+assert.ok(
+  scamAlertRecall >= (fixtureSuite.acceptancePolicy?.minimumScamAlertRecall ?? 1),
+  `Scam alert recall ${scamAlertRecall} is below the configured quality gate.`
+);
+assert.ok(
+  benignFalsePositiveRate <= (fixtureSuite.acceptancePolicy?.maximumBenignFalsePositiveRate ?? 0),
+  `Benign false-positive rate ${benignFalsePositiveRate} exceeds the configured quality gate.`
+);
+
 console.table(results);
-console.log(`India regression suite passed: ${results.length}/${fixtureSuite.cases.length} labelled fixtures.`);
+console.table([metrics]);
+console.log(`India regression suite passed: ${results.length}/${fixtureSuite.cases.length} labelled fixtures. Scam-alert recall: ${(scamAlertRecall * 100).toFixed(1)}%. Benign false-positive rate: ${(benignFalsePositiveRate * 100).toFixed(1)}%.`);

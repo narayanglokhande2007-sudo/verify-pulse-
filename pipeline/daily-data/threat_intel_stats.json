@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "vp-threat-intel-1",
+  "generatedAt": "2026-08-14T16:43:33.442239+00:00",
+  "processedRecords": 358105,
+  "rejectedRecords": 202,
+  "activeUniqueIndicators": 300,
+  "publishedIndicators": 300,
+  "sourceCounts": {
+    "OpenPhish": 300
+  }
+}

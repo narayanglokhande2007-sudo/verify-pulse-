@@ -1,0 +1,4809 @@
+{
+  "schemaVersion": "vp-threat-intel-1",
+  "generatedAt": "2026-08-14T16:43:33.442239+00:00",
+  "expiresAt": "2026-08-15T22:43:33.442239+00:00",
+  "indicatorCount": 300,
+  "indicators": [
+    {
+      "indicator": "https://162.89.74.97.host.secureserver.net/scl.swisscom-kundenservice/CH-DE",
+      "indicatorType": "url",
+      "hostname": "162.89.74.97.host.secureserver.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "trgwrnchovoqii1mtimelknmjvqxeqrlkzsf14-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "trgwrnchovoqii1mtimelknmjvqxeqrlkzsf14-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://kc-transporte.de/webspace/",
+      "indicatorType": "url",
+      "hostname": "kc-transporte.de",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "84f7a2.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "84f7a2.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "70f263.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "70f263.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "30d318.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "30d318.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "7249b1.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "7249b1.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.rent-house-app-phi.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.rent-house-app-phi.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.xfinityemailloginauthentication.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.xfinityemailloginauthentication.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.instagram-react-clone.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.instagram-react-clone.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "lassucursalvirtuall.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "lassucursalvirtuall.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lassucursalvirtual.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.lassucursalvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xelzora-gld-zantemi-r4t8dc95.pages.dev",
+      "indicatorType": "domain",
+      "hostname": "xelzora-gld-zantemi-r4t8dc95.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.preaprovvecol.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.preaprovvecol.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "betyeni.pro",
+      "indicatorType": "domain",
+      "hostname": "betyeni.pro",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://to.lk/FdBGtn",
+      "indicatorType": "url",
+      "hostname": "to.lk",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "finityvoice.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "finityvoice.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ithelpdeskwebformnotice.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "ithelpdeskwebformnotice.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "bellsouth-management-sv.webflow.io",
+      "indicatorType": "domain",
+      "hostname": "bellsouth-management-sv.webflow.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://s4w.in/roblox-com-users-1015010701-profile",
+      "indicatorType": "url",
+      "hostname": "s4w.in",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "65.jj38142.vip",
+      "indicatorType": "domain",
+      "hostname": "65.jj38142.vip",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "m.pgjt216.com",
+      "indicatorType": "domain",
+      "hostname": "m.pgjt216.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "upgrade-dp2c1xqj8ejo.edgeone.dev",
+      "indicatorType": "domain",
+      "hostname": "upgrade-dp2c1xqj8ejo.edgeone.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://wetavers.com/cmz/",
+      "indicatorType": "url",
+      "hostname": "wetavers.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://odbierztelefon.pro/payu/bank/millenium/",
+      "indicatorType": "url",
+      "hostname": "odbierztelefon.pro",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "029d21.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "029d21.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "a77e56.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "a77e56.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "d1353d.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "d1353d.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "4b2f61.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "4b2f61.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "7af1c9.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "7af1c9.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "159604.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "159604.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ba74c5.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "ba74c5.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "4f94f8.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "4f94f8.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "b3765e.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "b3765e.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "5272c7.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "5272c7.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "a9bd1a.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "a9bd1a.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "832432.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "832432.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "d1e5fe.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "d1e5fe.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "28b0c0.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "28b0c0.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "4e236b.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "4e236b.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "7a4338.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "7a4338.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "46faeb.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "46faeb.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "da56a2.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "da56a2.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "b54456.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "b54456.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "21b804.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "21b804.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "48d305.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "48d305.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "a4d56c.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "a4d56c.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.mail1-accedi-libero-staff-it-italy-sslitaly423429kf923kc092kc.casajasmine.ro",
+      "indicatorType": "domain",
+      "hostname": "www.mail1-accedi-libero-staff-it-italy-sslitaly423429kf923kc092kc.casajasmine.ro",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "389bf0.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "389bf0.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "157b63.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "157b63.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ed95cf.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "ed95cf.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "89beba.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "89beba.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "auspost.addqi.com",
+      "indicatorType": "domain",
+      "hostname": "auspost.addqi.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lcdgcr-live.com",
+      "indicatorType": "domain",
+      "hostname": "www.lcdgcr-live.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "freeinstagram5followers.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "freeinstagram5followers.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.freeinstagram5followers.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "www.freeinstagram5followers.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "begin-new-trezrio-strt.typedream.app",
+      "indicatorType": "domain",
+      "hostname": "begin-new-trezrio-strt.typedream.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.comcast-help-home.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "www.comcast-help-home.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.dfgddgd7.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "www.dfgddgd7.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "live-ledge-app-eng-poverview-start-trezr.pages.dev",
+      "indicatorType": "domain",
+      "hostname": "live-ledge-app-eng-poverview-start-trezr.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.xxfinitywebnotify.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "www.xxfinitywebnotify.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.newcomcastserver.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "www.newcomcastserver.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.web-web-gateway-env-picker-uniswap.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.web-web-gateway-env-picker-uniswap.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.xfinityservices.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.xfinityservices.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://engineermuhammadsajid.github.io/css-Assignment-5-Netflix-clone/",
+      "indicatorType": "url",
+      "hostname": "engineermuhammadsajid.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://ep-fr-a3xzw2e90g96-feeveudcc4dzehb3.z01.azurefd.net/Win20Errfb020/index.html",
+      "indicatorType": "url",
+      "hostname": "ep-fr-a3xzw2e90g96-feeveudcc4dzehb3.z01.azurefd.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://amjidofficial.github.io/Netflex-Clone-/",
+      "indicatorType": "url",
+      "hostname": "amjidofficial.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://umar0331.github.io/Assignment-5/",
+      "indicatorType": "url",
+      "hostname": "umar0331.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://docusign.riberaturisme.es/dc/Windows/utility.php",
+      "indicatorType": "url",
+      "hostname": "docusign.riberaturisme.es",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://twilight-term-04ec.yvetteeusebio82k968ysa4.workers.dev/support-system/",
+      "indicatorType": "url",
+      "hostname": "twilight-term-04ec.yvetteeusebio82k968ysa4.workers.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://supportioko-commits.github.io/Support/",
+      "indicatorType": "url",
+      "hostname": "supportioko-commits.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://sin1.contabostorage.com/917d51abc29e43c4bcc6886371b67a25:wmail.roundcube6566677778788888888888/wmail.html",
+      "indicatorType": "url",
+      "hostname": "sin1.contabostorage.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "m.43943.one",
+      "indicatorType": "domain",
+      "hostname": "m.43943.one",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "gh0stmap.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "gh0stmap.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "dainty-marzipan-0ba329.netlify.app",
+      "indicatorType": "domain",
+      "hostname": "dainty-marzipan-0ba329.netlify.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "pagar-pendencias.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "pagar-pendencias.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.robloxc.com.es/users/19224553911/profilehttps:/www.robloxc.com.es/share",
+      "indicatorType": "url",
+      "hostname": "www.robloxc.com.es",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.bomevn-adhj.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.bomevn-adhj.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://tvb-su9-xm2vox-kz1i3-4dg9.pages.dev/qaz-wsx-edc-rfv",
+      "indicatorType": "url",
+      "hostname": "tvb-su9-xm2vox-kz1i3-4dg9.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.robiox.com.ps/users/8170015572/profile",
+      "indicatorType": "url",
+      "hostname": "www.robiox.com.ps",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "15lpga-agp1.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "15lpga-agp1.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "116xpga-agp61x.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "116xpga-agp61x.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "boetnetx.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "boetnetx.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "laokkks1.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "laokkks1.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "01xpga-agpx11.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "01xpga-agpx11.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ahneina116x1x.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "ahneina116x1x.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "gladagnn.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "gladagnn.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "x13pga-agp31x.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "x13pga-agp31x.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://rroblox.wf/users/1832287491/profile",
+      "indicatorType": "url",
+      "hostname": "rroblox.wf",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "flow-hub-jf8a.p-4bpdi3hp.workers.dev",
+      "indicatorType": "domain",
+      "hostname": "flow-hub-jf8a.p-4bpdi3hp.workers.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://rbcode.net/v/bd4803673094938b7c6c5324e8e78f1e",
+      "indicatorType": "url",
+      "hostname": "rbcode.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "92d0ea.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "92d0ea.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "c68146.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "c68146.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "aed0ce.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "aed0ce.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "2b1b87.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "2b1b87.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "22b47a.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "22b47a.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "8337e8.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "8337e8.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "7fc798.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "7fc798.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "endeveteasetsxmimgqiye.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "endeveteasetsxmimgqiye.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.pt/communities/141005843696/%EF%BF%B4%EF%BF%B4%EF%BF%B4%EF%BF%B4%E2%80%8E",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.pt",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://metamask-docs-l8lvh00ol-consensys-ddffed67.vercel.app/quickstart/",
+      "indicatorType": "url",
+      "hostname": "metamask-docs-l8lvh00ol-consensys-ddffed67.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "meta-accountscenter.com",
+      "indicatorType": "domain",
+      "hostname": "meta-accountscenter.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "1hotnaix1x.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "1hotnaix1x.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "baoleuno1x.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "baoleuno1x.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "pssajrgnxwzkytpf65diuxjwroukvantmlsf46-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "pssajrgnxwzkytpf65diuxjwroukvantmlsf46-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "lkubao3x1.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "lkubao3x1.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "74btb0glaekctiqcbkwwkniqfed1fjfosf3-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "74btb0glaekctiqcbkwwkniqfed1fjfosf3-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "rtp4bipyz75atqgjpdqbrz6mteqvzpk1sf47-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "rtp4bipyz75atqgjpdqbrz6mteqvzpk1sf47-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "jpvyxwujvaq28hn5omjmlldongfnyzqusf29-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "jpvyxwujvaq28hn5omjmlldongfnyzqusf29-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "a9qlsgdbwq4ieg7memxzhbxt8gfrmoafsf43-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "a9qlsgdbwq4ieg7memxzhbxt8gfrmoafsf43-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "nsaildji1298.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "nsaildji1298.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "kawdeioqw.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "kawdeioqw.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ksjnha6xx1.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "ksjnha6xx1.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "moonpay-and-pay-box-guide.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "moonpay-and-pay-box-guide.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "gov-xnui.com",
+      "indicatorType": "domain",
+      "hostname": "gov-xnui.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://si.team-bx.com/p/sst-cgj/lctwghft/",
+      "indicatorType": "url",
+      "hostname": "si.team-bx.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "rbfcu.us.com",
+      "indicatorType": "domain",
+      "hostname": "rbfcu.us.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.facebookteamhelp.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "www.facebookteamhelp.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://jon-hum.daikinkurumsal.info/Y2gtZmVkZXgtMjAyNg/",
+      "indicatorType": "url",
+      "hostname": "jon-hum.daikinkurumsal.info",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://ab.airtrade-aviation.com/abras/app/captcha.php",
+      "indicatorType": "url",
+      "hostname": "ab.airtrade-aviation.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://ab.airtrade-aviation.com/abras/app/index.php",
+      "indicatorType": "url",
+      "hostname": "ab.airtrade-aviation.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://probe.aricofoods.info/Y2gtZmVkZXgtMjAyNg/",
+      "indicatorType": "url",
+      "hostname": "probe.aricofoods.info",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://ahmadraza-cyber.github.io/netflix-landing-page-clone/",
+      "indicatorType": "url",
+      "hostname": "ahmadraza-cyber.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://shrepnt-dco.merlekw.workers.dev/9bcac1de33e99eed",
+      "indicatorType": "url",
+      "hostname": "shrepnt-dco.merlekw.workers.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "fud9kkw5zn1r9wl8ddzwqpie2kiflrj8hksf36-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "fud9kkw5zn1r9wl8ddzwqpie2kiflrj8hksf36-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "layanan-dana.officiall-help.my.id",
+      "indicatorType": "domain",
+      "hostname": "layanan-dana.officiall-help.my.id",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "vmnacrggc4dpxlvzb9msxnir2dirj6afydsf34-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "vmnacrggc4dpxlvzb9msxnir2dirj6afydsf34-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.bi/users/337540523434/profile",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.bi",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "hqrvfdcy5pbulvg1aowekkhh5hebpvxqstsf40-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "hqrvfdcy5pbulvg1aowekkhh5hebpvxqstsf40-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "tjjaifp1xgfqz23a2x1eiu7aenrynm6b6ksf38-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "tjjaifp1xgfqz23a2x1eiu7aenrynm6b6ksf38-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "rpxaptshujtxcsnrg8iwva0wbxfjmapusf13-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "rpxaptshujtxcsnrg8iwva0wbxfjmapusf13-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "1zwzpkzcfvwvvpchfsdflud1el7qcance9sf20-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "1zwzpkzcfvwvvpchfsdflud1el7qcance9sf20-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "3kacjgqhcndboizhhblogbxs3xsb6sypsf39-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "3kacjgqhcndboizhhblogbxs3xsb6sypsf39-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "sog4ypyj0bmwrkz1bbsalcez8s1hcs0n1msf30-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "sog4ypyj0bmwrkz1bbsalcez8s1hcs0n1msf30-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "b79y3qz2y0kffnhriqscc57vhorbzz8vsf17-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "b79y3qz2y0kffnhriqscc57vhorbzz8vsf17-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://usa2026now.github.io/facebook.com/",
+      "indicatorType": "url",
+      "hostname": "usa2026now.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://usa2026now.github.io/facebook.com",
+      "indicatorType": "url",
+      "hostname": "usa2026now.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "trrtblm5pd52qspj3xtdpacce3nh49olsf41-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "trrtblm5pd52qspj3xtdpacce3nh49olsf41-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "lp.path-diepostbox.com",
+      "indicatorType": "domain",
+      "hostname": "lp.path-diepostbox.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "suggca1gs0iwflb79nyix4zhakfghynwsf33-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "suggca1gs0iwflb79nyix4zhakfghynwsf33-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "mjwb8pt0y31ju1hxfjpdsih8wr3mxnlnfmsf32-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "mjwb8pt0y31ju1hxfjpdsih8wr3mxnlnfmsf32-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "fvgp9pleonupzpqbm1qsg0ddmvfb6ysgsf23-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "fvgp9pleonupzpqbm1qsg0ddmvfb6ysgsf23-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "u53fjefctnswadcaueamcmszdrahcge9sf1-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "u53fjefctnswadcaueamcmszdrahcge9sf1-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "l6lmmgu6yqkkabjm4aivkjsfxo83v0fhsf37-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "l6lmmgu6yqkkabjm4aivkjsfxo83v0fhsf37-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "thsl1xwjnnv0pnze0kmbhvg8tvg3f3d6sf5-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "thsl1xwjnnv0pnze0kmbhvg8tvg3f3d6sf5-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "hilfe-telekom.de",
+      "indicatorType": "domain",
+      "hostname": "hilfe-telekom.de",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.danita322.linkpc.net/icascq01/pages/redraiffeisen.php",
+      "indicatorType": "url",
+      "hostname": "www.danita322.linkpc.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "site-kglis6rcl.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "site-kglis6rcl.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "site-pq53zpr4k.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "site-pq53zpr4k.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "site-w0yn4iwhe.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "site-w0yn4iwhe.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "site-5g0lez4aj.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "site-5g0lez4aj.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.by-crypto.sbs",
+      "indicatorType": "domain",
+      "hostname": "www.by-crypto.sbs",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "old4.jiaozuo31.com",
+      "indicatorType": "domain",
+      "hostname": "old4.jiaozuo31.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "eb6436.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "eb6436.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xenvoras.whahoola.info",
+      "indicatorType": "domain",
+      "hostname": "xenvoras.whahoola.info",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "zoventra.whahoola.info",
+      "indicatorType": "domain",
+      "hostname": "zoventra.whahoola.info",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.pt/games/6313569914/Have-Fun-With-The-Family-Pig-Pool-Party-Update",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.pt",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "uqb5fc277u3jutfiuabnmjtfvmgympypydsf44-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "uqb5fc277u3jutfiuabnmjtfvmgympypydsf44-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://lqkdtfcuzdnybwdj-7whdfhjzilxwsnhvu2pdzrz4.vercel.app/fjhgk5d6rtjrfghbsdx6gh.html",
+      "indicatorType": "url",
+      "hostname": "lqkdtfcuzdnybwdj-7whdfhjzilxwsnhvu2pdzrz4.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "eoijua6klckeyxb0wjocfbdtfugohz2p2rsf22-cg13s.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "eoijua6klckeyxb0wjocfbdtfugohz2p2rsf22-cg13s.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://lqkdtfcuzdnybwdj-7whdfhjzilxwsnhvu2pdzrz4.vercel.app/fjhgk5d6rtjrfghbsdx6gh",
+      "indicatorType": "url",
+      "hostname": "lqkdtfcuzdnybwdj-7whdfhjzilxwsnhvu2pdzrz4.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://sp11ct-janvik-biz8-torsel-venkar.pages.dev/rtyu-iopj-qewr-thjm",
+      "indicatorType": "url",
+      "hostname": "sp11ct-janvik-biz8-torsel-venkar.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://conwedd.com/cf/hinet.net/",
+      "indicatorType": "url",
+      "hostname": "conwedd.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://conwedd.com/cf/hinet.net",
+      "indicatorType": "url",
+      "hostname": "conwedd.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://m.dtwyiqnl9ods.com/account/reg",
+      "indicatorType": "url",
+      "hostname": "m.dtwyiqnl9ods.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.bi/users/954842806321/profile",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.bi",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://device.aaaqku.top/Y2gtZmVkZXgtMjAyNg/",
+      "indicatorType": "url",
+      "hostname": "device.aaaqku.top",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://trak-ep-90.gnylp.info/ga/click/2-8950671-13-14698-28781-15851-de40549933-52f462f731",
+      "indicatorType": "url",
+      "hostname": "trak-ep-90.gnylp.info",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "facebookpageslinkk.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "facebookpageslinkk.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "b180ac.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "b180ac.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "j157y.vip",
+      "indicatorType": "domain",
+      "hostname": "j157y.vip",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "jojolandings.com",
+      "indicatorType": "domain",
+      "hostname": "jojolandings.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://isabelle-amaral.github.io/insta-clone",
+      "indicatorType": "url",
+      "hostname": "isabelle-amaral.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://komalgautam8.github.io/unnees-framer-website",
+      "indicatorType": "url",
+      "hostname": "komalgautam8.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "site-7u8a39we0.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "site-7u8a39we0.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "aktiffkan-paylaterzz.hoo.my.id",
+      "indicatorType": "domain",
+      "hostname": "aktiffkan-paylaterzz.hoo.my.id",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://thehelpinghanddebt.co.za/aaq/sure.html",
+      "indicatorType": "url",
+      "hostname": "thehelpinghanddebt.co.za",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "aktiffkanpaylaterbb.resmii-iid2.my.id",
+      "indicatorType": "domain",
+      "hostname": "aktiffkanpaylaterbb.resmii-iid2.my.id",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://sjdd.gitbook.io/sjdd-docs",
+      "indicatorType": "url",
+      "hostname": "sjdd.gitbook.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "sjdd.gitbook.io",
+      "indicatorType": "domain",
+      "hostname": "sjdd.gitbook.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "auth-ibb.com",
+      "indicatorType": "domain",
+      "hostname": "auth-ibb.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "recibidarelevantecaso.fwh.is",
+      "indicatorType": "domain",
+      "hostname": "recibidarelevantecaso.fwh.is",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://bet73099.com/fish/91",
+      "indicatorType": "url",
+      "hostname": "bet73099.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.pesta-shopee459.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "www.pesta-shopee459.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "jsesun15.top",
+      "indicatorType": "domain",
+      "hostname": "jsesun15.top",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://bijoyprojects.github.io/Amazon-Clone/",
+      "indicatorType": "url",
+      "hostname": "bijoyprojects.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "connecting-plus.digital",
+      "indicatorType": "domain",
+      "hostname": "connecting-plus.digital",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://zcrvwyyb3.icu/uiehaopm/",
+      "indicatorType": "url",
+      "hostname": "zcrvwyyb3.icu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://timerar.github.io/Document-Attachedme/DOCUMENT%20PROJECTER%20PTY%20LTD",
+      "indicatorType": "url",
+      "hostname": "timerar.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "sign-in-to-xfinity-loginss.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "sign-in-to-xfinity-loginss.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "enaimertnhlans89.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "enaimertnhlans89.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.g5.lu/bw6ep/",
+      "indicatorType": "url",
+      "hostname": "www.g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.iaia.org.in/fill/hinet.net/",
+      "indicatorType": "url",
+      "hostname": "www.iaia.org.in",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "pesta-shopee459.blogspot.com",
+      "indicatorType": "domain",
+      "hostname": "pesta-shopee459.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "secure-web-indx.square.site",
+      "indicatorType": "domain",
+      "hostname": "secure-web-indx.square.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ledger-iostta-web-us.square.site",
+      "indicatorType": "domain",
+      "hostname": "ledger-iostta-web-us.square.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://unl.one/2x0m3258x4pjj2",
+      "indicatorType": "url",
+      "hostname": "unl.one",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://unl.one/2WSR8K",
+      "indicatorType": "url",
+      "hostname": "unl.one",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ledgr-login-io.square.site",
+      "indicatorType": "domain",
+      "hostname": "ledgr-login-io.square.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "loginxxfinity.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "loginxxfinity.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.borderclick.com/BC/media/Borderclick/Files/rubox-by.html",
+      "indicatorType": "url",
+      "hostname": "www.borderclick.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.borderclick.com/BC/media/Borderclick/Files/tiktok-by.html",
+      "indicatorType": "url",
+      "hostname": "www.borderclick.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "99801456.xyz",
+      "indicatorType": "domain",
+      "hostname": "99801456.xyz",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "web3eoxdus.zapier.app",
+      "indicatorType": "domain",
+      "hostname": "web3eoxdus.zapier.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "002958.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "002958.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "24de4e.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "24de4e.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "7d609d.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "7d609d.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "99801459.xyz",
+      "indicatorType": "domain",
+      "hostname": "99801459.xyz",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "public-nda-x-auths.square.site",
+      "indicatorType": "domain",
+      "hostname": "public-nda-x-auths.square.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "santander.pt-atendimento.com",
+      "indicatorType": "domain",
+      "hostname": "santander.pt-atendimento.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "sb123-login.mobi",
+      "indicatorType": "domain",
+      "hostname": "sb123-login.mobi",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "uspsglobal.delivery",
+      "indicatorType": "domain",
+      "hostname": "uspsglobal.delivery",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "shoppingonamazon1.com",
+      "indicatorType": "domain",
+      "hostname": "shoppingonamazon1.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "emirecrui90mens.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "emirecrui90mens.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "matineseriennhlans89.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "matineseriennhlans89.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.conwedd.com/esa/hinet.net/",
+      "indicatorType": "url",
+      "hostname": "www.conwedd.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.conwedd.com/esa/hinet.net",
+      "indicatorType": "url",
+      "hostname": "www.conwedd.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xfinityupdate25.weeblysite.com",
+      "indicatorType": "domain",
+      "hostname": "xfinityupdate25.weeblysite.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://virtualnextpartner.com/m/index",
+      "indicatorType": "url",
+      "hostname": "virtualnextpartner.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "sock-zizifn-sg.pennyphd.workers.dev",
+      "indicatorType": "domain",
+      "hostname": "sock-zizifn-sg.pennyphd.workers.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "getaccfreefire2026.netlify.app",
+      "indicatorType": "domain",
+      "hostname": "getaccfreefire2026.netlify.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://aprobacion.github.io/hf.com/",
+      "indicatorType": "url",
+      "hostname": "aprobacion.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://office365order.github.io/review/",
+      "indicatorType": "url",
+      "hostname": "office365order.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.et/users/708134685256/profile",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.et",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.scgcontrol.com/about-us/",
+      "indicatorType": "url",
+      "hostname": "www.scgcontrol.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.scgcontrol.com/contact-us/",
+      "indicatorType": "url",
+      "hostname": "www.scgcontrol.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.jamesdotcom.com",
+      "indicatorType": "domain",
+      "hostname": "www.jamesdotcom.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://wordpress-214212-0.cloudclusters.net/wp-content/uploads/2026/08/dfkd/",
+      "indicatorType": "url",
+      "hostname": "wordpress-214212-0.cloudclusters.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://www.cutt.ly/pyamvxPu/",
+      "indicatorType": "url",
+      "hostname": "www.cutt.ly",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lasucursallvirtual.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.lasucursallvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "lassucursalvirtual.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "lassucursalvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "lasucursallvirtual.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "lasucursallvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://web3eoxdus.zapier.app/nav-en",
+      "indicatorType": "url",
+      "hostname": "web3eoxdus.zapier.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://ultralimiteprimedisponivel.s3.us-east-005.backblazeb2.com/aumento.html",
+      "indicatorType": "url",
+      "hostname": "ultralimiteprimedisponivel.s3.us-east-005.backblazeb2.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://gbinsta.cc/download-gb-insta-apk",
+      "indicatorType": "url",
+      "hostname": "gbinsta.cc",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "6fa37b.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "6fa37b.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "6f9a37.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "6f9a37.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "fc83a5.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "fc83a5.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "nurendoesmenco90.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "nurendoesmenco90.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "inemssgecert10c06.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "inemssgecert10c06.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "app.trezors-suites.com",
+      "indicatorType": "domain",
+      "hostname": "app.trezors-suites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "yoursigninplusupdate.framer.website",
+      "indicatorType": "domain",
+      "hostname": "yoursigninplusupdate.framer.website",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "tk.ercajchain.com",
+      "indicatorType": "domain",
+      "hostname": "tk.ercajchain.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://rbcode.net/v/eaf2af9fc2d1daf9373855e3650b65e6",
+      "indicatorType": "url",
+      "hostname": "rbcode.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://santander.pt-atendimento.com/seguranca.php",
+      "indicatorType": "url",
+      "hostname": "santander.pt-atendimento.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.bi/games/77182599101794/4nn1s-Place",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.bi",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/vk7yc",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "mapaicloud.com",
+      "indicatorType": "domain",
+      "hostname": "mapaicloud.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "secure-index-editor--loganww1.replit.app",
+      "indicatorType": "domain",
+      "hostname": "secure-index-editor--loganww1.replit.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://rbcode.net/v/e37c5c5d7e3032146d0232666470732d",
+      "indicatorType": "url",
+      "hostname": "rbcode.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "b35fcb.icefactory.cl",
+      "indicatorType": "domain",
+      "hostname": "b35fcb.icefactory.cl",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "rwrfx2x.pages.dev",
+      "indicatorType": "domain",
+      "hostname": "rwrfx2x.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "wxexwexex.pages.dev",
+      "indicatorType": "domain",
+      "hostname": "wxexwexex.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://divyasri-raju.github.io/Spotify-clone/",
+      "indicatorType": "url",
+      "hostname": "divyasri-raju.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://soumya-shree-panda.github.io/User-Interface/",
+      "indicatorType": "url",
+      "hostname": "soumya-shree-panda.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "rent-house-app-phi.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "rent-house-app-phi.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://meta-game.pages.dev/appeals/submit-appeal-form/return",
+      "indicatorType": "url",
+      "hostname": "meta-game.pages.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "tzr-jern.maxwell15.workers.dev",
+      "indicatorType": "domain",
+      "hostname": "tzr-jern.maxwell15.workers.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://aneesurrehmandm.github.io/Netflix-Clone-Project/",
+      "indicatorType": "url",
+      "hostname": "aneesurrehmandm.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://facebookteamhelp.blogspot.com/2015/12/document.html",
+      "indicatorType": "url",
+      "hostname": "facebookteamhelp.blogspot.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/4t6xd",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/96kaz",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://home-exo-x-en.github.io/en",
+      "indicatorType": "url",
+      "hostname": "home-exo-x-en.github.io",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/4dfmz",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/wyfb4",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://g5.lu/bf4c5",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/hbu32",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.roblox.com.bn/communities/401210215870/NewSTARCONS-keshiey",
+      "indicatorType": "url",
+      "hostname": "www.roblox.com.bn",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://g5.lu/emu9d",
+      "indicatorType": "url",
+      "hostname": "g5.lu",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ledger-help-io.square.site",
+      "indicatorType": "domain",
+      "hostname": "ledger-help-io.square.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "http://steamxcommunity.ru/Id/7656193585673764",
+      "indicatorType": "url",
+      "hostname": "steamxcommunity.ru",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lsoehd.com",
+      "indicatorType": "domain",
+      "hostname": "www.lsoehd.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lsioeh.com",
+      "indicatorType": "domain",
+      "hostname": "www.lsioeh.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.lsoiehrf.com",
+      "indicatorType": "domain",
+      "hostname": "www.lsoiehrf.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://lassucursalvirtual.vercel.app/manager/17",
+      "indicatorType": "url",
+      "hostname": "lassucursalvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://lasucursallvirtual.vercel.app/manager/17",
+      "indicatorType": "url",
+      "hostname": "lasucursallvirtual.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xxfinitywebnotify.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "xxfinitywebnotify.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xfinitypage.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "xfinitypage.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "newcomcastserver.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "newcomcastserver.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://promptspark.net/stmaryofpahokee/onedrive-verify-obf.html",
+      "indicatorType": "url",
+      "hostname": "promptspark.net",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "mmmyyttsswebmaiii.weebly.com",
+      "indicatorType": "domain",
+      "hostname": "mmmyyttsswebmaiii.weebly.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://samratitinstitute.com/pcfsfywu82m/page.html",
+      "indicatorType": "url",
+      "hostname": "samratitinstitute.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://www.borderclick.com/BC/media/Borderclick/Files/hrobux.html",
+      "indicatorType": "url",
+      "hostname": "www.borderclick.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://pub-0f360892ee1545f6960ccb1afa74f2b6.r2.dev/us-enhomeexpressNotify.html",
+      "indicatorType": "url",
+      "hostname": "pub-0f360892ee1545f6960ccb1afa74f2b6.r2.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://revisaodedisponibilidadeja.s3.us-east-005.backblazeb2.com/aumento.html",
+      "indicatorType": "url",
+      "hostname": "revisaodedisponibilidadeja.s3.us-east-005.backblazeb2.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://verify77183.web.id/whitepage",
+      "indicatorType": "url",
+      "hostname": "verify77183.web.id",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://verify77183.web.id/payment/banks/Canada/desjardins",
+      "indicatorType": "url",
+      "hostname": "verify77183.web.id",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://programaflexja.s3.us-east-005.backblazeb2.com/aumento.html",
+      "indicatorType": "url",
+      "hostname": "programaflexja.s3.us-east-005.backblazeb2.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.ffp.rjg.temporary.site",
+      "indicatorType": "domain",
+      "hostname": "www.ffp.rjg.temporary.site",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.site-n8o57frwy.godaddysites.com",
+      "indicatorType": "domain",
+      "hostname": "www.site-n8o57frwy.godaddysites.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.raiffeisen-gilt.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.raiffeisen-gilt.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "cyberblow.onrender.com",
+      "indicatorType": "domain",
+      "hostname": "cyberblow.onrender.com",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "cetrumcertifcmeriesc467f.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "cetrumcertifcmeriesc467f.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "peinmereedmeriansed.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "peinmereedmeriansed.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "ertomaincertewhj89.wasmer.app",
+      "indicatorType": "domain",
+      "hostname": "ertomaincertewhj89.wasmer.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "www.instagram-chi.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "www.instagram-chi.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "xfinityemailloginauthentication.vercel.app",
+      "indicatorType": "domain",
+      "hostname": "xfinityemailloginauthentication.vercel.app",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://roblox.com.gr/games/17625359962/RIVALS",
+      "indicatorType": "url",
+      "hostname": "roblox.com.gr",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://rroblox.wf/users/1635768905/profile",
+      "indicatorType": "url",
+      "hostname": "rroblox.wf",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    },
+    {
+      "indicator": "https://pub-be2ea1ef1e754c08b319f7023d8364f9.r2.dev/index.html",
+      "indicatorType": "url",
+      "hostname": "pub-be2ea1ef1e754c08b319f7023d8364f9.r2.dev",
+      "confidence": 90,
+      "sourceCount": 1,
+      "categories": [
+        "phishing-url"
+      ],
+      "sources": [
+        "OpenPhish"
+      ],
+      "firstSeen": "2026-08-14T16:43:33.442239+00:00",
+      "lastSeen": "2026-08-14T16:43:33.442239+00:00",
+      "expiresAt": "2026-09-04T16:43:33.442239+00:00"
+    }
+  ],
+  "dataHandling": "Indicators are evidence signals with source and expiry metadata. They are not a guarantee that a URL is malicious or safe."
+}

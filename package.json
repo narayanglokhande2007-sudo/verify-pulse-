@@ -7,7 +7,11 @@
   "scripts": {
     "test:india-regression": "node tests/run_india_regression.mjs",
     "test:scan-reliability": "node tests/run_scan_reliability.mjs",
-    "test": "npm run test:india-regression && npm run test:scan-reliability"
+    "test:url-forensics": "node tests/run_url_forensics.mjs",
+    "test:threat-intelligence": "node tests/run_threat_intelligence.mjs",
+    "test:request-budget": "node tests/run_request_budget.mjs",
+    "test:input-controls": "node tests/run_input_controls.mjs",
+    "test": "npm run test:india-regression && npm run test:url-forensics && npm run test:threat-intelligence && npm run test:request-budget && npm run test:input-controls && npm run test:scan-reliability"
   },
   "engines": {
     "node": ">=18.0.0"
