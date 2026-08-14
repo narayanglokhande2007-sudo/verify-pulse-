@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import verifyHandler from '../api/verify.js';
+import { resetProviderCircuits } from '../lib/scan_reliability.js';
 
 function createResponse() {
   return {
@@ -87,6 +88,7 @@ try {
   assert.ok(localFallback.headers['X-VerifyPulse-Request-Id']);
   results.push({ case: 'local high-confidence fallback', status: localFallback.statusCode, verdict: localFallback.body.verdict });
 
+  resetProviderCircuits();
   const unavailable = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
     address: '198.51.100.202'
@@ -98,6 +100,7 @@ try {
   assert.ok(unavailable.headers['X-VerifyPulse-Request-Id']);
   results.push({ case: 'explicit service unavailable', status: unavailable.statusCode, verdict: unavailable.body.verdict });
 
+  resetProviderCircuits();
   mode = 'anthropic-success';
   const anthropicFallback = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
@@ -109,6 +112,7 @@ try {
   assert.ok(anthropicFallback.headers['X-VerifyPulse-Request-Id']);
   results.push({ case: 'configured Anthropic fallback', status: anthropicFallback.statusCode, verdict: anthropicFallback.body.verdict });
 
+  resetProviderCircuits();
   mode = 'openrouter-success';
   const secondaryFallback = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
@@ -119,6 +123,14 @@ try {
   assert.equal(secondaryFallback.body?.explainability.assessmentType, 'model-assisted');
   assert.ok(secondaryFallback.headers['X-VerifyPulse-Request-Id']);
   results.push({ case: 'independent OpenRouter fallback', status: secondaryFallback.statusCode, verdict: secondaryFallback.body.verdict });
+
+  resetProviderCircuits();
+  mode = 'all-providers-fail';
+  await scan({ text: 'Community office closes at 5 PM today.', address: '198.51.100.205' });
+  const circuitProtected = await scan({ text: 'Community office closes at 5 PM today.', address: '198.51.100.206' });
+  assert.equal(circuitProtected.statusCode, 503);
+  assert.ok(circuitProtected.body?.serviceStatus?.failureCodes.includes('provider_circuit_open'));
+  results.push({ case: 'circuit breaker skips exhausted providers', status: circuitProtected.statusCode, verdict: circuitProtected.body.verdict });
 } finally {
   global.fetch = originalFetch;
   for (const [key, value] of Object.entries(originalEnv)) {
@@ -127,4 +139,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/4 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/5 focused reliability cases.`);

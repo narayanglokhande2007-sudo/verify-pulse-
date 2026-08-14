@@ -27,6 +27,7 @@ export default async function handler(req, res) {
   const externalAnalysisText = sanitizeForExternalAnalysis(text);
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
+  const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
@@ -382,24 +383,25 @@ CRITICAL GUARDRAILS:
       return result.ok ? result.result : null;
     };
 
+    // Gemini 2.5 Flash is the primary high-volume route. Groq remains a bounded independent fallback.
+    if (GEMINI_KEY) {
+      const geminiResult = await attempt({
+        stage: 'primary_scan', provider: 'gemini',
+        operation: () => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine, null, GEMINI_MODEL)
+      });
+      if (geminiResult) return res.status(200).json(safeResult(geminiResult));
+    } else {
+      failedProviders.push({ provider: 'gemini', errorCode: 'provider_not_configured' });
+    }
+
     if (GROQ_KEY) {
       const groqResult = await attempt({
-        stage: 'primary_scan', provider: 'groq',
+        stage: 'fallback_scan', provider: 'groq',
         operation: () => callGroq(GROQ_KEY, externalAnalysisText, checkType, 'llama-3.3-70b-versatile', knowledgeLine)
       });
       if (groqResult) return res.status(200).json(safeResult(groqResult));
     } else {
       failedProviders.push({ provider: 'groq', errorCode: 'provider_not_configured' });
-    }
-
-    if (GEMINI_KEY) {
-      const geminiResult = await attempt({
-        stage: 'fallback_scan', provider: 'gemini',
-        operation: () => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine)
-      });
-      if (geminiResult) return res.status(200).json(safeResult(geminiResult));
-    } else {
-      failedProviders.push({ provider: 'gemini', errorCode: 'provider_not_configured' });
     }
 
     if (ANTHROPIC_KEY) {
@@ -480,9 +482,9 @@ async function checkWithSafeBrowsing(inputUrl, apiKey) {
     return { found: false, checked: true };
   } catch (e) { return { found: false, checked: false }; }
 }
-async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null) {
+async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null, model = process.env.GEMINI_MODEL || 'gemini-2.5-flash') {
   const systemPrompt = getPrompt(type, knowledgeLine) + " You must return valid JSON.";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
   
   let parts = [{ text: `${systemPrompt}\n\nInput: "${text}"` }];
   if (fileData && fileData.base64 && fileData.mimeType) {
