@@ -579,14 +579,14 @@ async function callOpenRouter(apiKey, text, type, knowledgeLine = '') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: 'google/gemma-3-12b-it',
+      // The free router selects an available no-cost model; it remains a limited fallback, not a primary capacity guarantee.
+      model: 'openrouter/free',
       messages: [
         { role: 'system', content: 'You are a cybersecurity scam detector. Return only valid JSON with verdict, scamType, confidence, analysis, findings, and whatToDo.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
-      max_tokens: 450,
-      response_format: { type: 'json_object' }
+      max_tokens: 450
     })
   }, { provider: 'openrouter', timeoutMs: 2800 });
   const content = data.choices?.[0]?.message?.content;
