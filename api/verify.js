@@ -773,10 +773,18 @@ function assessHighConfidenceFallbackRisk(msg) {
   const authority = /\b(?:rbi|reserve bank|income tax|cbi|cyber crime|police|trai|customs|court|government|bank)\b/i.test(value);
   const untrustedContact = /\b(?:whatsapp|telegram|reply\s+(?:yes|ok)|verification call|video call|call now)\b|व्हाट्सअॅप|వాట్సాప్/i.test(value);
   const rewardClaim = /\b(?:lottery|prize|reward|cashback|gift)\b|लॉटरी|इनाम|బహుమతి|లాటరీ/i.test(value);
+  // A real bank may send routine account notices, but a named-bank message that
+  // threatens account blocking and demands a verification/processing fee is a
+  // sufficiently specific social-engineering pattern to protect locally.
+  const namedBank = /\b(?:sbi|state bank(?: of india)?|hdfc|icici|axis|kotak|pnb|punjab national bank|canara|bank of baroda|indian bank|union bank)\b/i.test(value);
+  const accountBlockingFeeTrap = /\b(?:account|a\/?c)\b/i.test(value)
+    && /\b(?:freeze|frozen|blocked|block|suspend|suspended)\b/i.test(value)
+    && /\b(?:verification fee|processing fee)\b/i.test(value);
   const highRisk = (apkDownload && (pressure || untrustedContact || paymentRequest || sensitiveRequest))
     || (hasUrl && shortenedOrObscuredUrl && (sensitiveRequest || paymentRequest || (authority && pressure)))
     || (authority && pressure && paymentRequest && (sensitiveRequest || untrustedContact))
-    || (rewardClaim && paymentRequest && untrustedContact);
+    || (rewardClaim && paymentRequest && untrustedContact)
+    || (namedBank && accountBlockingFeeTrap);
   if (!highRisk) return null;
   const findings = [];
   if (apkDownload) findings.push('The message pressures you to download or install an executable application file.');
@@ -784,6 +792,7 @@ function assessHighConfidenceFallbackRisk(msg) {
   if (sensitiveRequest) findings.push('The message requests sensitive credentials, identity information, screen sharing, or KYC action.');
   if (paymentRequest) findings.push('The message asks for payment, a collect request, or a verification fee.');
   if (authority && pressure) findings.push('The message combines an authority claim with urgent pressure.');
+  if (namedBank && accountBlockingFeeTrap) findings.push('A named bank is used with an account-blocking threat and a verification or processing fee demand.');
   if (rewardClaim && paymentRequest && untrustedContact) findings.push('The message combines a reward claim, payment request, and an untrusted contact channel.');
   return {
     verdict: 'SUSPICIOUS',

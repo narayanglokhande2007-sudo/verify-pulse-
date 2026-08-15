@@ -78,6 +78,10 @@ try {
   }, camouflageRes);
   assert.equal(camouflageRes.statusCode, 200);
   assert.equal(camouflageRes.body.verdict, 'SUSPICIOUS');
+  assert.equal(camouflageRes.body.scamType, 'High-Confidence Social Engineering Risk');
+  assert.equal(camouflageRes.body.explainability.assessmentType, 'evidence-backed');
+  assert.ok(camouflageRes.body.findings.some((finding) => finding.includes('named bank')));
+  assert.ok(camouflageRes.body.evidenceSources.includes('Local high-confidence fallback rules'));
   assert.notEqual(camouflageRes.body.verdict, 'SAFE');
 } finally {
   global.fetch = originalFetch;
