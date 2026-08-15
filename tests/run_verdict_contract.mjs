@@ -8,7 +8,7 @@ const source = await readFile(new URL('../index.html', import.meta.url), 'utf8')
 const functionStart = source.indexOf('function getVerdictPresentation(verdict)');
 const functionEnd = source.indexOf('function displayEnhancedResult(containerId, data)');
 assert.ok(functionStart >= 0 && functionEnd > functionStart, 'Verdict-presentation function must exist in index.html.');
-const sandbox = {};
+const sandbox = { window: {} };
 vm.runInNewContext(`${source.slice(functionStart, functionEnd)}\nthis.getVerdictPresentation = getVerdictPresentation;`, sandbox);
 
 const getPresentation = sandbox.getVerdictPresentation;
@@ -68,6 +68,10 @@ try {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.verdict, 'SUSPICIOUS');
   assert.equal(res.body.explainability.assessmentType, 'model-assisted');
+  assert.equal(res.body.decisionCalibration.decisionBasis, 'model-assisted');
+  assert.equal(res.body.shadowEvaluation.mode, 'non-blocking');
+  assert.equal(res.body.enterpriseEvidence.decisionBasis, 'model-assisted');
+  assert.match(res.body.enterpriseEvidence.privacyStatement, /raw scanned content/i);
 
   const camouflageRes = response();
   await verifyHandler({
@@ -82,6 +86,9 @@ try {
   assert.equal(camouflageRes.body.explainability.assessmentType, 'evidence-backed');
   assert.ok(camouflageRes.body.findings.some((finding) => finding.includes('named bank')));
   assert.ok(camouflageRes.body.evidenceSources.includes('Local high-confidence fallback rules'));
+  assert.equal(camouflageRes.body.decisionCalibration.decisionBasis, 'evidence-backed');
+  assert.equal(camouflageRes.body.shadowEvaluation.mode, 'non-blocking');
+  assert.equal(camouflageRes.body.enterpriseEvidence.riskBand, 'high-risk');
   assert.notEqual(camouflageRes.body.verdict, 'SAFE');
 } finally {
   global.fetch = originalFetch;

@@ -4,6 +4,9 @@ import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/priva
 import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 import { fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
 import { analyzeMessageForensics, canonicalizeUrl, extractUrlCandidates } from '../lib/url_forensics.js';
+import { analyzeIntentForensics } from '../lib/intent_forensics.js';
+import { calibrateDecision } from '../lib/decision_calibration.js';
+import { createShadowEvaluation } from '../lib/shadow_evaluation.js';
 import { lookupThreatIntelligence } from '../lib/threat_intelligence.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 
@@ -45,6 +48,13 @@ export default async function handler(req, res) {
   const requestBudget = createRequestBudget();
   res.setHeader('X-VerifyPulse-Request-Id', requestId);
   const evidenceSources = [];
+  let shadowIntentForensics = null;
+  let shadowUrlForensics = null;
+  function getShadowSignals() {
+    if (!shadowIntentForensics) shadowIntentForensics = analyzeIntentForensics(externalAnalysisText);
+    if (!shadowUrlForensics) shadowUrlForensics = analyzeMessageForensics(externalAnalysisText);
+    return { intentForensics: shadowIntentForensics, urlForensics: shadowUrlForensics };
+  }
   function normalizeVerdict(value) {
     const verdict = String(value || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
     if (['SAFE', 'LEGITIMATE', 'LEGIT', 'NO_SCAM', 'BENIGN'].includes(verdict)) return 'SAFE';
@@ -69,6 +79,26 @@ export default async function handler(req, res) {
     }
     r.requestId = requestId;
     r.explainability = buildExplainability(r);
+    r.decisionCalibration = calibrateDecision({
+      verdict: r.verdict,
+      confidence: r.confidence,
+      evidenceSources: r.evidenceSources
+    });
+    r.shadowEvaluation = createShadowEvaluation({
+      verdict: r.verdict,
+      evidenceSources: r.evidenceSources,
+      ...getShadowSignals()
+    });
+    r.enterpriseEvidence = {
+      schemaVersion: 'vp-enterprise-evidence-1',
+      correlationId: requestId,
+      verdict: r.verdict,
+      riskBand: r.decisionCalibration.riskBand,
+      decisionBasis: r.decisionCalibration.decisionBasis,
+      evidenceSources: r.evidenceSources,
+      explainabilityVersion: r.explainability.version,
+      privacyStatement: 'This audit envelope contains decision metadata and evidence labels only; raw scanned content and credentials are not retained.'
+    };
     r.decisionMetadata = {
       version: 'vp-decision-1',
       evidenceSourceCount: r.evidenceSources.length,
@@ -87,7 +117,7 @@ export default async function handler(req, res) {
       'canarabank.com', 'unionbankofindia.co.in', 'indianbank.in', 'centralbankofindia.co.in',
       'bandhanbank.com', 'yesbank.in', 'rbi.org.in', 'nabard.org',
       // Payment / Fintech
-      'phonepe.com', 'paytm.com', 'razorpay.com', 'cashfree.com', 'billdesk.com',
+      'phonepe.com', 'paytm.com', 'npci.org.in', 'razorpay.com', 'cashfree.com', 'billdesk.com',
       'ccavenue.com', 'instamojo.com', 'freedo.in', 'mobikwik.com', 'amazon.in',
       // Stock / Trading
       'zerodha.com', 'angelone.in', 'groww.in', 'upstox.com', '5paisa.com',
@@ -173,8 +203,8 @@ export default async function handler(req, res) {
     // be authenticated. It identifies common legitimate-notification structures
     // only when no payment, credential, urgency, installation, or contact red flag
     // is present, then asks the user to verify in the official app/channel.
-    const benignEvent = /\b(?:credited|debited|transaction (?:successful|completed)|upi ref(?:erence)?|utr(?: no\.?| number)?|available balance|statement|cashback credited|refund credited|benefit credited|dbt credited)\b/i.test(value);
-    const benignContext = /\b(?:npci|upi|dbt|direct benefit transfer|bank|account|cashback|refund|transaction)\b/i.test(value);
+    const benignEvent = /\b(?:credited|debited|transaction (?:successful|completed)|upi ref(?:erence)?|utr(?: no\.?| number)?|available balance|statement|cashback credited|refund credited|benefit credited|dbt credited|card ending|merchant|credit limit updated)\b/i.test(value);
+    const benignContext = /\b(?:npci|upi|dbt|direct benefit transfer|bank|account|cashback|refund|transaction|card|merchant|credit limit)\b/i.test(value);
     const actionRisk = /\b(?:click|tap|open link|verify|re-?kyc|update|install|download|call|whatsapp|telegram|reply|share|otp|pin|cvv|password|screen share|collect request|pay now|processing fee)\b/i.test(value);
     const urgencyRisk = /\b(?:urgent|immediately|within \d+|last chance|blocked|freeze|suspend|penalty|arrest)\b/i.test(value);
     const executableRisk = /\.(?:apk|exe|msi)\b/i.test(normalized);
@@ -252,6 +282,13 @@ export default async function handler(req, res) {
         detail: findings.length ? `URL/brand indicators: ${findings.join(' ')}` : 'A local URL, brand, or intent mismatch was detected.'
       });
     }
+    if (sources.includes('Local multilingual intent forensics')) {
+      evidence.push({
+        source: 'Local multilingual intent forensics',
+        type: 'deterministic-payment-and-impersonation-signals',
+        detail: findings.length ? `Detected intent indicators: ${findings.join(' ')}` : 'A high-confidence payment, impersonation, or remote-access combination was detected locally.'
+      });
+    }
     if (sources.includes('Source-aware threat intelligence')) {
       evidence.push({
         source: 'Source-aware threat intelligence',
@@ -285,6 +322,8 @@ export default async function handler(req, res) {
       summary = 'The message appears routine but cannot be authenticated from text alone, so VerifyPulse recommends independent verification rather than a SAFE verdict.';
     } else if (sources.includes('Local URL and brand forensics')) {
       summary = 'The result is based on deterministic URL, brand, and requested-action indicators rather than a model-only judgement.';
+    } else if (sources.includes('Local multilingual intent forensics')) {
+      summary = 'The result is based on deterministic multilingual payment, impersonation, or remote-access signals rather than a model-only judgement.';
     } else if (sources.includes('Source-aware threat intelligence')) {
       summary = 'A current, source-aware threat-intelligence match contributed to this evidence-backed risk result.';
     } else if (sources.includes('Local social-engineering rules') || sources.includes('Local high-confidence fallback rules')) {
@@ -300,6 +339,7 @@ export default async function handler(req, res) {
       || sources.includes('Local high-confidence fallback rules')
       || sources.includes('Local notification ambiguity rules')
       || sources.includes('Local URL and brand forensics')
+      || sources.includes('Local multilingual intent forensics')
       || sources.includes('Source-aware threat intelligence')
       || (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS');
     const isPrivacyProtection = sources.includes('Privacy guard');
@@ -394,6 +434,21 @@ CRITICAL GUARDRAILS:
     if (earlyLocalRisk && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
       logScanReliabilityEvent({ requestId, stage: 'local_high_confidence_precheck', provider: 'local_rules', outcome: 'success' });
       return res.status(200).json(safeResult(earlyLocalRisk));
+    }
+
+    const intentForensics = analyzeIntentForensics(text);
+    if (intentForensics.highRisk && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
+      logScanReliabilityEvent({ requestId, stage: 'local_multilingual_intent_forensics', provider: 'local_intent_forensics', outcome: 'success' });
+      return res.status(200).json(safeResult({
+        verdict: 'SUSPICIOUS',
+        scamType: 'High-Confidence Payment or Impersonation Risk',
+        confidence: Math.min(95, Math.max(82, intentForensics.score + 42)),
+        analysis: 'VerifyPulse detected a high-confidence combination of payment, impersonation, remote-access, or UPI-receipt deception signals locally. Do not pay, approve, scan, install, or share credentials through this message.',
+        findings: intentForensics.findings,
+        whatToDo: ['Do not scan a QR code, enter a UPI PIN, approve a collect request, install an app, pay a fee, or share credentials based on this message.', 'Open the claimed organisation’s official app or website manually to verify the request.', 'Report suspected financial fraud promptly through 1930.'],
+        evidenceSources: ['Local multilingual intent forensics'],
+        intentForensics
+      }));
     }
 
     const threatIntelligence = await lookupThreatIntelligence(text);

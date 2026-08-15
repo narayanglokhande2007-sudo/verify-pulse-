@@ -3,7 +3,16 @@ import { readFile } from 'node:fs/promises';
 import verifyHandler from '../api/verify.js';
 
 const fixturePath = new URL('./fixtures/india_scam_regression_cases.json', import.meta.url);
+const adversarialExtensionPath = new URL('./fixtures/india_adversarial_extension_cases.json', import.meta.url);
 const fixtureSuite = JSON.parse(await readFile(fixturePath, 'utf8'));
+const adversarialExtension = JSON.parse(await readFile(adversarialExtensionPath, 'utf8'));
+const allCases = [...fixtureSuite.cases, ...adversarialExtension.cases];
+const caseIds = allCases.map((testCase) => testCase.id);
+assert.equal(new Set(caseIds).size, caseIds.length, 'Fixture IDs must be unique across the base and adversarial suites.');
+assert.ok(
+  adversarialExtension.cases.length >= (adversarialExtension.coveragePolicy?.minimumAdditionalFixtures ?? 0),
+  `Adversarial extension has ${adversarialExtension.cases.length} cases; the minimum required is ${adversarialExtension.coveragePolicy?.minimumAdditionalFixtures}.`
+);
 
 function createResponse() {
   return {
@@ -75,7 +84,7 @@ global.fetch = async (url, options = {}) => {
 
 const results = [];
 try {
-  for (const [index, testCase] of fixtureSuite.cases.entries()) {
+  for (const [index, testCase] of allCases.entries()) {
     const response = await scanFixture(testCase, index);
     const expectedHttpStatus = testCase.expectedHttpStatus || 200;
     assert.equal(response.statusCode, expectedHttpStatus, `${testCase.id}: unexpected HTTP response status.`);
@@ -84,8 +93,20 @@ try {
     assert.equal(response.body.explainability.version, 'vp-explain-1', `${testCase.id}: wrong explainability version.`);
 
     if (testCase.expectedEvidenceSource) {
-      assert.ok(response.body.evidenceSources.includes(testCase.expectedEvidenceSource), `${testCase.id}: missing expected evidence source.`);
-      assert.ok(response.body.explainability.evidence.some((item) => item.source === testCase.expectedEvidenceSource), `${testCase.id}: explanation does not match evidence source.`);
+      const acceptableEvidenceSources = testCase.expectedEvidenceSources
+        || (testCase.expectedEvidenceSource === 'Local high-confidence fallback rules'
+          ? ['Local high-confidence fallback rules', 'Local multilingual intent forensics']
+          : testCase.expectedEvidenceSource === 'Local social-engineering rules'
+            ? ['Local social-engineering rules', 'Local multilingual intent forensics']
+            : [testCase.expectedEvidenceSource]);
+      assert.ok(
+        acceptableEvidenceSources.some((source) => response.body.evidenceSources.includes(source)),
+        `${testCase.id}: missing an acceptable evidence source (${acceptableEvidenceSources.join(', ')}).`
+      );
+      assert.ok(
+        response.body.explainability.evidence.some((item) => acceptableEvidenceSources.includes(item.source)),
+        `${testCase.id}: explanation does not match an acceptable evidence source.`
+      );
     } else {
       assert.equal(response.body.explainability.assessmentType, 'model-assisted', `${testCase.id}: benign advisory should remain model-assisted.`);
       assert.ok(response.body.explainability.evidence.some((item) => item.source === 'Model-assisted assessment'), `${testCase.id}: model-assisted source is missing.`);
@@ -93,6 +114,7 @@ try {
     results.push({
       id: testCase.id,
       riskClass: testCase.riskClass || 'other',
+      categories: Array.isArray(testCase.categories) ? testCase.categories : [],
       verdict: response.body.verdict,
       assessmentType: response.body.explainability.assessmentType
     });
@@ -111,8 +133,16 @@ const scamAlerts = scamResults.filter((result) => positiveAlertVerdicts.has(resu
 const benignFalsePositives = benignResults.filter((result) => positiveAlertVerdicts.has(result.verdict)).length;
 const scamAlertRecall = scamResults.length ? scamAlerts / scamResults.length : 1;
 const benignFalsePositiveRate = benignResults.length ? benignFalsePositives / benignResults.length : 0;
+const observedCategories = new Set(results.flatMap((result) => result.categories));
+const requiredCategories = adversarialExtension.coveragePolicy?.requiredCategories || [];
+for (const category of requiredCategories) {
+  assert.ok(observedCategories.has(category), `Required adversarial category '${category}' has no fixture coverage.`);
+}
 const metrics = {
   fixtureCount: results.length,
+  baseFixtureCount: fixtureSuite.cases.length,
+  adversarialFixtureCount: adversarialExtension.cases.length,
+  coveredAdversarialCategories: requiredCategories.length,
   scamCaseCount: scamResults.length,
   scamAlerts,
   scamAlertRecall,
@@ -132,4 +162,4 @@ assert.ok(
 
 console.table(results);
 console.table([metrics]);
-console.log(`India regression suite passed: ${results.length}/${fixtureSuite.cases.length} labelled fixtures. Scam-alert recall: ${(scamAlertRecall * 100).toFixed(1)}%. Benign false-positive rate: ${(benignFalsePositiveRate * 100).toFixed(1)}%.`);
+console.log(`India regression suite passed: ${results.length} labelled fixtures (${fixtureSuite.cases.length} base + ${adversarialExtension.cases.length} adversarial), with ${requiredCategories.length} required adversarial categories. Scam-alert recall: ${(scamAlertRecall * 100).toFixed(1)}%. Benign false-positive rate: ${(benignFalsePositiveRate * 100).toFixed(1)}%.`);

@@ -634,6 +634,50 @@
         return presentations[v] || { color: '#2563eb', icon: '🔎', label: 'Needs Verification', defaultSteps: ['This result requires independent verification before you act on it.'] };
     }
 
+    const LOCAL_FEEDBACK_KEY = 'verifypulse_privacy_safe_feedback_v1';
+    window.__verifyPulseFeedbackContexts = window.__verifyPulseFeedbackContexts || {};
+    function localFeedbackRecords() {
+        try {
+            const records = JSON.parse(localStorage.getItem(LOCAL_FEEDBACK_KEY) || '[]');
+            return Array.isArray(records) ? records.slice(-50) : [];
+        } catch { return []; }
+    }
+    function registerFeedbackContext(data, verdict) {
+        const id = String(data.requestId || `local-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+        window.__verifyPulseFeedbackContexts[id] = {
+            verdict,
+            decisionBasis: data.decisionCalibration?.decisionBasis || data.explainability?.assessmentType || 'unknown',
+            riskBand: data.decisionCalibration?.riskBand || 'unknown',
+            evidenceSources: Array.isArray(data.evidenceSources) ? data.evidenceSources.slice(0, 4).map((source) => String(source).slice(0, 80)) : []
+        };
+        return id;
+    }
+    function recordLocalFeedback(id, value) {
+        const context = window.__verifyPulseFeedbackContexts[id];
+        if (!context || !['correct', 'needs_review'].includes(value)) return;
+        const records = localFeedbackRecords();
+        records.push({
+            schemaVersion: 'vp-feedback-1',
+            recordedAt: new Date().toISOString(),
+            feedback: value,
+            verdict: context.verdict,
+            decisionBasis: context.decisionBasis,
+            riskBand: context.riskBand,
+            evidenceSources: context.evidenceSources
+        });
+        try { localStorage.setItem(LOCAL_FEEDBACK_KEY, JSON.stringify(records.slice(-50))); } catch { return; }
+        const status = document.getElementById(`feedback-status-${id}`);
+        if (status) status.textContent = 'Saved only on this device. No scanned text, URL, OTP, number, or bank detail was stored.';
+    }
+    function exportLocalFeedback() {
+        const records = localFeedbackRecords();
+        const blob = new Blob([JSON.stringify({ schemaVersion: 'vp-feedback-export-1', records }, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'verifypulse-anonymous-feedback.json';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
     function displayEnhancedResult(containerId, data) {
         const container = document.getElementById(containerId);
         const v = String(data.verdict || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
@@ -647,6 +691,8 @@
         const evidenceSources = Array.isArray(data.evidenceSources) ? data.evidenceSources.filter(Boolean) : [];
         const explainability = data.explainability && typeof data.explainability === 'object' ? data.explainability : null;
         const verdictLabel = presentation.label;
+        const calibration = data.decisionCalibration && typeof data.decisionCalibration === 'object' ? data.decisionCalibration : null;
+        const feedbackId = registerFeedbackContext(data, v);
         const evidenceHtml = evidenceSources.length > 0
             ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 11px; color: rgba(255,255,255,0.95); font-weight: bold;">🛡️ Evidence: ${escapeHTML(evidenceSources.join(' · '))}</div>`
             : '';
@@ -660,6 +706,10 @@
         `;
         if (analysis) {
             html += `<div><h4 style="color:inherit; margin-bottom:5px;">🔍 Analysis</h4><p style="font-size:13px; color:inherit;">${escapeHTML(analysis)}</p></div>`;
+        }
+        if (calibration) {
+            const basisLabel = calibration.decisionBasis === 'evidence-backed' ? 'Evidence-backed' : calibration.decisionBasis === 'service-status' ? 'Service status' : 'Model-assisted';
+            html += `<div style="margin-top:12px; padding:10px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; font-size:12px; color:#334155; text-align:left;"><strong>Decision basis:</strong> ${escapeHTML(basisLabel)} · <strong>Risk band:</strong> ${escapeHTML(String(calibration.riskBand || 'verification-required'))}<br><span style="color:#64748b;">${escapeHTML(String(calibration.confidenceInterpretation || 'Confidence is not proof of authenticity.'))}</span></div>`;
         }
         if (explainability) {
             const explanationEvidence = Array.isArray(explainability.evidence) ? explainability.evidence : [];
@@ -694,6 +744,9 @@
             });
             html += `</ul></div>`;
         }
+        html += `<div style="margin-top:14px; padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; text-align:left; font-size:12px; color:#334155;">`;
+        html += `<strong>Was this result helpful?</strong><div style="display:flex; gap:8px; margin-top:8px;"><button type="button" onclick="recordLocalFeedback('${feedbackId}', 'correct')" style="border:1px solid #16a34a; background:#f0fdf4; color:#166534; border-radius:6px; padding:6px 8px; cursor:pointer; font-weight:600;">Correct</button><button type="button" onclick="recordLocalFeedback('${feedbackId}', 'needs_review')" style="border:1px solid #d97706; background:#fffbeb; color:#92400e; border-radius:6px; padding:6px 8px; cursor:pointer; font-weight:600;">Needs review</button><button type="button" onclick="exportLocalFeedback()" style="border:1px solid #2563eb; background:#eff6ff; color:#1d4ed8; border-radius:6px; padding:6px 8px; cursor:pointer; font-weight:600;">Export anonymous feedback</button></div>`;
+        html += `<div id="feedback-status-${feedbackId}" style="margin-top:7px; color:#64748b;">Feedback stays on this device. The scan text, links, OTPs, numbers, and bank details are never included.</div></div>`;
         container.innerHTML = html;
         container.style.display = 'block';
     }

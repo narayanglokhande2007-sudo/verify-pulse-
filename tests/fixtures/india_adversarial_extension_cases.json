@@ -1,0 +1,358 @@
+{
+  "suite": "VerifyPulse India adversarial extension",
+  "version": "1.0.0",
+  "dataHandling": "All entries are source-grounded synthetic test fixtures. They are not live reports, indicators, blocklist entries, or customer data and must never be ingested into production threat feeds.",
+  "sourceBasis": {
+    "npcI": "NPCI Fraud Awareness: QR scan plus UPI PIN enters a payment, not a receipt; warns about fake cashback, QR, unknown-app, screen-sharing and social-engineering fraud.",
+    "i4c": "I4C Advisories: regulatory/executive impersonation, WhatsApp account takeover using malicious executables, and high-value financial fraud.",
+    "rbi": "RBI public caution: RBI does not use unsolicited contact to request money or personal information and warns about impersonators."
+  },
+  "coveragePolicy": {
+    "minimumAdditionalFixtures": 30,
+    "requiredCategories": [
+      "upi-qr-payment-deception",
+      "authority-impersonation",
+      "malicious-app-or-executable",
+      "payment-demand",
+      "customer-care-impersonation",
+      "investment-and-job-fraud",
+      "multilingual-scam",
+      "unicode-obfuscation",
+      "official-domain-safety",
+      "routine-notification-safety"
+    ]
+  },
+  "cases": [
+    {
+      "id": "npci-qr-receive-money-trap",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["upi-qr-payment-deception", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "Rs 2,000 cashback receive karne ke liye attached QR scan karo aur UPI PIN enter karo. Offer sirf 5 minutes ke liye valid hai.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "upi-collect-request-cashback-deception",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["upi-qr-payment-deception", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "Your reward is ready. Approve the UPI collect request and enter PIN to receive Rs 999 cashback now.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "fake-upi-refund-shortened-link",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["upi-qr-payment-deception", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "गलत UPI transfer ka refund पाने के लिए अभी bit.ly/demo-upi-refund खोलो, QR scan karo aur PIN डालो.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "unknown-screen-share-bank-app",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["malicious-app-or-executable", "authority-impersonation"],
+      "sourceBasis": ["npcI"],
+      "input": "Bank helpdesk: transaction reverse karne ke liye AnyDesk install karo aur screen share support call join karo, warna account freeze rahega.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "i4c-regulatory-executable-impersonation",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["malicious-app-or-executable", "authority-impersonation"],
+      "sourceBasis": ["i4c"],
+      "input": "Cyber Regulation Desk: WhatsApp security verification ke liye SecureNotice.exe download karo, phir executive ko video call par join karo. Ignore karne par case register hoga.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "rbi-unsolicited-refund-fee",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["authority-impersonation", "payment-demand"],
+      "sourceBasis": ["rbi"],
+      "input": "Reserve Bank officer speaking. Aapka foreign refund release karne ke liye Rs 499 clearance fee abhi pay karo aur account number reply karo.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    },
+    {
+      "id": "fake-customer-care-search-result",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["customer-care-impersonation", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "Google par मिला Paytm refund support number: cancellation के लिए call now, screen share karo aur Rs 1 verification payment approve karo.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "guaranteed-investment-telegram-scam",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["investment-and-job-fraud", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "Guaranteed 30% daily stock profit. Join our Telegram VIP group and pay Rs 500 activation fee today to unlock trading signals.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "task-job-advance-fee-scam",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["investment-and-job-fraud", "payment-demand"],
+      "sourceBasis": ["i4c"],
+      "input": "Work from home job confirmed. Salary release se pehle Rs 299 registration fee UPI se pay karo aur Telegram recruiter ko payment screenshot bhejo.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "bengali-parcel-qr-fee",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["multilingual-scam", "upi-qr-payment-deception"],
+      "sourceBasis": ["npcI"],
+      "input": "আপনার পার্সেল আটকে আছে। ডেলিভারি চার্জ ফেরত পেতে QR স্ক্যান করুন এবং UPI PIN দিন, না হলে আজই পার্সেল বাতিল হবে।",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "tamil-kyc-apk-remote-access",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["multilingual-scam", "malicious-app-or-executable"],
+      "sourceBasis": ["npcI"],
+      "input": "உங்கள் KYC இன்று முடிகிறது. கணக்கு முடக்கப்படாமல் இருக்க BankUpdate.apk ஐ download செய்து install செய்யுங்கள்; பிறகு screen share செய்யுங்கள்.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "zero-width-sbi-impersonation-link",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["unicode-obfuscation", "authority-impersonation"],
+      "sourceBasis": ["rbi"],
+      "input": "S​B​I security alert: KYC update ke liye https://sbi-secure.example/verify par OTP submit karo, warna account blocked hoga.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local URL and brand forensics"
+    },
+    {
+      "id": "lookalike-sbi-domain-payment-trap",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["unicode-obfuscation", "authority-impersonation", "payment-demand"],
+      "sourceBasis": ["rbi"],
+      "input": "SBI account compliance: https://sbl.co.in/kyc par jaakar Rs 10 verification fee pay karo, warna account suspend hoga.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local URL and brand forensics",
+      "expectedEvidenceSources": ["Local URL and brand forensics", "Local high-confidence fallback rules", "Local multilingual intent forensics"]
+    },
+    {
+      "id": "telugu-collect-request-reward-scam",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["multilingual-scam", "upi-qr-payment-deception"],
+      "sourceBasis": ["npcI"],
+      "input": "మీ క్యాష్‌బ్యాక్ పొందడానికి UPI collect request approve చేసి PIN నమోదు చేయండి. ఈ ఆఫర్ వెంటనే ముగుస్తుంది.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "marathi-loan-processing-fee-scam",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["multilingual-scam", "payment-demand"],
+      "sourceBasis": ["i4c"],
+      "input": "तुमचे कर्ज मंजूर झाले आहे. पैसे मिळवण्यासाठी आजच प्रक्रिया शुल्क UPI ने भरा आणि Telegram वर पावती पाठवा.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "fastag-recharge-qr-payment-trap",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["upi-qr-payment-deception", "payment-demand"],
+      "sourceBasis": ["npcI"],
+      "input": "FASTag expired. Refund पाने के लिए QR scan karke UPI PIN डालें और Rs 1 recharge approve करें, नहीं तो tag आज बंद होगा.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "credit-card-blocking-fee-scam",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["authority-impersonation", "payment-demand"],
+      "sourceBasis": ["rbi"],
+      "input": "HDFC card will be blocked in 30 minutes. Card verification fee Rs 99 pay now and reply with your card details to keep it active.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    },
+    {
+      "id": "fake-courier-direct-ip-payment-page",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["customer-care-impersonation", "payment-demand"],
+      "sourceBasis": ["i4c"],
+      "input": "BlueDart parcel payment pending. Deliver कराने के लिए http://198.51.100.77/pay पर Rs 35 जमा करें और OTP submit करें.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local high-confidence fallback rules"
+    },
+    {
+      "id": "digital-arrest-crypto-extortion",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["authority-impersonation", "payment-demand"],
+      "sourceBasis": ["i4c"],
+      "input": "Police cyber cell: aapke naam par money-laundering FIR hai. Arrest रोकने के लिए confidentiality maintain karo aur USDT wallet par security deposit bhejo.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    },
+    {
+      "id": "legitimate-npci-qr-awareness",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["upi-qr-payment-deception"],
+      "sourceBasis": ["npcI"],
+      "input": "Safety reminder: A UPI PIN is entered only to make a payment, not to receive money. Never scan unknown QR codes for cashback or refunds.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "routine-upi-debit-notification-no-demand",
+      "classification": "source-grounded-synthetic-benign-notification",
+      "riskClass": "benign",
+      "categories": ["routine-notification-safety"],
+      "sourceBasis": ["npcI"],
+      "input": "UPI payment of Rs 320 completed to merchant. UPI Ref No 873421900123. If unrecognized, check the transaction in your official UPI app.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "legitimate-upi-pin-safety-reminder",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["routine-notification-safety", "upi-qr-payment-deception"],
+      "sourceBasis": ["npcI"],
+      "input": "Never share your UPI PIN. Use your UPI app only to review a collect request before approving it.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "official-npci-url",
+      "classification": "source-grounded-synthetic-benign-url",
+      "riskClass": "benign",
+      "categories": ["official-domain-safety"],
+      "sourceBasis": ["npcI"],
+      "input": "https://www.npci.org.in/fraud-awareness",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": "Trusted domain registry"
+    },
+    {
+      "id": "legitimate-i4c-cyber-hygiene-advisory",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["official-domain-safety", "authority-impersonation"],
+      "sourceBasis": ["i4c"],
+      "input": "Cyber hygiene advisory: do not install unknown apps, share OTPs, or send money after an unsolicited call. Contact banks only through published official channels.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "legitimate-bank-kyc-in-app-reminder",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["routine-notification-safety"],
+      "sourceBasis": ["rbi"],
+      "input": "For KYC maintenance, use your bank's official mobile app or visit your branch. Our staff will never request OTP, PIN, or a payment fee by phone.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "routine-card-debit-notification",
+      "classification": "source-grounded-synthetic-benign-notification",
+      "riskClass": "benign",
+      "categories": ["routine-notification-safety"],
+      "sourceBasis": ["rbi"],
+      "input": "Card ending 4567 used for Rs 1,899 at a merchant on 15-Aug. Available credit limit updated. Review only through your official banking app if needed.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "legitimate-customer-care-safety-guidance",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["customer-care-impersonation"],
+      "sourceBasis": ["npcI"],
+      "input": "For payment support, find your bank or app's contact details only on its official website. Do not install a screen-sharing app during a financial transaction.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "routine-dbt-status-notification",
+      "classification": "source-grounded-synthetic-benign-notification",
+      "riskClass": "benign",
+      "categories": ["routine-notification-safety"],
+      "sourceBasis": ["rbi"],
+      "input": "Your benefit transfer has been processed. UTR 928374651234. No action is required; check your bank statement or official app for details.",
+      "checkType": "unified",
+      "expectedVerdict": "NEEDS_VERIFICATION",
+      "expectedEvidenceSource": "Local notification ambiguity rules"
+    },
+    {
+      "id": "legitimate-school-cyber-awareness-message",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["multilingual-scam"],
+      "sourceBasis": ["i4c"],
+      "input": "School cyber-safety notice: किसी unknown link पर OTP, PIN या personal details share न करें. Suspicious payment request को अपने parents और bank से verify करें.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "rbi-fictitious-prize-clearance-demand",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["authority-impersonation", "payment-demand"],
+      "sourceBasis": ["rbi"],
+      "input": "RBI prize desk: your overseas lottery funds are approved. Send Rs 750 clearance charges today and reply YES with your bank account details.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local social-engineering rules"
+    }
+  ]
+}

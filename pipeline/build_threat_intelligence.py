@@ -30,13 +30,13 @@ SCHEMA_VERSION = "vp-threat-intel-1"
 # Names are assigned from source URLs already present in the daily feed pipeline.
 # Only high-confidence public phishing/malware feeds get the top confidence bands.
 SOURCE_PROFILES = {
-    "urlhaus.abuse.ch": {"name": "URLhaus", "confidence": 95, "ttl_days": 30, "category": "malware-url"},
-    "openphish.com": {"name": "OpenPhish", "confidence": 90, "ttl_days": 21, "category": "phishing-url"},
-    "phishtank.com": {"name": "PhishTank", "confidence": 88, "ttl_days": 21, "category": "phishing-url"},
-    "phishing.database.red": {"name": "Phishing.Database", "confidence": 82, "ttl_days": 14, "category": "phishing-url"},
-    "phishing.army": {"name": "Phishing Army", "confidence": 78, "ttl_days": 14, "category": "phishing-url"},
+    "urlhaus.abuse.ch": {"name": "URLhaus", "confidence": 95, "ttl_days": 30, "category": "malware-url", "qualityTier": "verified"},
+    "openphish.com": {"name": "OpenPhish", "confidence": 90, "ttl_days": 21, "category": "phishing-url", "qualityTier": "verified"},
+    "phishtank.com": {"name": "PhishTank", "confidence": 88, "ttl_days": 21, "category": "phishing-url", "qualityTier": "established-community"},
+    "phishing.database.red": {"name": "Phishing.Database", "confidence": 82, "ttl_days": 14, "category": "phishing-url", "qualityTier": "community"},
+    "phishing.army": {"name": "Phishing Army", "confidence": 78, "ttl_days": 14, "category": "phishing-url", "qualityTier": "community"},
 }
-DEFAULT_PROFILE = {"name": "Community Threat Feed", "confidence": 65, "ttl_days": 10, "category": "suspicious-indicator"}
+DEFAULT_PROFILE = {"name": "Community Threat Feed", "confidence": 65, "ttl_days": 10, "category": "suspicious-indicator", "qualityTier": "unclassified"}
 
 # Keep live refresh intentionally small and source-attributed. These feeds are
 # already part of the existing collection pipeline; this layer adds freshness,
@@ -167,6 +167,7 @@ def build_snapshot(records: Iterable[dict[str, Any]], now: datetime | None = Non
             "name": profile["name"],
             "confidence": profile["confidence"],
             "category": profile["category"],
+            "qualityTier": profile["qualityTier"],
             "observedAt": observed_at.isoformat(),
             "expiresAt": expires_at.isoformat(),
         }
@@ -191,12 +192,15 @@ def build_snapshot(records: Iterable[dict[str, Any]], now: datetime | None = Non
         source_confidence = max(source["confidence"] for source in entry["sources"])
         corroboration_bonus = min(10, 5 * max(0, len(entry["sources"]) - 1))
         confidence = min(99, source_confidence + corroboration_bonus)
+        quality_tiers = {source["qualityTier"] for source in entry["sources"]}
+        quality_tier = "verified" if "verified" in quality_tiers else "established-community" if "established-community" in quality_tiers else "community" if "community" in quality_tiers else "unclassified"
         indicators.append({
             "indicator": entry["indicator"],
             "indicatorType": entry["indicatorType"],
             "hostname": entry["hostname"],
             "confidence": confidence,
             "sourceCount": len(entry["sources"]),
+            "qualityTier": quality_tier,
             "categories": sorted({source["category"] for source in entry["sources"]}),
             "sources": sorted({source["name"] for source in entry["sources"]}),
             "firstSeen": entry["firstSeen"].isoformat(),
