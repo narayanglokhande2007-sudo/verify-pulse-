@@ -1,9 +1,12 @@
+import { randomUUID } from 'crypto';
 import {
+  authorizeB2bScope,
   enforceRateLimit,
   getConfiguredLimit,
   setRateLimitHeaders,
   validateB2bApiKey,
 } from '../../lib/security_controls.js';
+import { emitB2bAuditEvent } from '../../lib/audit_events.js';
 
 function setApiSecurityHeaders(res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -47,6 +50,8 @@ function parsePublicHttpUrl(value) {
 }
 
 export default async function handler(req, res) {
+  const correlationId = randomUUID();
+  res.setHeader('X-VerifyPulse-Correlation-Id', correlationId);
   setApiSecurityHeaders(res);
   const cors = applyB2bCors(req, res);
   if (!cors.allowed) {
@@ -66,6 +71,7 @@ export default async function handler(req, res) {
   });
   setRateLimitHeaders(res, rateLimit);
   if (!rateLimit.allowed) {
+    emitB2bAuditEvent({ type: 'b2b_authorization', correlationId, outcome: 'rate_limited', statusCode: 429, errorCode: 'RATE_LIMITED' });
     return res.status(429).json({
       error: 'RATE_LIMITED',
       message: 'Too many B2B scan requests. Please retry shortly.',
@@ -75,8 +81,17 @@ export default async function handler(req, res) {
 
   const auth = validateB2bApiKey(req);
   if (!auth.allowed) {
+    emitB2bAuditEvent({ type: 'b2b_authentication', correlationId, outcome: 'denied', statusCode: auth.status, errorCode: auth.code });
     return res.status(auth.status).json({ error: auth.code, message: auth.message });
   }
+
+  const identity = auth.identity;
+  emitB2bAuditEvent({ type: 'b2b_authentication', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'allowed', statusCode: 200 });
+  if (!authorizeB2bScope(auth, 'b2b:scan')) {
+    emitB2bAuditEvent({ type: 'b2b_authorization', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'denied', statusCode: 403, scope: 'b2b:scan', errorCode: 'B2B_SCOPE_DENIED' });
+    return res.status(403).json({ error: 'B2B_SCOPE_DENIED', message: 'This B2B API key is not authorised for scanning.' });
+  }
+  emitB2bAuditEvent({ type: 'b2b_authorization', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'allowed', statusCode: 200, scope: 'b2b:scan' });
 
   try {
     const normalizedUrl = parsePublicHttpUrl(req.body?.url);
@@ -87,7 +102,7 @@ export default async function handler(req, res) {
     const masterEngineUrl = `${protocol}://${host}/api/verify`;
     const response = await fetch(masterEngineUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-VerifyPulse-Correlation-Id': correlationId },
       body: JSON.stringify({ text: normalizedUrl, checkType: 'unified' }),
     });
 
@@ -97,7 +112,9 @@ export default async function handler(req, res) {
 
     const masterResult = await response.json();
     const verdict = masterResult.verdict || 'UNCERTAIN';
+    emitB2bAuditEvent({ type: 'b2b_scan_completed', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'completed', statusCode: 200, scope: 'b2b:scan' });
     return res.status(200).json({
+      correlation_id: correlationId,
       status: verdict,
       threat_level: ['DANGEROUS', 'SCAM', 'FRAUD'].includes(verdict) ? 'HIGH' : verdict === 'SUSPICIOUS' ? 'MEDIUM' : 'LOW',
       scam_type: masterResult.scamType || 'Unknown',
@@ -107,7 +124,9 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     const isClientError = /required|HTTP\(S\)|credential-free|2,048/i.test(error.message);
-    return res.status(isClientError ? 400 : 502).json({
+    const statusCode = isClientError ? 400 : 502;
+    emitB2bAuditEvent({ type: 'b2b_scan_failed', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'failed', statusCode, scope: 'b2b:scan', errorCode: isClientError ? 'BAD_REQUEST' : 'UPSTREAM_ERROR' });
+    return res.status(statusCode).json({
       error: isClientError ? 'BAD_REQUEST' : 'UPSTREAM_ERROR',
       message: isClientError ? error.message : 'The master verification engine could not process this B2B request.',
     });

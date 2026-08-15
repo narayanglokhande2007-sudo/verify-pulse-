@@ -8,7 +8,8 @@ The B2B scan endpoint, `POST /api/v1/scan`, now requires a server-managed API ke
 
 | Variable | Required | Example value | Purpose |
 |---|---:|---|---|
-| `VERIFYPULSE_B2B_API_KEY_HASHES` | Yes | `a1b2...64-hex-characters` | Comma-separated SHA-256 hashes of approved B2B API keys. Without it, B2B API access fails closed with HTTP `503`. |
+| `VERIFYPULSE_B2B_API_KEY_HASHES` | Legacy mode only | `a1b2...64-hex-characters` | Comma-separated SHA-256 hashes of approved keys. Maintained for compatibility; it provides no tenant identity, expiry, or scope. |
+| `VERIFYPULSE_B2B_KEY_REGISTRY` | Recommended for enterprise | JSON registry, documented below | Scoped, tenant-labelled, expiring, revocable SHA-256 key records. When set, it takes precedence and fails closed if invalid. |
 | `VERIFYPULSE_VERIFY_RATE_LIMIT_MAX` | No | `20` | Maximum verification requests per client IP per minute. Default: `20`. |
 | `VERIFYPULSE_B2B_RATE_LIMIT_MAX` | No | `20` | Maximum B2B scan requests per client IP per minute. Default: `20`. |
 | `VERIFYPULSE_B2B_ALLOWED_ORIGINS` | Only for browser integrations | `https://partner.example,https://portal.example` | Comma-separated browser origins permitted to call the B2B API. Server-to-server calls do not need this variable. |
@@ -36,15 +37,45 @@ curl -X POST 'https://www.verify-pulse.com/api/v1/scan' \
   --data '{"url":"https://example.com"}'
 ```
 
-The endpoint returns `401` for a missing or invalid key, `429` if the rate limit is exceeded, and `503` when B2B authentication has not yet been configured. It deliberately does not reveal whether a particular key exists.
+The endpoint returns `401` for a missing, expired, revoked, or invalid key, `403` for an authenticated key without the required scope, `429` if the rate limit is exceeded, and `503` when B2B authentication has not yet been configured. It deliberately does not reveal whether a particular key exists.
 
 ## Limits and scaling
 
 The initial rate limiter is in-memory. It protects a single running serverless instance, but distributed deployments can have more than one instance. Before high-volume enterprise traffic, replace or augment it with a shared atomic rate-limit store such as managed Redis or a platform-supported KV service.
 
+## Enterprise scoped key registry (recommended)
+
+Configure `VERIFYPULSE_B2B_KEY_REGISTRY` as a JSON array in the deployment secret manager. It must contain **only hashes**, never raw keys:
+
+```json
+[
+  {
+    "keyId": "iitr-pilot-2026",
+    "tenantId": "iitr",
+    "sha256": "PUT_64_CHARACTER_SHA256_HASH_HERE",
+    "scopes": ["b2b:scan"],
+    "expiresAt": "2027-03-31T23:59:59.000Z",
+    "status": "active"
+  }
+]
+```
+
+Enterprise registry requests must include both headers:
+
+```text
+X-API-Key: RAW_KEY_FROM_APPROVED_SECRET_MANAGER
+X-VerifyPulse-Key-Id: iitr-pilot-2026
+```
+
+The current scan endpoint requires the `b2b:scan` scope. Set `status` to `revoked` (or remove the record and redeploy) to immediately disable a key. Give every tenant a separate key record, bounded expiry, and least-privilege scope.
+
 ## Key rotation
 
-During rotation, keep the old and new key hashes together in `VERIFYPULSE_B2B_API_KEY_HASHES`, separated by commas. After authorised clients have moved to the new key, remove the old hash and redeploy. Rotate immediately if a raw key may have been exposed.
+For the scoped registry, add a new key record with a distinct key ID and expiry, migrate the tenant, then mark the old record `revoked` and redeploy. For legacy mode, keep the old and new hashes together in `VERIFYPULSE_B2B_API_KEY_HASHES`, separated by commas. Rotate immediately if a raw key may have been exposed.
+
+## Correlation and audit evidence
+
+Every B2B response returns `X-VerifyPulse-Correlation-Id` and `correlation_id`. Privacy-safe structured audit events record only correlation ID, tenant ID, key ID, scope, outcome, status, and error code. They deliberately exclude raw scan content, URLs, API keys, IP addresses, credentials, and personal identifiers.
 
 ## Browser integrations
 

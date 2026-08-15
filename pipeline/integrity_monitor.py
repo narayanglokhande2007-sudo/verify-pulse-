@@ -14,6 +14,7 @@ CRITICAL_FILES = [
     'vercel.json',
     'api/verify.js',
     'lib/security_controls.js',
+    'lib/audit_events.js',
     'api/v1/scan.js',
     'lib/privacy_guard.js',
     'lib/canary_engine.js',
