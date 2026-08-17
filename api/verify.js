@@ -392,30 +392,68 @@ export default async function handler(req, res) {
       const chatbotPrompt = `You are "PulseCore", a highly intelligent AI Security & Banking Expert for VerifyPulse.
 CRITICAL GUARDRAILS:
 1. DOMAIN RESTRICTION: You MUST ONLY talk about Indian Banking, Cybersecurity, Net Banking, Scams, and RBI guidelines.
-2. OUT OF BOUNDS: If the user asks about ANYTHING else (like movies, weather, politics, general coding, sports, personal questions like "do you have a girlfriend", etc.), you MUST decline politely. Do NOT use a hardcoded English phrase if the user is speaking another language. Instead, reply naturally IN THEIR EXACT LANGUAGE saying something equivalent to: "No, I am an AI and I am not made for that. But if you want help on topics like banking, cybersecurity, or net banking tips, I am here to help."
-3. LANGUAGE MASTERY: You must reply in the exact language and script the user uses. You must have flawless, native-level grammar, vocabulary, and natural phrasing especially in Marathi, Hindi, Bengali, Telugu, and Tamil. 
-4. TONE & FORMAT: Be conversational and professional. Structure your answers exactly like ChatGPT: use paragraphs, bold text, and bullet points where appropriate for readability. Include 1-2 professional emojis (e.g., 🏦, 🔒, 🛡️, ✅) to make it look engaging.
-5. CONTEXTUAL FOLLOW-UP: ONLY if you just provided a detailed or complex explanation, you may naturally ask a follow-up question (e.g., asking if they need more details or have another question) translated properly in the current language. DO NOT add a follow-up question to every single message.`;
-      try {
-        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-              { role: 'system', content: chatbotPrompt },
-              { role: 'user', content: externalAnalysisText }
-            ],
-            temperature: 0.2,
-            max_tokens: 800
-          })
-        });
-        const groqData = await groqRes.json();
-        const replyText = groqData.choices?.[0]?.message?.content || "Sorry, I am facing high traffic. Please try again.";
-        return res.status(200).json({ reply: replyText });
-      } catch (e) {
-        return res.status(200).json({ reply: "PulseCore system is currently busy. Please try again." });
+2. OUT OF BOUNDS: If the user asks about ANYTHING else (like movies, weather, politics, general coding, sports, personal questions like "do you have a girlfriend", etc.), politely decline in the user's exact language and offer help with banking, cybersecurity, or net-banking safety.
+3. LANGUAGE MASTERY: Reply in the exact language and script used by the user, including Hindi, Marathi, Bengali, Telugu, and Tamil where applicable.
+4. TONE & FORMAT: Be conversational and professional. Use short paragraphs and bullets when helpful. Use at most two relevant professional emojis.
+5. SAFETY: Do not request passwords, OTPs, PINs, card details, or government identifiers. Do not claim certainty when information needs official verification.`;
+      const failedChatProviders = [];
+      const chatAttempt = async ({ stage, provider, operation }) => {
+        const timeoutMs = requestBudget.timeoutFor({ capMs: 1200, minimumMs: 300 });
+        if (!timeoutMs) {
+          failedChatProviders.push({ provider, errorCode: 'chat_budget_exhausted' });
+          return null;
+        }
+        const attemptResult = await runProviderAttempt({ requestId, stage, provider, operation: () => operation(timeoutMs) });
+        const reply = String(attemptResult.result || '').trim();
+        if (attemptResult.ok && reply) return reply;
+        failedChatProviders.push({ provider, errorCode: attemptResult.errorCode || 'empty_chat_reply' });
+        return null;
+      };
+      const callGeminiChat = async (apiKey, timeoutMs) => {
+        const data = await fetchJsonWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ systemInstruction: { parts: [{ text: chatbotPrompt }] }, contents: [{ role: 'user', parts: [{ text: externalAnalysisText }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 800 } })
+        }, { provider: 'gemini', timeoutMs });
+        return data.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('').trim() || '';
+      };
+      const callGroqChat = async (apiKey, timeoutMs) => {
+        const data = await fetchJsonWithTimeout('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'system', content: chatbotPrompt }, { role: 'user', content: externalAnalysisText }], temperature: 0.2, max_tokens: 800 })
+        }, { provider: 'groq', timeoutMs });
+        return String(data.choices?.[0]?.message?.content || '').trim();
+      };
+      const callAnthropicChat = async (apiKey, timeoutMs) => {
+        const data = await fetchJsonWithTimeout('https://api.anthropic.com/v1/messages', {
+          method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 800, temperature: 0.2, system: chatbotPrompt, messages: [{ role: 'user', content: externalAnalysisText }] })
+        }, { provider: 'anthropic', timeoutMs });
+        return String(data.content?.find((block) => block?.type === 'text')?.text || '').trim();
+      };
+      const callOpenRouterChat = async (apiKey, timeoutMs) => {
+        const data = await fetchJsonWithTimeout('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({ model: 'openrouter/free', messages: [{ role: 'system', content: chatbotPrompt }, { role: 'user', content: externalAnalysisText }], temperature: 0.2, max_tokens: 800 })
+        }, { provider: 'openrouter', timeoutMs });
+        return String(data.choices?.[0]?.message?.content || '').trim();
+      };
+
+      const routes = [
+        GEMINI_KEY && { stage: 'pulsecore_primary_chat', provider: 'gemini', operation: (timeoutMs) => callGeminiChat(GEMINI_KEY, timeoutMs) },
+        GROQ_KEY && { stage: 'pulsecore_fallback_chat', provider: 'groq', operation: (timeoutMs) => callGroqChat(GROQ_KEY, timeoutMs) },
+        ANTHROPIC_KEY && { stage: 'pulsecore_fallback_chat', provider: 'anthropic', operation: (timeoutMs) => callAnthropicChat(ANTHROPIC_KEY, timeoutMs) },
+        OPENROUTER_KEY && { stage: 'pulsecore_fallback_chat', provider: 'openrouter', operation: (timeoutMs) => callOpenRouterChat(OPENROUTER_KEY, timeoutMs) }
+      ].filter(Boolean);
+      for (const route of routes) {
+        const reply = await chatAttempt(route);
+        if (reply) return res.status(200).json({ reply, replyStatus: 'available', replyProvider: route.provider });
       }
+      logScanReliabilityEvent({ requestId, stage: 'pulsecore_router', outcome: 'degraded_chat_response', errorCode: failedChatProviders.map((entry) => entry.errorCode).join(',') || 'provider_not_configured' });
+      return res.status(200).json({
+        reply: 'PulseCore ka live AI response abhi temporarily unavailable hai. Yeh security advice ya SAFE result nahi hai. Banking ya cyber-fraud matter ke liye official bank app, RBI guidance, ya 1930 ke through verify karein; thodi der baad phir try karein.',
+        replyStatus: 'temporarily_unavailable',
+        failedProviders: failedChatProviders.map((entry) => ({ provider: entry.provider, errorCode: entry.errorCode }))
+      });
     }
     const textRisk = assessTextOnlySocialEngineering(text);
     if (textRisk && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
