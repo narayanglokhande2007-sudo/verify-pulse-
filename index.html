@@ -115,6 +115,25 @@
         .text-center { text-align: center; }
         .mt-15 { margin-top: 15px; }
         .loading { display: none; text-align: center; color: #fff; padding: 15px; font-weight: bold; }
+        .scan-journey { display: none; align-items: center; gap: 14px; margin-top: 16px; min-height: 102px; padding: 13px; border: 1px solid #bfdbfe; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #f8fafc); color: #1e3a8a; text-align: left; overflow: hidden; }
+        .scan-journey.is-active { display: flex; }
+        .journey-radar { position: relative; width: 72px; height: 72px; flex: 0 0 72px; display: grid; place-items: center; }
+        .journey-ring { position: absolute; inset: 6px; border: 1px solid rgba(37, 99, 235, 0.34); border-radius: 50%; animation: radarPulse 1.9s ease-out infinite; }
+        .journey-ring.ring-two { inset: 16px; border-color: rgba(14, 165, 233, 0.42); animation-delay: 0.65s; }
+        .journey-ring.ring-three { inset: 26px; border-color: rgba(37, 99, 235, 0.55); animation-delay: 1.25s; }
+        .journey-sweep { position: absolute; width: 34px; height: 34px; top: 2px; left: 36px; transform-origin: 0 34px; border-top: 2px solid #2563eb; border-radius: 0 34px 0 0; opacity: 0.75; animation: radarSweep 2.3s linear infinite; }
+        .journey-shield { position: relative; z-index: 2; width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; box-shadow: 0 8px 18px rgba(37, 99, 235, 0.24); font-size: 19px; }
+        .journey-copy { min-width: 0; flex: 1; }
+        .journey-title { display: block; font-size: 13px; color: #1e3a8a; line-height: 1.3; }
+        .journey-detail { display: block; margin-top: 3px; font-size: 11px; color: #64748b; line-height: 1.35; }
+        .journey-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 10px; }
+        .journey-step { height: 4px; border-radius: 999px; background: #dbeafe; transition: background 220ms ease, box-shadow 220ms ease; }
+        .journey-step.active { background: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+        .journey-step.done { background: #60a5fa; }
+        @keyframes radarPulse { 0% { transform: scale(0.56); opacity: 0.85; } 100% { transform: scale(1.22); opacity: 0; } }
+        @keyframes radarSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .journey-ring, .journey-sweep { animation: none; } .journey-step { transition: none; } }
+        @media (max-width: 360px) { .scan-journey { gap: 10px; padding: 11px; } .journey-radar { width: 58px; height: 58px; flex-basis: 58px; transform: scale(0.82); transform-origin: center; } }
         .file-preview { display: none; padding: 10px; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; color: #15803d; font-size: 13px; margin-top: 10px; align-items: center; justify-content: space-between; }
         .result-box { display: none; margin-top: 15px; background: white; padding: 15px; border-radius: 12px; color: #1e293b; text-align: left; }
     </style>
@@ -179,7 +198,10 @@
                 <button onclick="clearFile()" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px;">Remove</button>
             </div>
             <button id="unifiedBtn" class="btn-primary" onclick="checkUnified()">🔍 Scan Now</button>
-            <div class="loading" id="unifiedLoading" style="color: #3b82f6;">⏳ AI Analyzing...</div>
+            <div class="scan-journey" id="unifiedLoading" role="status" aria-live="polite" aria-label="VerifyPulse scan in progress">
+                <div class="journey-radar" aria-hidden="true"><span class="journey-ring"></span><span class="journey-ring ring-two"></span><span class="journey-ring ring-three"></span><span class="journey-sweep"></span><span class="journey-shield">🛡</span></div>
+                <div class="journey-copy"><strong class="journey-title" id="unifiedStageTitle">Reading link structure</strong><span class="journey-detail" id="unifiedStageDetail">Checking secure signals without opening the submitted link.</span><div class="journey-steps" aria-hidden="true"><span class="journey-step active"></span><span class="journey-step"></span><span class="journey-step"></span><span class="journey-step"></span></div></div>
+            </div>
             <div class="result-box" id="unifiedResult" style="border: 1px solid #e2e8f0;"></div>
         </div>
         <!-- How It Works -->
@@ -777,11 +799,45 @@
         uploadedFileBase64 = null;
         uploadedFileMime = null;
     }
+    let unifiedJourneyTimers = [];
+    function setUnifiedJourneyStage(index, title, detail) {
+        const titleNode = document.getElementById('unifiedStageTitle');
+        const detailNode = document.getElementById('unifiedStageDetail');
+        if (titleNode) titleNode.textContent = title;
+        if (detailNode) detailNode.textContent = detail;
+        document.querySelectorAll('#unifiedLoading .journey-step').forEach((step, stepIndex) => {
+            step.classList.toggle('active', stepIndex === index);
+            step.classList.toggle('done', stepIndex < index);
+        });
+    }
+    function startUnifiedJourney() {
+        stopUnifiedJourney();
+        const loading = document.getElementById('unifiedLoading');
+        if (!loading) return;
+        loading.style.display = 'flex';
+        loading.classList.add('is-active');
+        setUnifiedJourneyStage(0, 'Reading link structure', 'Checking secure signals without opening the submitted link.');
+        const stages = [
+            [700, 1, 'Checking threat intelligence', 'Comparing available reputation signals where relevant.'],
+            [1600, 2, 'Finding scam signals', 'Reviewing URL, language, and safety indicators.'],
+            [2700, 3, 'Preparing a safe explanation', 'Turning the evidence into a clear result for you.'],
+            [5200, 3, 'Still checking secure signals…', 'Some sources can take a little longer. Please keep this page open.']
+        ];
+        unifiedJourneyTimers = stages.map(([delay, index, title, detail]) => window.setTimeout(() => setUnifiedJourneyStage(index, title, detail), delay));
+    }
+    function stopUnifiedJourney() {
+        unifiedJourneyTimers.forEach(timer => window.clearTimeout(timer));
+        unifiedJourneyTimers = [];
+        const loading = document.getElementById('unifiedLoading');
+        if (!loading) return;
+        loading.classList.remove('is-active');
+        loading.style.display = 'none';
+    }
     async function checkUnified() { 
         const text = document.getElementById('unifiedInput').value.trim(); 
         if (!text && !uploadedFileBase64) return alert('Paste a message, link, or upload a screenshot'); 
         
-        document.getElementById('unifiedLoading').style.display = 'block'; 
+        startUnifiedJourney();
         document.getElementById('unifiedResult').style.display = 'none'; 
         
         try { 
@@ -796,7 +852,7 @@
         } catch (e) { 
             showError('unifiedResult', e.message); 
         } finally { 
-            document.getElementById('unifiedLoading').style.display = 'none'; 
+            stopUnifiedJourney();
         } 
     }
     // === TOOLS TAB LOGIC ===
