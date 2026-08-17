@@ -88,8 +88,24 @@ try {
   results.push({ case: 'fast local UPI guidance during outage', status: localGuidance.statusCode, provider: 'local' });
 
   resetProviderCircuits();
+  calls.length = 0;
   mode = 'all-providers-fail';
-  const unavailable = await chat('Mere favourite cricket player ke baare mein batao.', '198.51.100.254');
+  const rbiImpersonationGuidance = await chat('Mujhe kal call and voh keh rahe the kee mein RBI se baat kr raha hu apni bank details batao mujhe tumhara current bank balance check Krna hai kyu kee recently kuch customer keee paise gaye hai and hum check kr rahe hai kee kiske paise gye hai and unko madad krenge toh kya voh sach keh rahe hai', '198.51.100.254');
+  assert.equal(rbiImpersonationGuidance.statusCode, 200);
+  assert.equal(rbiImpersonationGuidance.body?.replyStatus, 'local_safety_guidance');
+  assert.match(rbiImpersonationGuidance.body?.reply || '', /bank details bilkul share mat karo/i);
+  assert.match(rbiImpersonationGuidance.body?.reply || '', /vishing/i);
+  assert.match(rbiImpersonationGuidance.body?.reply || '', /official app/i);
+  assert.match(rbiImpersonationGuidance.body?.reply || '', /1930/i);
+  assert.equal(/temporarily unavailable/i.test(rbiImpersonationGuidance.body?.reply || ''), false);
+  assert.ok(calls.some((url) => url.includes('generativelanguage.googleapis.com')));
+  assert.ok(calls.some((url) => url.includes('api.groq.com')));
+  assert.equal(calls.some((url) => url.includes('api.anthropic.com') || url.includes('openrouter.ai')), false);
+  results.push({ case: 'human-style RBI impersonation guidance during outage', status: rbiImpersonationGuidance.statusCode, provider: 'local' });
+
+  resetProviderCircuits();
+  mode = 'all-providers-fail';
+  const unavailable = await chat('Mere favourite cricket player ke baare mein batao.', '198.51.100.255');
   assert.equal(unavailable.statusCode, 200);
   assert.equal(unavailable.body?.replyStatus, 'temporarily_unavailable');
   assert.match(unavailable.body?.reply || '', /temporarily unavailable/i);
@@ -105,4 +121,4 @@ try {
 }
 
 console.table(results);
-console.log(`PulseCore reliability suite passed: ${results.length}/4 chat-routing cases.`);
+console.log(`PulseCore reliability suite passed: ${results.length}/5 chat-routing cases.`);
