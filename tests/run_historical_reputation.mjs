@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   buildHistoricalLookupKeys,
+  getHistoricalReputationRuntimeHealth,
   hashHistoricalKey,
   lookupHistoricalReputation,
   resetHistoricalReputationCache
@@ -81,11 +82,74 @@ async function testNoFalseMatch() {
   });
 }
 
+async function testFallbackOrigin() {
+  const calls = [];
+  await withMockFetch(async (url) => {
+    const value = String(url);
+    calls.push(value);
+    if (value.includes('verify-pulse.com') || value.includes('raw.githubusercontent.com')) throw new Error('preferred origin temporarily unavailable');
+    if (value.endsWith('/manifest.json')) return response(manifest());
+    const prefix = value.match(/\/shards\/([a-f0-9]{3})\.json$/)?.[1];
+    if (prefix) return response(shardPayload(prefix));
+    return new Response('not found', { status: 404 });
+  }, async () => {
+    const result = await lookupHistoricalReputation(TEST_URL);
+    assert.equal(result.matched, true);
+    assert.equal(result.availability, 'available_fallback_origin');
+    assert.ok(calls.some((url) => url.includes('cdn.jsdelivr.net')));
+  });
+}
+
+async function testStaleCacheRecovery() {
+  const originalDateNow = Date.now;
+  let networkAvailable = true;
+  try {
+    await withMockFetch(async (url) => {
+      if (!networkAvailable) throw new Error('both origins temporarily unavailable');
+      const value = String(url);
+      if (value.endsWith('/manifest.json')) return response(manifest());
+      const prefix = value.match(/\/shards\/([a-f0-9]{3})\.json$/)?.[1];
+      if (prefix) return response(shardPayload(prefix));
+      return new Response('not found', { status: 404 });
+    }, async () => {
+      const warmResult = await lookupHistoricalReputation(TEST_URL);
+      assert.equal(warmResult.matched, true);
+      networkAvailable = false;
+      const afterFreshTtl = originalDateNow() + (11 * 60_000);
+      Date.now = () => afterFreshTtl;
+      const recovered = await lookupHistoricalReputation(TEST_URL);
+      assert.equal(recovered.matched, true);
+      assert.equal(recovered.checked, true);
+      assert.equal(recovered.availability, 'degraded_stale_cache');
+    });
+  } finally {
+    Date.now = originalDateNow;
+  }
+}
+
+async function testCircuitBreaker() {
+  let calls = 0;
+  await withMockFetch(async () => {
+    calls += 1;
+    throw new Error('offline');
+  }, async () => {
+    const first = await lookupHistoricalReputation(TEST_URL);
+    assert.equal(first.availability, 'unavailable');
+    const callsAfterFirst = calls;
+    const health = getHistoricalReputationRuntimeHealth();
+    assert.equal(health.circuit.open, true);
+    const second = await lookupHistoricalReputation(TEST_URL);
+    assert.equal(second.availability, 'unavailable');
+    assert.equal(calls, callsAfterFirst);
+  });
+}
+
 async function testSafeOutage() {
   await withMockFetch(async () => { throw new Error('offline'); }, async () => {
     const result = await lookupHistoricalReputation(TEST_URL);
     assert.equal(result.matched, false);
     assert.equal(result.checked, false);
+    assert.equal(result.availability, 'unavailable');
   });
 }
 
@@ -97,6 +161,9 @@ function testCanonicalLookupKeys() {
 
 await testExactMatchAndEvidence();
 await testNoFalseMatch();
+await testFallbackOrigin();
+await testStaleCacheRecovery();
+await testCircuitBreaker();
 await testSafeOutage();
 testCanonicalLookupKeys();
-console.log('Historical reputation suite passed: exact source-backed match, no false match, canonical keys, and safe outage behavior verified.');
+console.log('Historical reputation suite passed: exact match, no false match, independent-origin fallback, stale-cache recovery, circuit breaking, canonical keys, and safe outage behavior verified.');

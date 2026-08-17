@@ -10,7 +10,7 @@
   "lib/decision_calibration.js": "8c365fbaccbe2a5e74506aba4123cbe364ae724961a34ba17ff5807acc590579",
   "lib/ghost_agent.js": "6d3ddd0ac073fd9e01b9984e9de5c467adf06b0a4a76a9f76c6678f6ca418043",
   "lib/ghost_agent_pooled.js": "0e3fd94789dc5fda9a88ebe5e8e3415bb2d31113393b7e83e1d16e00262e76c1",
-  "lib/historical_reputation.js": "36df2812edaf13c2d1ac293b143cd993c5ebb051bdde401c6b2c8181ef1d70d8",
+  "lib/historical_reputation.js": "f805fc779830df3cd62b50c51b8a3ed79d8b6b6a603cb1b0c7827075d4e48629",
   "lib/intent_forensics.js": "21f498d14cdec27450f796851ffd7b44d2272352882360354e4247d4c8668f56",
   "lib/privacy_guard.js": "3685d97581f6daa17781428cda125ec2235846b6fd16181372ca5e1840496fd3",
   "lib/request_budget.js": "610596ef60ecca03ebe51fb754b5318280b54e7d95e868116810c68abddb992d",
