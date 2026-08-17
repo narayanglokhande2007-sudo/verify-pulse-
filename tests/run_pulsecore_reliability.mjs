@@ -74,6 +74,7 @@ try {
   results.push({ case: 'Groq fallback reply', status: fallback.statusCode, provider: fallback.body.replyProvider });
 
   resetProviderCircuits();
+  calls.length = 0;
   mode = 'all-providers-fail';
   const localGuidance = await chat('UPI fraud se bachne ke teen simple tips batao.', '198.51.100.253');
   assert.equal(localGuidance.statusCode, 200);
@@ -81,7 +82,10 @@ try {
   assert.match(localGuidance.body?.reply || '', /UPI fraud se bachne ke 3 simple tips/i);
   assert.match(localGuidance.body?.reply || '', /UPI PIN/i);
   assert.ok(Array.isArray(localGuidance.body?.failedProviders));
-  results.push({ case: 'local UPI guidance during outage', status: localGuidance.statusCode, provider: 'local' });
+  assert.ok(calls.some((url) => url.includes('generativelanguage.googleapis.com')));
+  assert.ok(calls.some((url) => url.includes('api.groq.com')));
+  assert.equal(calls.some((url) => url.includes('api.anthropic.com') || url.includes('openrouter.ai')), false);
+  results.push({ case: 'fast local UPI guidance during outage', status: localGuidance.statusCode, provider: 'local' });
 
   resetProviderCircuits();
   mode = 'all-providers-fail';

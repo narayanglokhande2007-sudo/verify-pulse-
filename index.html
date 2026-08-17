@@ -929,18 +929,22 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ checkType: 'chatbot', text: text })
             });
-            const data = await res.json();
-            
+            const rawBody = await res.text();
+            let data = null;
+            try { data = rawBody ? JSON.parse(rawBody) : null; } catch { data = null; }
             document.getElementById('pulseCoreTyping').style.display = 'none';
-            if(data.reply) {
-                // Use marked to parse the markdown into beautiful HTML like ChatGPT
-                msgs.innerHTML += `<div class="msg-bot">${marked.parse(data.reply)}</div>`;
+            const reply = typeof data?.reply === 'string' ? data.reply.trim() : '';
+            if (reply) {
+                // Use marked to parse the markdown into readable chat formatting.
+                msgs.innerHTML += `<div class="msg-bot">${marked.parse(reply)}</div>`;
+            } else if (!res.ok) {
+                msgs.innerHTML += `<div class="msg-bot">PulseCore se abhi complete response nahi mila. Yeh SAFE result nahi hai. Banking ya cyber-safety matter ko official bank app/website se verify karo aur thodi der baad phir try karo.</div>`;
             } else {
-                msgs.innerHTML += `<div class="msg-bot">Sorry, I couldn't process that.</div>`;
+                msgs.innerHTML += `<div class="msg-bot">PulseCore ne abhi usable reply return nahi kiya. Please official source se verify karo aur thodi der baad phir try karo.</div>`;
             }
         } catch(e) {
             document.getElementById('pulseCoreTyping').style.display = 'none';
-            msgs.innerHTML += `<div class="msg-bot" style="color:red;">Error connecting to PulseCore.</div>`;
+            msgs.innerHTML += `<div class="msg-bot">PulseCore se abhi connection complete nahi ho paya. Yeh SAFE result nahi hai. Internet check karke thodi der baad try karo, aur urgent banking/cyber-fraud matter ke liye official bank app ya 1930 use karo.</div>`;
         }
         msgs.scrollTop = msgs.scrollHeight;
     }

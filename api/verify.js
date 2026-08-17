@@ -445,19 +445,25 @@ CRITICAL GUARDRAILS:
         ANTHROPIC_KEY && { stage: 'pulsecore_fallback_chat', provider: 'anthropic', operation: (timeoutMs) => callAnthropicChat(ANTHROPIC_KEY, timeoutMs) },
         OPENROUTER_KEY && { stage: 'pulsecore_fallback_chat', provider: 'openrouter', operation: (timeoutMs) => callOpenRouterChat(OPENROUTER_KEY, timeoutMs) }
       ].filter(Boolean);
-      for (const route of routes) {
-        const reply = await chatAttempt(route);
-        if (reply) return res.status(200).json({ reply, replyStatus: 'available', replyProvider: route.provider });
-      }
       const localGuidance = getPulseCoreLocalGuidance(text);
-      if (localGuidance) {
+      const localGuidanceResponse = () => {
         logScanReliabilityEvent({ requestId, stage: 'pulsecore_router', outcome: 'local_safety_guidance', errorCode: failedChatProviders.map((entry) => entry.errorCode).join(',') || 'provider_not_configured' });
         return res.status(200).json({
           reply: localGuidance,
           replyStatus: 'local_safety_guidance',
           failedProviders: failedChatProviders.map((entry) => ({ provider: entry.provider, errorCode: entry.errorCode }))
         });
+      };
+      for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+        const route = routes[routeIndex];
+        const reply = await chatAttempt(route);
+        if (reply) return res.status(200).json({ reply, replyStatus: 'available', replyProvider: route.provider });
+        // For recognised safety topics, do not wait for a long all-provider chain.
+        // Two bounded independent attempts preserve useful AI availability while
+        // keeping the local trusted guidance reachable before a serverless timeout.
+        if (localGuidance && routeIndex + 1 >= Math.min(2, routes.length)) return localGuidanceResponse();
       }
+      if (localGuidance) return localGuidanceResponse();
       logScanReliabilityEvent({ requestId, stage: 'pulsecore_router', outcome: 'degraded_chat_response', errorCode: failedChatProviders.map((entry) => entry.errorCode).join(',') || 'provider_not_configured' });
       return res.status(200).json({
         reply: 'PulseCore ka live AI response abhi temporarily unavailable hai. Yeh security advice ya SAFE result nahi hai. Banking ya cyber-fraud matter ke liye official bank app, RBI guidance, ya 1930 ke through verify karein; thodi der baad phir try karein.',
