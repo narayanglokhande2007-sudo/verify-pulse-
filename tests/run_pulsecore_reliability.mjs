@@ -75,13 +75,23 @@ try {
 
   resetProviderCircuits();
   mode = 'all-providers-fail';
-  const unavailable = await chat('Net banking safe kaise rakhu?', '198.51.100.253');
+  const localGuidance = await chat('UPI fraud se bachne ke teen simple tips batao.', '198.51.100.253');
+  assert.equal(localGuidance.statusCode, 200);
+  assert.equal(localGuidance.body?.replyStatus, 'local_safety_guidance');
+  assert.match(localGuidance.body?.reply || '', /UPI fraud se bachne ke 3 simple tips/i);
+  assert.match(localGuidance.body?.reply || '', /UPI PIN/i);
+  assert.ok(Array.isArray(localGuidance.body?.failedProviders));
+  results.push({ case: 'local UPI guidance during outage', status: localGuidance.statusCode, provider: 'local' });
+
+  resetProviderCircuits();
+  mode = 'all-providers-fail';
+  const unavailable = await chat('Mere favourite cricket player ke baare mein batao.', '198.51.100.254');
   assert.equal(unavailable.statusCode, 200);
   assert.equal(unavailable.body?.replyStatus, 'temporarily_unavailable');
   assert.match(unavailable.body?.reply || '', /temporarily unavailable/i);
   assert.equal(/facing high traffic/i.test(unavailable.body?.reply || ''), false);
   assert.ok(Array.isArray(unavailable.body?.failedProviders));
-  results.push({ case: 'all-provider degraded reply', status: unavailable.statusCode, provider: 'none' });
+  results.push({ case: 'unsupported all-provider degraded reply', status: unavailable.statusCode, provider: 'none' });
 } finally {
   global.fetch = originalFetch;
   for (const [key, value] of Object.entries(originalEnv)) {
@@ -91,4 +101,4 @@ try {
 }
 
 console.table(results);
-console.log(`PulseCore reliability suite passed: ${results.length}/3 chat-routing cases.`);
+console.log(`PulseCore reliability suite passed: ${results.length}/4 chat-routing cases.`);

@@ -10,6 +10,7 @@ import { createShadowEvaluation } from '../lib/shadow_evaluation.js';
 import { lookupThreatIntelligence } from '../lib/threat_intelligence.js';
 import { lookupHistoricalReputation } from '../lib/historical_reputation.js';
 import { createRequestBudget } from '../lib/request_budget.js';
+import { getPulseCoreLocalGuidance } from '../lib/pulsecore_local_guidance.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
 
@@ -447,6 +448,15 @@ CRITICAL GUARDRAILS:
       for (const route of routes) {
         const reply = await chatAttempt(route);
         if (reply) return res.status(200).json({ reply, replyStatus: 'available', replyProvider: route.provider });
+      }
+      const localGuidance = getPulseCoreLocalGuidance(text);
+      if (localGuidance) {
+        logScanReliabilityEvent({ requestId, stage: 'pulsecore_router', outcome: 'local_safety_guidance', errorCode: failedChatProviders.map((entry) => entry.errorCode).join(',') || 'provider_not_configured' });
+        return res.status(200).json({
+          reply: localGuidance,
+          replyStatus: 'local_safety_guidance',
+          failedProviders: failedChatProviders.map((entry) => ({ provider: entry.provider, errorCode: entry.errorCode }))
+        });
       }
       logScanReliabilityEvent({ requestId, stage: 'pulsecore_router', outcome: 'degraded_chat_response', errorCode: failedChatProviders.map((entry) => entry.errorCode).join(',') || 'provider_not_configured' });
       return res.status(200).json({
