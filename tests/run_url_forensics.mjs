@@ -32,6 +32,17 @@ const cases = [
     expectedHighRisk: false
   },
   {
+    id: 'official-verifypulse-domain-is-not-flagged',
+    input: 'VerifyPulse is available at https://www.verify-pulse.com/.',
+    expectedHighRisk: false
+  },
+  {
+    id: 'verifypulse-lookalike-with-otp-request',
+    input: 'VerifyPulse security notice: https://verify-pulse.com.security-check.example/verify par OTP share karein.',
+    expectedHighRisk: true,
+    expectedSignal: 'brand_host_mismatch_verifypulse'
+  },
+  {
     id: 'routine-url-free-notification-is-not-flagged',
     input: 'Your UPI transaction has been completed. Check your official app for details.',
     expectedHighRisk: false

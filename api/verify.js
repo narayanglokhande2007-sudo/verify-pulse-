@@ -157,6 +157,10 @@ export default async function handler(req, res) {
       // Additional trusted (Allen, etc.)
       'allen.ac.in', 'allen.in', 'd.sfmsg.co'
     ];
+    // VerifyPulse first-party URLs are deliberately exact-host matches. Do not
+    // trust arbitrary subdomains: a future staging, tenant, or misconfigured
+    // host must not become SAFE merely because it ends with verify-pulse.com.
+    const exactTrustedHostnames = new Set(['verify-pulse.com', 'www.verify-pulse.com']);
     const urls = extractUrlCandidates(msg).map(canonicalizeUrl).filter(Boolean);
     // An official domain reference does not make a message safe when it asks for
     // credentials, money, an urgent action, or an untrusted contact channel.
@@ -168,7 +172,8 @@ export default async function handler(req, res) {
     if (urls.length === 0 || riskyAction) return false;
     for (const parsedUrl of urls) {
       const hostname = parsedUrl.hostname;
-      const matched = trustedDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+      const matched = exactTrustedHostnames.has(hostname)
+        || trustedDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
       if (!matched) return false;
     }
     return true;
