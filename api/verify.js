@@ -8,6 +8,7 @@ import { analyzeIntentForensics } from '../lib/intent_forensics.js';
 import { calibrateDecision } from '../lib/decision_calibration.js';
 import { createShadowEvaluation } from '../lib/shadow_evaluation.js';
 import { lookupThreatIntelligence } from '../lib/threat_intelligence.js';
+import { lookupHistoricalReputation } from '../lib/historical_reputation.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
@@ -451,7 +452,31 @@ CRITICAL GUARDRAILS:
       }));
     }
 
-    const threatIntelligence = await lookupThreatIntelligence(text);
+    // Run fresh and retained-history reputation checks together. Both are
+    // bounded and fail-safe; a lookup outage never creates a SAFE result.
+    const [historicalReputation, threatIntelligence] = await Promise.all([
+      lookupHistoricalReputation(text),
+      lookupThreatIntelligence(text)
+    ]);
+    if (historicalReputation.matched) {
+      const strongestMatch = historicalReputation.matches[0];
+      const highConfidence = strongestMatch.confidence >= 90 || strongestMatch.sourceCount >= 2;
+      return res.status(200).json(safeResult({
+        verdict: highConfidence ? 'DANGEROUS' : 'SUSPICIOUS',
+        scamType: 'Historical Threat Reputation Match',
+        confidence: Math.min(99, Math.max(70, strongestMatch.confidence)),
+        analysis: 'The submitted link or domain exactly matches VerifyPulse\'s retained multi-source historical threat-reputation index. This is evidence-based risk information, not a guarantee that every unlisted link is safe.',
+        findings: [
+          `Matched ${strongestMatch.indicatorType} indicator for ${strongestMatch.hostname}.`,
+          `Historical sources: ${strongestMatch.sources.join(', ') || 'recorded threat feed'}.`,
+          `First recorded: ${strongestMatch.firstSeen || 'date unavailable'}; last recorded: ${strongestMatch.lastSeen || 'date unavailable'}.`
+        ],
+        whatToDo: ['Do not open the link, install files, make payments, or share credentials.', 'Use the official app or a manually entered official website to verify the claimed service.', 'Report suspected financial fraud promptly through 1930.'],
+        evidenceSources: ['Historical multi-source threat reputation'],
+        historicalReputation,
+        threatIntelligence
+      }));
+    }
     if (threatIntelligence.matched) {
       const strongestMatch = threatIntelligence.matches[0];
       const highConfidence = strongestMatch.confidence >= 90 || strongestMatch.sourceCount >= 2;
