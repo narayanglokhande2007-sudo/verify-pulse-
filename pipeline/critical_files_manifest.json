@@ -2,7 +2,7 @@
   "api/brand_protection_api.js": "6bc964ffe72450172abfbfc27f0d33cf03c5d1a516295f948716131b35206732",
   "api/insurance_partnership_api.js": "d222ce5fe3d27db95a1a244350367db15d9a5eb65d1a8661eaca389ae4fbeee7",
   "api/v1/scan.js": "56a7853cdd088934bcdbfd6e64c87c13aaceadd6484105c9824a393825e383b8",
-  "api/verify.js": "b9c03e9f8de07cd942962f791ed4a79bf723247d17bfb9c5a72b38745c80e941",
+  "api/verify.js": "8204d48007d76b7186ec268fcd0089f9d4e242cdb56297cc67d82fb05ea0fe26",
   "index.html": "267db0c271d65b1ce95a63dd42487a494eb0773b7793d77220b36f32ecab466d",
   "lib/audit_events.js": "6b3af73e1128e6cf130832911236e9fbfb3115368f8e05e5a480ad89aa09978c",
   "lib/canary_engine.js": "d89e12786bd228b5a4056c6bbb762579997e6f0dd515affa0215565fc073e9db",

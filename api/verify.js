@@ -290,6 +290,13 @@ export default async function handler(req, res) {
         detail: findings.length ? `Detected intent indicators: ${findings.join(' ')}` : 'A high-confidence payment, impersonation, or remote-access combination was detected locally.'
       });
     }
+    if (sources.includes('Historical multi-source threat reputation')) {
+      evidence.push({
+        source: 'Historical multi-source threat reputation',
+        type: 'exact-historical-reputation-match',
+        detail: 'The submitted URL or domain exactly matched VerifyPulse\'s retained multi-source historical threat-reputation index.'
+      });
+    }
     if (sources.includes('Source-aware threat intelligence')) {
       evidence.push({
         source: 'Source-aware threat intelligence',
@@ -325,6 +332,8 @@ export default async function handler(req, res) {
       summary = 'The result is based on deterministic URL, brand, and requested-action indicators rather than a model-only judgement.';
     } else if (sources.includes('Local multilingual intent forensics')) {
       summary = 'The result is based on deterministic multilingual payment, impersonation, or remote-access signals rather than a model-only judgement.';
+    } else if (sources.includes('Historical multi-source threat reputation')) {
+      summary = 'An exact retained historical threat-reputation match contributed to this evidence-backed risk result.';
     } else if (sources.includes('Source-aware threat intelligence')) {
       summary = 'A current, source-aware threat-intelligence match contributed to this evidence-backed risk result.';
     } else if (sources.includes('Local social-engineering rules') || sources.includes('Local high-confidence fallback rules')) {
@@ -342,6 +351,7 @@ export default async function handler(req, res) {
       || sources.includes('Local URL and brand forensics')
       || sources.includes('Local multilingual intent forensics')
       || sources.includes('Source-aware threat intelligence')
+      || sources.includes('Historical multi-source threat reputation')
       || (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS');
     const isPrivacyProtection = sources.includes('Privacy guard');
 

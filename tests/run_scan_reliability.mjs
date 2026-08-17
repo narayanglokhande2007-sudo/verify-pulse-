@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import verifyHandler from '../api/verify.js';
 import { resetProviderCircuits } from '../lib/scan_reliability.js';
 
@@ -43,9 +44,22 @@ process.env.OPENROUTER_API_KEY = 'fixture-openrouter-key';
 process.env.ANTHROPIC_API_KEY = 'fixture-anthropic-key';
 process.env.SAFE_BROWSING_API_KEY = 'fixture-safe-browsing-key';
 
+const HISTORICAL_TEST_URL = 'https://historical-fixture.example.test/';
+const HISTORICAL_TEST_HASH = crypto.createHash('sha256').update(HISTORICAL_TEST_URL, 'utf8').digest('hex');
 let mode = 'all-providers-fail';
 global.fetch = async (url) => {
   const target = String(url);
+  if (mode === 'historical-match' && target.includes('verify-pulse.com/pipeline/daily-data/historical-reputation-index')) {
+    if (target.endsWith('/manifest.json')) {
+      return jsonResponse(200, {
+        schemaVersion: 'vp-historical-reputation-index-1', generatedAt: '2026-08-17T00:00:00.000Z',
+        shardPrefixLength: 3, uniqueIndexedKeys: 1, sourceCount: 1, shardCount: 4096,
+        sourceCatalog: [{ id: 0, name: 'OpenPhish', confidence: 90, qualityTier: 'verified', category: 'phishing-url' }]
+      });
+    }
+    const prefix = target.match(/\/shards\/([a-f0-9]{3})\.json$/)?.[1];
+    if (prefix) return jsonResponse(200, { v: 1, p: prefix, r: HISTORICAL_TEST_HASH.startsWith(prefix) ? [[HISTORICAL_TEST_HASH, 'u', [0], 1717200000, 1717286400]] : [] });
+  }
   if (target.includes('raw.githubusercontent.com')) return jsonResponse(503, { error: 'temporarily unavailable' });
   if (target.includes('safebrowsing.googleapis.com')) return jsonResponse(200, {});
   if (target.includes('api.groq.com')) return jsonResponse(429, { error: { message: 'rate limited' } });
@@ -102,6 +116,22 @@ try {
   results.push({ case: 'degraded verification response', status: unavailable.statusCode, verdict: unavailable.body.verdict });
 
   resetProviderCircuits();
+  mode = 'historical-match';
+  const historicalMatch = await scan({
+    text: HISTORICAL_TEST_URL,
+    checkType: 'url',
+    address: '198.51.100.207'
+  });
+  assert.equal(historicalMatch.statusCode, 200);
+  assert.equal(historicalMatch.body?.verdict, 'DANGEROUS');
+  assert.ok(historicalMatch.body?.evidenceSources.includes('Historical multi-source threat reputation'));
+  assert.equal(historicalMatch.body?.explainability.assessmentType, 'evidence-backed');
+  assert.match(historicalMatch.body?.explainability.summary || '', /exact retained historical threat-reputation match/i);
+  assert.ok(historicalMatch.body?.explainability.evidence.some((entry) => entry.source === 'Historical multi-source threat reputation' && entry.type === 'exact-historical-reputation-match'));
+  assert.equal(historicalMatch.body?.explainability.evidence.some((entry) => /No deterministic reputation match/i.test(entry.detail || '')), false);
+  results.push({ case: 'historical reputation explanation', status: historicalMatch.statusCode, verdict: historicalMatch.body.verdict });
+
+  resetProviderCircuits();
   mode = 'anthropic-success';
   const anthropicFallback = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
@@ -142,4 +172,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/5 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/6 focused reliability cases.`);
