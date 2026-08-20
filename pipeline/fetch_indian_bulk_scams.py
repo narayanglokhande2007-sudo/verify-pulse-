@@ -1,203 +1,204 @@
+#!/usr/bin/env python3
+"""Bounded VerifyPulse scam-feed collector.
+
+The live scanner does not need a permanently growing raw Git repository. This
+collector fetches a small vetted public-feed set with strict per-source limits,
+keeps only a compact current input set for threat-intelligence construction, and
+writes source-health evidence. Permanent reputation observations are handled by
+the separate hashed historical-index refresher.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ipaddress
 import json
-import urllib.request
-import os
-import zipfile
-import sqlite3
 import re
-from datetime import datetime, timedelta
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlsplit, urlunsplit
+from urllib.request import Request, urlopen
 
-# File Paths
-INDIA_MASTER = 'pipeline/daily-data/india_scams.jsonl'
-GLOBAL_MASTER = 'pipeline/daily-data/global_scams.jsonl'
-LATEST_FILE = 'pipeline/daily-data/latest_scams.json'
-DB_FILE = 'pipeline/daily-data/scams.db'
-ARCHIVE_DIR = 'pipeline/daily-data/archives'
+ROOT = Path(__file__).resolve().parent
+DATA_DIR = ROOT / "daily-data"
+INDIA_OUTPUT = DATA_DIR / "india_scams.jsonl"
+GLOBAL_OUTPUT = DATA_DIR / "global_scams.jsonl"
+LATEST_OUTPUT = DATA_DIR / "latest_scams.json"
+HEALTH_OUTPUT = DATA_DIR / "source_health.json"
 
-os.makedirs(os.path.dirname(INDIA_MASTER), exist_ok=True)
-os.makedirs(ARCHIVE_DIR, exist_ok=True)
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+DEFAULT_MAX_RECORDS_PER_SOURCE = 600
+DEFAULT_MIN_SUCCESSFUL_SOURCES = 2
+REQUEST_TIMEOUT_SECONDS = 12
 
-# 50+ High-Volume Data Sources (Global & Specialized)
-FEEDS = [
-    "https://openphish.com/feed.txt",
-    "https://urlhaus.abuse.ch/downloads/text/",
-    "https://phishing.database.red/phishing-links-NEW-today.txt",
-    "https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt",
-    "https://vxvault.net/URL_List.php",
-    "https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt",
-    "https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt",
-    "https://raw.githubusercontent.com/joshua-s/active-phishing-domains/master/active-phishing-domains.txt",
-    "https://raw.githubusercontent.com/Dshield-ISC/dshield/master/suspicious_domains.txt",
-    "https://raw.githubusercontent.com/PolishCERT/CERT-PL-Warning-List/master/warning_list_domains.txt",
-    "https://raw.githubusercontent.com/RPiList/specials/master/Blocklist.txt",
-    "https://v.firebog.net/hosts/Prigent-Phishing.txt",
-    "https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt",
-    "https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts",
-    "https://v.firebog.net/hosts/Fraud.txt",
-    "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt",
-    "https://phishing.army/download/phishing_army_blocklist_extended.txt",
-    "https://raw.githubusercontent.com/dogeloverpi/scam-link-dataset/main/scam_links.txt",
-    "https://raw.githubusercontent.com/romainbousseau/digitalside-misp-feed/master/lists/latestips.txt",
-    "https://curbengh.github.io/phishing-filter/domains.txt",
-    "https://reputation.alienvault.com/reputation.data",
-    "https://lists.blocklist.de/lists/all.txt",
-    "http://www.botvrij.eu/data/ioclist.url.raw",
-    "http://danger.rulez.sk/projects/bruteforceblocker/blist.php",
-    "https://cinsscore.com/list/ci-badguys.txt",
-    "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
-    "https://feodotracker.abuse.ch/downloads/ipblocklist.txt",
-    "http://blocklist.greensnow.co/greensnow.txt",
-    "https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts",
-    "https://raw.githubusercontent.com/notracking/hosts-blocklists/master/hostnames.txt",
-    "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.txt",
-    "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
-    "https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate-Hosts-Blacklist/master/hosts/hosts0",
-    "https://raw.githubusercontent.com/T145/black-mirror/master/hosts",
-    "https://raw.githubusercontent.com/badmojr/1Hosts/master/Pro/hosts.txt",
-    "https://raw.githubusercontent.com/mullvad/dns-blocklists/main/output/doh/doh-blocklist.txt",
-    "https://raw.githubusercontent.com/yokoffing/filterlists/main/blocklist.txt",
-    "https://raw.githubusercontent.com/ShadowWhisperer/BlockLists/master/Lists/Malware",
-    "https://raw.githubusercontent.com/matomo-org/referrer-spam-list/master/spammers.txt",
-    "https://raw.githubusercontent.com/K-S-V/Spam-IP-List/master/Spam-IP-List.txt",
-    "https://raw.githubusercontent.com/Marf-S/Phishing-Domains/master/phishing-domains.txt",
-    "https://raw.githubusercontent.com/shreyasminocha/shreyasminocha-hosts/master/hosts",
-    "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/phishing.txt",
-    "https://raw.githubusercontent.com/ZeroDot1/CoinBlockerLists/master/list.txt",
-    "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/botcc.ipset",
-    "https://raw.githubusercontent.com/ktsaou/blocklist-ipsets/master/firehol_level1.netset",
-    "https://raw.githubusercontent.com/drduh/config/master/hosts",
-    "https://raw.githubusercontent.com/anudeepND/youtubeadsblacklist/master/domainlist.txt",
-    "https://raw.githubusercontent.com/blocklist-project/Lists/master/scam.txt"
-]
+# Small, source-attributed set. Adding a source requires a health/reliability
+# review; do not restore unbounded bulk collection here.
+SOURCE_CATALOG = (
+    ("https://urlhaus.abuse.ch/downloads/text/", "URLhaus"),
+    ("https://openphish.com/feed.txt", "OpenPhish"),
+    ("https://phishing.army/download/phishing_army_blocklist_extended.txt", "Phishing Army"),
+    ("https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt", "Phishing.Database"),
+    ("https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt", "Blackbook"),
+)
 
-# Expanded Indian Keywords (Covering 99% of Indian Scam Contexts)
-INDIAN_KEYWORDS = [
-    'sbi', 'onlinesbi', 'yono', 'hdfc', 'icici', 'imobile', 'axisbank', 'pnb', 'kotak', 'bob', 'canara', 'unionbank', 'idfc', 'yesbank', 'rbi', 'nabard',
-    'kyc', 'kyc update', 'account blocked', 'pan card', 'aadhar', 'uan', 'epfo', 'income tax', 'refund', 'cibil', 'credit card', 'pin', 'otp', 'cvv',
-    'paytm', 'phonepe', 'gpay', 'googlepay', 'razorpay', 'cashfree', 'bhim', 'upi', 'upi id', 'collect request', 'cashback', 'reward', 'scratch card',
-    'wallet', 'kyc pending', 'wallet block', 'merchant', 'qr code', 'scan to receive',
-    'jio', 'airtel', 'vi', 'bsnl', 'mtnl', 'sim swap', 'sim block', '5g upgrade', 'tower installation', 'electricity bill', 'mahavitaran', 'bescom',
-    'tneb', 'uppcl', 'adani power', 'tata power', 'water bill',
-    'amazon', 'flipkart', 'myntra', 'ajio', 'nykaa', 'meesho', 'bigbasket', 'blinkit', 'swiggy', 'zomato', 'blue dart', 'delhivery', 'fedex', 'dhl',
-    'courier', 'parcel', 'gift', 'lucky draw', 'win prize', 'reward points', 'kbc', 'lottery', 'kaon banega crorepati',
-    'naukri', 'monster', 'linkedin job', 'part time job', 'work from home', 'data entry', 'registration fee', 'security deposit', 'interview',
-    'offer letter', 'government job', 'ssc', 'upsc', 'railway job', 'army recruitment',
-    'digital arrest', 'mumbai police', 'cbi', 'customs', 'trai', 'drug parcel', 'illegal package', 'money laundering', 'skype call',
-    'video call scam', 'sextortion', 'crypto', 'binance', 'investment', 'double money', 'trading profit', 'telegram task', 'whatsapp task',
-    '.in', '.co.in', '.org.in', '.net.in', '.gov.in', '.nic.in', 'india', 'bharat', 'hindi', 'marathi', 'tamil', 'telugu', 'bengali', 'kannada'
-]
+INDIA_MARKERS = (
+    "sbi", "onlinesbi", "yono", "hdfc", "icici", "axis", "pnb", "kotak", "rbi", "kyc", "aadhaar", "aadhar",
+    "pan", "upi", "phonepe", "paytm", "gpay", "bhim", "razorpay", "cashfree", ".in", ".co.in", ".gov.in", ".nic.in",
+    "india", "bharat", "irctc", "epfo", "income tax", "digital arrest",
+)
 
-SAFELIST = [
-    'google.com', 'facebook.com', 'amazon.in', 'flipkart.com', 'youtube.com',
-    'sbi.co.in', 'hdfcbank.com', 'icicibank.com', 'axisbank.com', 'pnbindia.in',
-    'paytm.com', 'phonepe.com', 'npci.org.in', 'gov.in', 'uidai.gov.in',
-    'wikipedia.org', 'twitter.com', 'x.com', 'instagram.com', 'whatsapp.com'
-]
 
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS scams 
-                 (url TEXT PRIMARY KEY, source TEXT, type TEXT, date_added TEXT, region TEXT)''')
-    c.execute('CREATE INDEX IF NOT EXISTS idx_url ON scams(url)')
-    c.execute('CREATE INDEX IF NOT EXISTS idx_region ON scams(region)')
-    conn.commit()
-    return conn
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
-def is_safelisted(url):
-    lower_url = url.lower()
-    return any(safe_site in lower_url for safe_site in SAFELIST)
 
-def is_indian_context(url_or_text):
-    lower_text = url_or_text.lower()
-    return any(keyword in lower_text for keyword in INDIAN_KEYWORDS)
+def atomic_write(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(text, encoding="utf-8")
+    temporary.replace(path)
 
-def clean_url(url):
-    # Remove protocol and trailing slashes for better deduplication
-    url = re.sub(r'^https?://', '', url.lower())
-    url = url.rstrip('/')
-    return url
 
-def append_to_storage(data_item, region, conn):
-    file_path = INDIA_MASTER if region == 'india' else GLOBAL_MASTER
-    with open(file_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(data_item) + '\n')
-    
+def public_host(host: str) -> bool:
+    candidate = host.strip().lower().rstrip(".")
+    if not candidate or candidate == "localhost" or candidate.endswith(".local"):
+        return False
     try:
-        c = conn.cursor()
-        c.execute("INSERT OR IGNORE INTO scams (url, source, type, date_added, region) VALUES (?, ?, ?, ?, ?)",
-                  (data_item['url'], data_item['source'], data_item['type'], data_item['date_added'], region))
-        conn.commit()
-    except Exception as e:
-        print(f"DB Insert Error: {e}")
+        address = ipaddress.ip_address(candidate)
+        return not (address.is_private or address.is_loopback or address.is_link_local or address.is_reserved or address.is_unspecified)
+    except ValueError:
+        return bool(re.fullmatch(r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}", candidate))
 
-def update_latest_file(new_urls):
-    latest = []
-    if os.path.exists(LATEST_FILE):
-        try:
-            with open(LATEST_FILE, 'r', encoding='utf-8') as f:
-                latest = json.load(f)
-        except: pass
-    
-    updated_latest = new_urls + latest
-    seen = set()
-    deduped = [x for x in updated_latest if not (x in seen or seen.add(x))]
-    final_latest = deduped[:200]
-    
-    with open(LATEST_FILE, 'w', encoding='utf-8') as f:
-        json.dump(final_latest, f, indent=2)
 
-def fetch_and_process():
-    print(f"[{datetime.now()}] Starting Upgraded 50+ Source Pipeline...")
-    conn = init_db()
-    
-    # Efficient URL tracking for deduplication
-    c = conn.cursor()
-    c.execute("SELECT url FROM scams")
-    # Use cleaned URLs for robust deduplication
-    existing_urls = {clean_url(row[0]) for row in c.fetchall()}
+def canonical_indicator(raw: str) -> str | None:
+    value = str(raw or "").strip()
+    if not value or value.startswith(("#", "//", "!")):
+        return None
+    tokens = value.split()
+    if len(tokens) > 1 and tokens[0] in {"0.0.0.0", "127.0.0.1", "::"}:
+        value = tokens[1]
+    else:
+        value = tokens[0].split(",", 1)[0]
+    value = value.strip("'\"()[]{}<>,.;")
+    if not value:
+        return None
+    candidate = value if re.match(r"^https?://", value, re.IGNORECASE) else f"https://{value}"
+    try:
+        parsed = urlsplit(candidate)
+    except ValueError:
+        return None
+    if parsed.username or parsed.password or not public_host(parsed.hostname or ""):
+        return None
+    path = parsed.path or ""
+    return urlunsplit((parsed.scheme.lower(), (parsed.hostname or "").lower(), path, "", ""))
 
-    new_india_urls = []
-    new_global_count = 0
 
-    for feed_url in FEEDS:
-        print(f"Fetching: {feed_url}")
-        try:
-            req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=20) as response:
-                content = response.read().decode('utf-8', errors='ignore')
-                for line in content.split('\n'):
-                    line = line.strip()
-                    if not line or line.startswith('#') or line.startswith('//'): continue
-                    
-                    # Extract URL from various formats (hosts, txt, csv)
-                    parts = line.split()
-                    if len(parts) > 1 and (parts[0] in ['0.0.0.0', '127.0.0.1'] or parts[0].endswith(':')):
-                        url = parts[1]
-                    else:
-                        url = parts[0].split(',')[0] # Handle CSV-like
-                    
-                    cleaned = clean_url(url)
-                    if cleaned not in existing_urls and not is_safelisted(url):
-                        region = 'india' if is_indian_context(url) else 'global'
-                        data_item = {
-                            "url": url,
-                            "source": feed_url,
-                            "type": "Phishing/Scam",
-                            "date_added": datetime.now().isoformat()
-                        }
-                        append_to_storage(data_item, region, conn)
-                        existing_urls.add(cleaned)
-                        if region == 'india': new_india_urls.append(url)
-                        else: new_global_count += 1
-                            
-        except Exception as e:
-            print(f"Failed {feed_url}: {e}")
+def india_related(indicator: str) -> bool:
+    lowered = indicator.lower()
+    return any(marker in lowered for marker in INDIA_MARKERS)
 
-    if new_india_urls:
-        update_latest_file(new_india_urls)
 
-    print(f"✅ Summary: Added {len(new_india_urls)} India records and {new_global_count} Global records.")
-    conn.close()
+def fetch_source(url: str, name: str, *, max_records: int, observed_at: str) -> tuple[list[dict[str, str]], dict[str, Any]]:
+    health: dict[str, Any] = {
+        "name": name,
+        "provenance": url,
+        "checkedAt": observed_at,
+        "status": "failed",
+        "acceptedRecords": 0,
+        "bytesRead": 0,
+        "truncated": False,
+    }
+    try:
+        request = Request(url, headers={"User-Agent": "VerifyPulse-BoundedCollector/1.0"})
+        with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+            content = response.read(MAX_RESPONSE_BYTES + 1)
+        health["truncated"] = len(content) > MAX_RESPONSE_BYTES
+        health["bytesRead"] = min(len(content), MAX_RESPONSE_BYTES)
+        records: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for line in content[:MAX_RESPONSE_BYTES].decode("utf-8", errors="ignore").splitlines():
+            indicator = canonical_indicator(line)
+            if not indicator or indicator in seen:
+                continue
+            seen.add(indicator)
+            records.append({
+                "url": indicator,
+                "source": url,
+                "type": f"{name} public threat indicator",
+                "date_added": observed_at,
+            })
+            if len(records) >= max_records:
+                break
+        health["acceptedRecords"] = len(records)
+        health["status"] = "partial" if health["truncated"] else "ok"
+        return records, health
+    except Exception as error:
+        health["error"] = f"{type(error).__name__}: {str(error)[:180]}"
+        return [], health
 
-if __name__ == '__main__':
-    fetch_and_process()
+
+def write_records(path: Path, records: list[dict[str, str]]) -> None:
+    atomic_write(path, "".join(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n" for record in records))
+
+
+def collect(*, max_records_per_source: int, minimum_successful_sources: int) -> dict[str, Any]:
+    observed_at = utc_now().isoformat()
+    all_records: list[dict[str, str]] = []
+    health_entries: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for url, name in SOURCE_CATALOG:
+        records, health = fetch_source(url, name, max_records=max_records_per_source, observed_at=observed_at)
+        health_entries.append(health)
+        for record in records:
+            if record["url"] in seen:
+                continue
+            seen.add(record["url"])
+            all_records.append(record)
+
+    successful_sources = sum(item["status"] in {"ok", "partial"} and item["acceptedRecords"] > 0 for item in health_entries)
+    india_records = [record for record in all_records if india_related(record["url"])]
+    global_records = [record for record in all_records if record not in india_records]
+    write_records(INDIA_OUTPUT, india_records)
+    write_records(GLOBAL_OUTPUT, global_records)
+    atomic_write(LATEST_OUTPUT, json.dumps([record["url"] for record in all_records[:200]], ensure_ascii=False, indent=2) + "\n")
+
+    health = {
+        "schemaVersion": "vp-bounded-feed-health-1",
+        "generatedAt": observed_at,
+        "sourceCount": len(SOURCE_CATALOG),
+        "successfulSources": successful_sources,
+        "acceptedRecords": len(all_records),
+        "indiaRecords": len(india_records),
+        "globalRecords": len(global_records),
+        "maxRecordsPerSource": max_records_per_source,
+        "sources": health_entries,
+    }
+    atomic_write(HEALTH_OUTPUT, json.dumps(health, ensure_ascii=False, indent=2) + "\n")
+    if successful_sources < minimum_successful_sources:
+        raise RuntimeError(f"Only {successful_sources} usable sources; require at least {minimum_successful_sources}.")
+    return health
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build compact VerifyPulse scam-feed inputs")
+    parser.add_argument("--max-records-per-source", type=int, default=DEFAULT_MAX_RECORDS_PER_SOURCE)
+    parser.add_argument("--min-successful-sources", type=int, default=DEFAULT_MIN_SUCCESSFUL_SOURCES)
+    args = parser.parse_args()
+    if not 1 <= args.max_records_per_source <= 1000:
+        parser.error("--max-records-per-source must be between 1 and 1000")
+    if not 1 <= args.min_successful_sources <= len(SOURCE_CATALOG):
+        parser.error("--min-successful-sources must fit the source catalog")
+    try:
+        result = collect(max_records_per_source=args.max_records_per_source, minimum_successful_sources=args.min_successful_sources)
+        print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
+    except RuntimeError as error:
+        print(json.dumps({"valid": False, "error": str(error)}, ensure_ascii=False), file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

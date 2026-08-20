@@ -45,8 +45,8 @@ LIVE_VERIFIED_FEEDS = [
     ("https://urlhaus.abuse.ch/downloads/text/", "URLhaus"),
     ("https://openphish.com/feed.txt", "OpenPhish"),
 ]
-MAX_LIVE_RECORDS_PER_SOURCE = 10_000
-MAX_LIVE_RESPONSE_BYTES = 5 * 1024 * 1024
+MAX_LIVE_RECORDS_PER_SOURCE = 2_000
+MAX_LIVE_RESPONSE_BYTES = 2 * 1024 * 1024
 
 
 def utc_now() -> datetime:

@@ -1,0 +1,9 @@
+Contact: mailto:narayanglokhande2007@gmail.com
+Preferred-Languages: en, hi
+Policy: https://www.verify-pulse.com/trust.html
+Acknowledgments: https://www.verify-pulse.com/trust.html
+Expires: 2026-12-31T23:59:59.000Z
+
+# Please do not send passwords, OTPs, PINs, API keys, bank details, card details,
+# Aadhaar/PAN values, or customer data in an initial report. Provide a short
+# reproducible description and a safe contact method first.

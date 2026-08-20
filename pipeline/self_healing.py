@@ -49,6 +49,8 @@ CRITICAL_FILES = (
     "api/insurance_partnership_api.js",
     "pipeline/scam_hunter.py",
     "pipeline/build_threat_intelligence.py",
+    "pipeline/check_threat_intelligence_freshness.py",
+    "pipeline/fetch_indian_bulk_scams.py",
     "pipeline/build_historical_reputation_index.py",
     "pipeline/check_historical_reputation_index.py",
     "pipeline/refresh_historical_reputation.py",

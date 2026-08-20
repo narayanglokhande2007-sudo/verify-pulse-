@@ -135,18 +135,18 @@ def update_record(records: dict[tuple[str, str], list[Any]], key_type: str, valu
     if record is None:
         records[key] = [digest, key_type, [origin_id], observed_at, observed_at]
         return True
-    changed = False
-    if origin_id not in record[2]:
-        record[2].append(origin_id)
-        record[2].sort()
-        changed = True
-    if not record[3] or observed_at < record[3]:
-        record[3] = observed_at
-        changed = True
+    # Do not rewrite an existing record merely because the same public feed was
+    # checked again today. That would mutate thousands of shards every run and
+    # make the repository grow rapidly without adding new reputation evidence.
+    # The separate source-health file records the freshness of this collection
+    # run; a record changes only when it gains genuinely new source provenance.
+    if origin_id in record[2]:
+        return False
+    record[2].append(origin_id)
+    record[2].sort()
     if observed_at > record[4]:
         record[4] = observed_at
-        changed = True
-    return changed
+    return True
 
 
 def load_shard(prefix: str) -> tuple[dict[tuple[str, str], list[Any]], Path]:
