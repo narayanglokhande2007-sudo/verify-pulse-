@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VerifyPulse Trust Center: how scam-risk checks work, what we protect, and the limits of the service.">
+  <title>Trust Center | VerifyPulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="trust-center.css">
+</head>
+<body>
+  <header class="vp-nav">
+    <div class="vp-shell vp-nav-row">
+      <a class="vp-brand" href="/">Verify<span>Pulse</span></a>
+      <nav class="vp-nav-links" aria-label="Primary navigation">
+        <a href="enterprise.html">Business</a>
+        <a href="trust.html" aria-current="page">Trust Center</a>
+        <a href="risk-management.html">Risk Management</a>
+        <a href="status.html">Status</a>
+        <a href="pilot.html">Pilot</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="vp-hero">
+    <div class="vp-shell">
+      <span class="vp-eyebrow">Evidence before marketing claims</span>
+      <h1>Trust is built by being clear about what VerifyPulse does—and what it does not do.</h1>
+      <p>VerifyPulse helps people and teams assess suspicious links and messages. It provides risk evidence and safer next steps; it does not guarantee that every item is safe or harmful.</p>
+      <div class="vp-hero-actions">
+        <a class="vp-button" href="risk-management.html">See how risk is handled</a>
+        <a class="vp-button secondary" href="status.html">View current service status</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="vp-shell vp-main">
+    <section class="vp-section">
+      <h2>What the public scanner checks</h2>
+      <p class="vp-subcopy">For submitted text and links, the live service combines deterministic signals with enrichment and, when available, AI-assisted analysis. The exact signals used depend on the input and service availability.</p>
+      <div class="vp-grid three">
+        <article class="vp-card"><div class="vp-icon">⌁</div><h3>Link and intent signals</h3><p>Checks can look for suspicious URL structure, brand-domain mismatch, urgency, OTP/UPI pressure, fake authority, and other common scam patterns.</p></article>
+        <article class="vp-card"><div class="vp-icon">◈</div><h3>Threat reputation evidence</h3><p>Known URL/domain evidence is checked against the available historical reputation index and published threat-intelligence enrichment before live AI analysis is needed.</p></article>
+        <article class="vp-card"><div class="vp-icon">◎</div><h3>Service-aware analysis</h3><p>When an external analysis provider is unavailable, VerifyPulse does not treat the lack of analysis as proof that content is safe.</p></article>
+      </div>
+    </section>
+
+    <section class="vp-section">
+      <h2>Privacy and data-practice boundaries</h2>
+      <p class="vp-subcopy">Please do not submit OTPs, PINs, passwords, card details, bank-account credentials, or other unnecessary sensitive information. Use an official bank or service channel for account-specific issues.</p>
+      <div class="vp-grid two">
+        <article class="vp-card"><div class="vp-icon">◌</div><h3>Input safeguards</h3><p>The public verification route applies supported-type and input-size checks. External file analysis requires an explicit consent signal before it begins.</p></article>
+        <article class="vp-card"><div class="vp-icon">◐</div><h3>B2B metadata-only events</h3><p>The current B2B scan route emits structured operational events that exclude raw scan content, URLs, API keys, IP addresses, contact data, credentials, and personal identifiers.</p></article>
+        <article class="vp-card"><div class="vp-icon">⌘</div><h3>Controlled API access</h3><p>The B2B URL-scan route includes API-key authentication, scope checks, browser-origin allow-listing, correlation IDs, and basic request-rate controls.</p></article>
+        <article class="vp-card"><div class="vp-icon">✓</div><h3>Important limitation</h3><p>These controls are not an external security certification. Prospective business customers should perform their own review before processing customer information.</p></article>
+      </div>
+    </section>
+
+    <section class="vp-section">
+      <h2>How we reduce avoidable risk</h2>
+      <div class="vp-grid two">
+        <article class="vp-card"><h3>Evidence is shown with the result</h3><p>Where available, results explain the decision basis—for example, historical reputation evidence, URL/intent signals, model-assisted analysis, or service status.</p></article>
+        <article class="vp-card"><h3>Uncertainty is not hidden</h3><p>If the service cannot complete live analysis and there is no strong local evidence, the result should recommend independent verification rather than saying SAFE.</p></article>
+        <article class="vp-card"><h3>Important files are integrity checked</h3><p>Critical implementation and data files are checked against an integrity manifest to help detect unreviewed changes in the maintained repository.</p></article>
+        <article class="vp-card"><h3>Known limits are stated</h3><p>VerifyPulse does not currently replace a bank’s fraud engine, transaction controls, device intelligence, human investigation process, or final payment decision.</p></article>
+      </div>
+      <div class="vp-note warning"><strong>Decision boundary:</strong> Never use a VerifyPulse result as the only reason to send money, share credentials, unblock an account, or automatically block a customer transaction. Use the claimed organisation’s official app, website, or support channel to confirm sensitive requests.</div>
+    </section>
+
+    <section class="vp-section">
+      <h2>For business and security enquiries</h2>
+      <p class="vp-subcopy">For a controlled business-pilot discussion, review the <a href="pilot.html">Pilot page</a>. For a security concern or correction to this page, contact <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Trust%20Center%20enquiry">narayanglokhande2007@gmail.com</a>.</p>
+    </section>
+  </main>
+
+  <footer class="vp-footer"><div class="vp-shell vp-footer-inner"><span>© 2026 VerifyPulse. Risk information, not a guarantee or financial instruction.</span><nav aria-label="Footer navigation"><a href="/">Scanner</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk management</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></footer>
+</body>
+</html>

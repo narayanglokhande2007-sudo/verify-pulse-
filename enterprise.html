@@ -1,224 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VerifyPulse Enterprise | Advanced Phishing Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-page: #ffffff;
-            --bg-card: #f8fafc;
-            --bg-code: #0f172a;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-light: #e2e8f0;
-            --accent-blue: #2563eb;
-            --accent-green: #16a34a;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        body { background: var(--bg-page); color: var(--text-main); line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        
-        nav { display: flex; justify-content: space-between; align-items: center; height: 80px; border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
-        .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-        .logo span { color: var(--accent-blue); }
-        .nav-links a { margin-left: 30px; text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 14px; transition: 0.2s; }
-        .nav-links a:hover { color: var(--text-main); }
-        
-        .btn-primary { background: var(--text-main); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: 0.2s; }
-        .btn-primary:hover { background: var(--accent-blue); }
-        .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-light); padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block; }
-        
-        .hero { padding: 100px 0; text-align: center; max-width: 800px; margin: 0 auto; }
-        .hero h1 { font-size: 56px; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px; }
-        .hero p { font-size: 20px; color: var(--text-muted); margin-bottom: 40px; }
-        
-        .section-title { font-size: 32px; font-weight: 700; margin: 80px 0 40px; text-align: center; }
-        
-        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 80px; }
-        .tech-card { padding: 30px; border: 1px solid var(--border-light); border-radius: 16px; background: var(--bg-card); transition: 0.3s; }
-        .tech-card:hover { border-color: var(--accent-blue); box-shadow: 0 10px 30px rgba(37,99,235,0.05); }
-        .tech-card h3 { margin-bottom: 15px; font-size: 18px; }
-        .tech-card p { font-size: 14px; color: var(--text-muted); }
-
-        .playground-wrapper { background: #0f172a; color: white; padding: 100px 0; border-radius: 24px; margin-bottom: 80px; }
-        .pg-content { display: flex; gap: 40px; }
-        .pg-panel { flex: 1; }
-        .code-box { background: #1e293b; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 13px; padding: 25px; border-radius: 12px; border: 1px solid #334155; height: 350px; overflow-y: auto; white-space: pre-wrap; }
-        
-        .api-tester { background: white; color: var(--text-main); padding: 30px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .api-tester textarea { width: 100%; height: 100px; border: 1px solid var(--border-light); border-radius: 8px; padding: 15px; margin-bottom: 15px; resize: none; font-size: 14px; }
-        
-        .docs-section { margin-bottom: 100px; }
-        .docs-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .docs-table th, .docs-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
-        .docs-table th { color: var(--text-muted); font-weight: 600; background: var(--bg-card); }
-
-        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border-light); color: var(--text-muted); font-size: 14px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VerifyPulse business page: evidence-based scam link and message risk intelligence for controlled pilots.">
+  <title>VerifyPulse Business | Scam-Risk Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="trust-center.css">
+  <style>
+    .enterprise-hero { padding: 92px 0 56px; background: radial-gradient(circle at 85% 15%, #dce9ff 0, transparent 32%), linear-gradient(180deg,#fff 0%,#f5f8fc 100%); }
+    .enterprise-hero h1 { max-width: 900px; margin: 16px 0 15px; font-size: clamp(38px, 6vw, 68px); line-height: 1.01; letter-spacing: -.06em; }
+    .enterprise-hero p { max-width: 800px; margin: 0; color: var(--vp-muted); font-size: clamp(17px, 2vw, 21px); }
+    .enterprise-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .enterprise-code { margin-top: 22px; border: 1px solid #23334c; border-radius: 14px; padding: 18px; overflow-x: auto; color: #dce8ff; background: #0f172a; font: 12px/1.6 "Fira Code", monospace; white-space: pre-wrap; }
+    .enterprise-flow { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-top: 22px; }
+    .enterprise-step { padding: 18px; border: 1px solid var(--vp-line); border-radius: 14px; background: #fff; }
+    .enterprise-step strong { display: block; color: var(--vp-blue); font-size: 12px; }
+    .enterprise-step span { display: block; margin-top: 7px; color: #43536a; font-size: 14px; }
+    @media(max-width:760px){.enterprise-flow{grid-template-columns:1fr 1fr}.enterprise-hero{padding:62px 0 42px}}
+  </style>
 </head>
 <body>
-    <nav>
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="logo">VerifyPulse <span>Enterprise</span></div>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="#docs">Documentation</a>
-                <a href="mailto:narayanglokhande2007@gmail.com"><button class="btn-primary">Request API Access</button></a>
-            </div>
-        </div>
-    </nav>
+  <header class="vp-nav"><div class="vp-shell vp-nav-row"><a class="vp-brand" href="/">Verify<span>Pulse</span></a><nav class="vp-nav-links" aria-label="Primary navigation"><a href="enterprise.html" aria-current="page">Business</a><a href="docs.html">API Docs</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></header>
 
-    <header class="container hero">
-        <h1>Institutional-Grade Phishing Defense.</h1>
-        <p>Protect your users from Zero-Day scams with our Multi-Layered Meta Judge Engine. Designed for Fintechs, Banks, and Digital Platforms.</p>
-        <div style="display: flex; gap: 20px; justify-content: center;">
-            <a href="#docs" class="btn-primary">View API Documentation</a>
-            <a href="#playground" class="btn-outline">Try Live Playground</a>
-        </div>
-    </header>
+  <section class="enterprise-hero"><div class="vp-shell"><span class="vp-eyebrow">Controlled scam-risk decision support</span><h1>Explainable scam link and message risk intelligence for India-focused teams.</h1><p>VerifyPulse helps customer-safety, support, lending, payment, and merchant teams assess suspicious links and messages with available evidence and clear next steps. It is designed to support—not replace—a client’s final fraud, payment, or regulatory decision.</p><div class="enterprise-actions"><a class="vp-button" href="pilot.html">Explore a controlled pilot</a><a class="vp-button secondary" href="docs.html">Read current API documentation</a></div></div></section>
 
-    <section class="container">
-        <h2 class="section-title">The Technology Behind the Defense</h2>
-        <div class="tech-grid">
-            <div class="tech-card">
-                <h3>Meta Judge Council</h3>
-                <p>Proprietary consensus architecture combining Heuristics, Threat Intel, and LLM reasoning to achieve 99.9% accuracy.</p>
-            </div>
-            <div class="tech-card">
-                <h3>AI Vision Forensics</h3>
-                <p>Real-time pixel analysis detects brand imitation, fake logos, and visual phishing patterns invisible to traditional filters.</p>
-            </div>
-            <div class="tech-card">
-                <h3>Ghost Agent Sandboxing</h3>
-                <p>Autonomous headless agents perform live behavioral analysis of URLs to detect malicious forms and APK downloads.</p>
-            </div>
-            <div class="tech-card">
-                <h3>FTS5 Scalable Indexing</h3>
-                <p>Sub-50ms search latency across 1.3M+ records using advanced full-text search indexing on the edge.</p>
-            </div>
-            <div class="tech-card">
-                <h3>Autonomous Scam Hunter</h3>
-                <p>Proactive monitoring of Certificate Transparency (CT) logs to identify and blacklist scam domains before they reach users.</p>
-            </div>
-            <div class="tech-card">
-                <h3>Zero PII Retention</h3>
-                <p>Enterprise-grade privacy. Data is processed in-memory and discarded. No User Data or PII is ever stored.</p>
-            </div>
-        </div>
-    </section>
+  <main class="vp-shell vp-main">
+    <section class="vp-section"><h2>What is available today</h2><p class="vp-subcopy">The production scanner uses multiple evidence paths. Each result is service-aware: a lack of live AI analysis is not presented as proof that submitted content is safe.</p><div class="vp-grid three"><article class="vp-card"><div class="vp-icon">⌁</div><h3>URL and message forensics</h3><p>Checks can identify suspicious URL structure, brand-domain mismatch, credential/OTP pressure, payment pressure, and other scam signals.</p></article><article class="vp-card"><div class="vp-icon">◈</div><h3>Historical reputation evidence</h3><p>Known URL/domain evidence is checked against the maintained historical reputation index before live AI analysis is needed.</p></article><article class="vp-card"><div class="vp-icon">◎</div><h3>Explainable result contract</h3><p>Results can include risk level, confidence interpretation, evidence labels, recommended next steps, and an honest service-status boundary.</p></article></div></section>
 
-    <section id="playground" class="container playground-wrapper">
-        <div class="container pg-content">
-            <div class="pg-panel">
-                <h2 style="margin-bottom: 20px;">Developer First Integration</h2>
-                <p style="color: #94a3b8; margin-bottom: 30px;">Integrate institutional security into your application with a single POST request. Supports Node.js, Python, Go, and Java.</p>
-                <div class="code-box">
-const response = await fetch('https://api.verify-pulse.com/v1/verify', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer YOUR_API_KEY' },
-    body: JSON.stringify({ 
-        input: "Your account is blocked. Verify at: http://sbi-kyc.in",
-        options: { "vision": true, "ghost_agent": true }
-    })
-});
+    <section class="vp-section"><h2>How a safer review flow works</h2><div class="enterprise-flow"><div class="enterprise-step"><strong>01 — Submit</strong><span>A user or support agent submits a suspicious URL or message.</span></div><div class="enterprise-step"><strong>02 — Check evidence</strong><span>Local forensics, historical reputation, and available enrichment are evaluated.</span></div><div class="enterprise-step"><strong>03 — Assist when available</strong><span>External AI analysis may assist with ambiguous content within the request budget.</span></div><div class="enterprise-step"><strong>04 — Explain and route</strong><span>The result gives evidence and safe next steps; the client keeps its own final decision process.</span></div></div></section>
 
-const result = await response.json();
-console.log(result.verdict); // "SCAM"
-                </div>
-            </div>
-            <div class="pg-panel">
-                <div class="api-tester">
-                    <h3 style="margin-bottom: 15px;">Live API Explorer</h3>
-                    <textarea id="testInput">Dear user, your HDFC account has been suspended. Please update your KYC immediately: http://hdfc-verify-kyc.net/login</textarea>
-                    <button class="btn-primary" id="runTestBtn" style="width: 100%; margin-bottom: 20px;">Run Diagnostic Scan</button>
-                    <div id="testOutput" style="background: #f1f5f9; padding: 15px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 12px; height: 180px; overflow-y: auto; white-space: pre-wrap;">
-// Response will include Meta Judge verdict,
-// Visual Forensics, and Behavioral Report.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <section class="vp-section"><h2>Current B2B URL-scan API</h2><p class="vp-subcopy">The maintained B2B route currently accepts credential-free HTTP(S) URLs. It uses API-key authentication, scope checks, correlation IDs, and basic rate-limit headers. Broader integration modes should be agreed during a controlled pilot.</p><div class="vp-grid two"><article class="vp-card"><h3>Request shape</h3><pre class="enterprise-code">POST https://www.verify-pulse.com/api/v1/scan
+X-API-Key: YOUR_API_KEY
+X-VerifyPulse-Key-Id: YOUR_KEY_ID
+Content-Type: application/json
 
-    <section id="docs" class="container docs-section">
-        <h2 class="section-title">API Reference</h2>
-        <div style="margin-bottom: 40px;">
-            <h3 style="margin-bottom: 15px;">POST /v1/verify</h3>
-            <p style="color: var(--text-muted);">The primary endpoint for real-time threat analysis. Uses the Meta Judge architecture to evaluate inputs.</p>
-        </div>
-        
-        <table class="docs-table">
-            <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>input</code></td>
-                    <td>string</td>
-                    <td>The URL or message text to be analyzed. (Required)</td>
-                </tr>
-                <tr>
-                    <td><code>options.vision</code></td>
-                    <td>boolean</td>
-                    <td>Enable AI Vision Forensics for visual imitation detection.</td>
-                </tr>
-                <tr>
-                    <td><code>options.ghost_agent</code></td>
-                    <td>boolean</td>
-                    <td>Enable Ghost Agent Sandboxing for behavioral analysis.</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div style="margin-top: 40px; background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--border-light);">
-            <h4 style="margin-bottom: 15px;">Response Schema</h4>
-            <div class="code-box" style="height: auto; background: white; color: var(--text-main); border: 1px solid var(--border-light);">
 {
-  "verdict": "SCAM",
-  "confidence": 99.9,
-  "reason": ["Visual imitation of HDFC Bank detected", "Phishing form found"],
-  "meta_judge": {
-    "consensus": "REJECT",
-    "layers_triggered": ["Vision", "Behavioral", "Intel"]
-  }
-}
-            </div>
-        </div>
-    </section>
+  "url": "https://example.com/suspicious-link"
+}</pre></article><article class="vp-card"><h3>Response boundary</h3><pre class="enterprise-code">{
+  "correlation_id": "request-correlation-id",
+  "status": "SUSPICIOUS",
+  "threat_level": "MEDIUM",
+  "scam_type": "Unknown",
+  "confidence": 0,
+  "message": "Analysis complete.",
+  "action_steps": []
+}</pre></article></div><div class="vp-note warning"><strong>Important:</strong> The example fields show the supported B2B response shape, not a promised verdict for any particular URL. Do not use the result alone to automatically block a payment or account action.</div></section>
 
-    <footer class="container">
-        <p>&copy; 2026 VerifyPulse Enterprise Intelligence. Engineered for Scalable Trust.</p>
-    </footer>
+    <section class="vp-section"><h2>Trust and pilot boundaries</h2><div class="vp-grid two"><article class="vp-card"><h3>Data and security discussion</h3><p>Review the <a href="trust.html">Trust Center</a> for current input safeguards, B2B metadata-only operational events, and limits that are deliberately not overstated.</p></article><article class="vp-card"><h3>Risk-management discussion</h3><p>Review <a href="risk-management.html">Risk Management</a> for degraded responses, evidence layers, and the boundary between VerifyPulse decision support and a client’s final controls.</p></article><article class="vp-card"><h3>Service transparency</h3><p>The <a href="status.html">Status page</a> shows exactly which public checks are visible and what each one does—not a hidden blanket uptime claim.</p></article><article class="vp-card"><h3>Start narrowly</h3><p>A first <a href="pilot.html">controlled pilot</a> should use one measurable scam-communication workflow and a pre-agreed limited capacity.</p></article></div></section>
 
-    <script>
-        document.getElementById('runTestBtn').addEventListener('click', async () => {
-            const input = document.getElementById('testInput').value;
-            const output = document.getElementById('testOutput');
-            const btn = document.getElementById('runTestBtn');
-            
-            btn.textContent = "Initializing Ghost Agent...";
-            output.textContent = "// Booting Headless Sandbox...\n// Capturing Visual Forensics...\n// Running Meta Judge Consensus...";
-            
-            try {
-                const response = await fetch('/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ input: input })
-                });
-                const data = await response.json();
-                output.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                output.textContent = "// Simulation Result:\n{\n  \"verdict\": \"SCAM\",\n  \"confidence\": 99.9,\n  \"reason\": [\n    \"Visual imitation of HDFC Bank detected\",\n    \"Found password/OTP input field on unverified domain\"\n  ]\n}";
-            } finally {
-                btn.textContent = "Run Diagnostic Scan";
-            }
-        });
-    </script>
+    <section class="vp-section"><h2>Business contact</h2><p class="vp-subcopy">For a controlled pilot or business API discussion, email <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20business%20enquiry">narayanglokhande2007@gmail.com</a> with the intended use case and approximate request volume. Fit, data fields, safeguards, and capacity are reviewed before onboarding.</p></section>
+  </main>
+  <footer class="vp-footer"><div class="vp-shell vp-footer-inner"><span>© 2026 VerifyPulse. Risk information, not a guarantee or financial instruction.</span><nav aria-label="Footer navigation"><a href="/">Scanner</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk management</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></footer>
 </body>
 </html>

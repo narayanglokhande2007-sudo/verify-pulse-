@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VerifyPulse risk management: evidence layers, degraded responses, and responsible use boundaries.">
+  <title>Risk Management | VerifyPulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="trust-center.css">
+</head>
+<body>
+  <header class="vp-nav"><div class="vp-shell vp-nav-row"><a class="vp-brand" href="/">Verify<span>Pulse</span></a><nav class="vp-nav-links" aria-label="Primary navigation"><a href="enterprise.html">Business</a><a href="trust.html">Trust Center</a><a href="risk-management.html" aria-current="page">Risk Management</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></header>
+
+  <section class="vp-hero"><div class="vp-shell"><span class="vp-eyebrow">Responsible scam-risk decision support</span><h1>A risk result should explain the evidence—and be honest when evidence is not enough.</h1><p>VerifyPulse is designed to help users and teams pause before acting on a suspicious message or link. It is not a promise that every result is correct, and it is not a replacement for a regulated financial institution’s own controls.</p><div class="vp-hero-actions"><a class="vp-button" href="trust.html">Read trust practices</a><a class="vp-button secondary" href="pilot.html">Review business pilot scope</a></div></div></section>
+
+  <main class="vp-shell vp-main">
+    <section class="vp-section">
+      <h2>How a result can be reached</h2>
+      <p class="vp-subcopy">Different inputs produce different available evidence. The service may use one or more of the following layers; none alone is a universal guarantee.</p>
+      <div class="vp-grid three">
+        <article class="vp-card"><div class="vp-icon">1</div><h3>Deterministic checks</h3><p>URL forensics and text/intent signals can identify patterns such as suspicious structure, lookalike-brand mismatch, credential requests, OTP pressure, or UPI/payment pressure.</p></article>
+        <article class="vp-card"><div class="vp-icon">2</div><h3>Historical and current evidence</h3><p>Known URL/domain observations can create an evidence-backed result through historical reputation lookup and available threat-intelligence enrichment.</p></article>
+        <article class="vp-card"><div class="vp-icon">3</div><h3>AI-assisted analysis</h3><p>When external providers are available within the request budget, they may help interpret ambiguous content. Provider output is not treated as a guarantee.</p></article>
+      </div>
+    </section>
+
+    <section class="vp-section">
+      <h2>What happens when live AI analysis is unavailable</h2>
+      <div class="vp-grid two">
+        <article class="vp-card"><h3>Strong local evidence can still be shown</h3><p>If an exact historical-reputation match or a high-confidence local scam signal is available, the result can explain that evidence without waiting for a live model.</p></article>
+        <article class="vp-card"><h3>No evidence is not treated as SAFE</h3><p>If no strong local evidence exists and live providers cannot complete analysis, VerifyPulse returns an independent-verification recommendation instead of a false SAFE result.</p></article>
+      </div>
+      <div class="vp-note warning"><strong>Why this matters:</strong> A service outage must not turn into fake reassurance. “Needs verification” means the user should independently confirm the sender, offer, or transaction using an official channel they open themselves.</div>
+    </section>
+
+    <section class="vp-section">
+      <h2>Risk bands are decision-support, not automatic action</h2>
+      <div class="vp-table-wrap"><table class="vp-table"><thead><tr><th>Possible output</th><th>Meaning</th><th>Safe next step</th></tr></thead><tbody><tr><td><strong>Evidence-backed high risk</strong></td><td>Strong deterministic or historical evidence suggests danger.</td><td>Do not continue based on the message/link. Verify through an official app or support channel.</td></tr><tr><td><strong>Suspicious / review needed</strong></td><td>Signals suggest risk but do not prove the full story.</td><td>Pause, collect context, and independently verify. A business user may route it to review.</td></tr><tr><td><strong>SAFE / trusted evidence</strong></td><td>Available evidence did not indicate a known high-risk problem for the submitted content.</td><td>Still follow normal security practice; SAFE is not proof that a person, transaction, or offer is authentic.</td></tr><tr><td><strong>Needs verification / degraded</strong></td><td>Live analysis could not complete and strong local evidence was not available.</td><td>Do not act on credentials, payments, or document requests until independently confirmed.</td></tr></tbody></table></div>
+    </section>
+
+    <section class="vp-section">
+      <h2>Boundaries we keep clear</h2>
+      <div class="vp-grid two">
+        <article class="vp-card"><h3>Not a payment-blocking engine</h3><p>For a business pilot, VerifyPulse should provide risk evidence and recommended actions. The client’s approved policy and human/team controls should make the final transaction decision.</p></article>
+        <article class="vp-card"><h3>Not an account-verification service</h3><p>VerifyPulse cannot see a user’s bank balance, validate an RBI caller, or confirm the identity of an unknown sender. Users must use official channels.</p></article>
+        <article class="vp-card"><h3>Not a live browser detonation sandbox</h3><p>The production scanner does not autonomously open submitted suspicious URLs in a separate browser environment. It analyzes submitted content and available evidence.</p></article>
+        <article class="vp-card"><h3>Not a substitute for reporting</h3><p>If money, credentials, or personal data may have been exposed, users should contact their bank through official channels and use the relevant official cyber-fraud reporting route.</p></article>
+      </div>
+    </section>
+
+    <section class="vp-section"><h2>Improvement and correction path</h2><p class="vp-subcopy">The product has automated regression and integrity checks in its maintained repository. For business pilots, feedback should be captured as confirmed scam, benign, false alert, or unknown so that performance claims can be measured rather than guessed. Report an issue or correction at <a href="mailto:narayanglokhande2007@gmail.com?subject=VerifyPulse%20Risk%20Management%20enquiry">narayanglokhande2007@gmail.com</a>.</p></section>
+  </main>
+
+  <footer class="vp-footer"><div class="vp-shell vp-footer-inner"><span>© 2026 VerifyPulse. Risk information, not a guarantee or financial instruction.</span><nav aria-label="Footer navigation"><a href="/">Scanner</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk management</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></footer>
+</body>
+</html>
