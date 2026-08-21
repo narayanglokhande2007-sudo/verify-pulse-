@@ -182,6 +182,94 @@
             #tab-about > .card:first-child, #tab-about > .stats-grid, #tab-about > .text-center, #tab-about > div:nth-last-child(2) { grid-column: 1 / -1; }
             #tab-pulsecore > div { height: calc(100vh - 180px) !important; min-height: 560px; }
             .card, .price-card { border-radius: 18px; }
+
+            /* PC corner navigation: scanner workspace stays wide; navigation opens only on demand. */
+            .desktop-sidebar { display: none !important; }
+            .app-container { grid-template-columns: minmax(0, 1fr); }
+            .top-header { grid-column: 1; display: flex; gap: 16px; }
+            .tab-content { grid-column: 1; }
+            .desktop-menu-trigger {
+                display: inline-grid;
+                place-items: center;
+                width: 42px;
+                height: 42px;
+                flex: 0 0 42px;
+                border: 1px solid rgba(198, 220, 241, 0.96);
+                border-radius: 14px;
+                background: rgba(255,255,255,0.64);
+                color: var(--vp-ink);
+                font-size: 22px;
+                line-height: 1;
+                cursor: pointer;
+                box-shadow: 0 8px 20px rgba(55,88,132,0.10), inset 0 1px 0 rgba(255,255,255,0.94);
+                transition: transform 160ms var(--vp-ease), background 180ms var(--vp-ease), box-shadow 180ms var(--vp-ease);
+            }
+            .desktop-menu-trigger:hover { background: rgba(239,247,255,0.94); box-shadow: 0 11px 24px rgba(55,88,132,0.14), inset 0 1px 0 rgba(255,255,255,0.96); }
+            .desktop-menu-trigger:active { transform: scale(0.96); }
+            body.desktop-menu-open { overflow: hidden; }
+            .desktop-menu-layer {
+                position: fixed;
+                inset: 0;
+                z-index: 280;
+                display: block;
+                padding: 16px;
+                background: rgba(20, 45, 79, 0.26);
+                opacity: 0;
+                pointer-events: none;
+                backdrop-filter: blur(22px) saturate(116%) brightness(0.84);
+                -webkit-backdrop-filter: blur(22px) saturate(116%) brightness(0.84);
+                transition: opacity 220ms var(--vp-ease);
+            }
+            .desktop-menu-layer.is-open { opacity: 1; pointer-events: auto; }
+            .desktop-menu-sheet {
+                width: min(390px, calc(100vw - 32px));
+                height: calc(100vh - 32px);
+                overflow-y: auto;
+                padding: 20px 16px 24px;
+                border: 1px solid rgba(255,255,255,0.90);
+                border-radius: 28px;
+                background: rgba(251,254,255,0.80);
+                box-shadow: 0 26px 78px rgba(14,39,75,0.30), inset 0 1px 0 rgba(255,255,255,0.96);
+                backdrop-filter: blur(30px) saturate(150%);
+                -webkit-backdrop-filter: blur(30px) saturate(150%);
+                transform: translateX(-32px) scale(0.986);
+                transform-origin: left top;
+                transition: transform 260ms var(--vp-ease);
+            }
+            .desktop-menu-layer.is-open .desktop-menu-sheet { transform: translateX(0) scale(1); }
+            .desktop-menu-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 4px 4px 18px; }
+            .desktop-menu-head h2 { margin: 0; color: var(--vp-ink); font-size: 22px; letter-spacing: -0.025em; }
+            .desktop-menu-head p { margin-top: 5px; color: var(--vp-muted); font-size: 12px; line-height: 1.45; }
+            .desktop-menu-close { width: 36px; height: 36px; flex: 0 0 36px; border: 1px solid rgba(209,227,244,0.96); border-radius: 12px; background: rgba(255,255,255,0.72); color: #50627d; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.90); }
+            .desktop-menu-section-label { margin: 5px 5px 9px; color: #72829a; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; }
+            .desktop-menu-grid { display: grid; grid-template-columns: 1fr; gap: 9px; }
+            .desktop-menu-grid + .desktop-menu-section-label { margin-top: 19px; }
+            .desktop-menu-link {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                min-height: 62px;
+                padding: 12px 13px;
+                border: 1px solid rgba(255,255,255,0.86);
+                border-radius: 18px;
+                background: rgba(255,255,255,0.56);
+                color: var(--vp-ink);
+                font-family: inherit;
+                text-align: left;
+                text-decoration: none;
+                cursor: pointer;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
+                transition: transform 160ms var(--vp-ease), background 160ms var(--vp-ease), border-color 160ms var(--vp-ease), box-shadow 160ms var(--vp-ease);
+            }
+            .desktop-menu-link:hover { transform: translateX(3px); background: rgba(244,250,255,0.94); border-color: rgba(164,211,247,0.86); }
+            .desktop-menu-link:active { transform: scale(0.985); }
+            .desktop-main-nav.is-active { background: rgba(224,242,255,0.86); border-color: rgba(113,190,248,0.82); box-shadow: 0 10px 22px rgba(63,130,188,0.13), inset 0 1px 0 rgba(255,255,255,0.94); }
+            .desktop-menu-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 13px; background: rgba(229,242,255,0.90); color: var(--vp-blue-deep); font-size: 18px; }
+            .desktop-menu-copy { min-width: 0; flex: 1; }
+            .desktop-menu-copy strong { display: block; color: var(--vp-ink); font-size: 14px; line-height: 1.2; }
+            .desktop-menu-copy span { display: block; margin-top: 4px; color: var(--vp-muted); font-size: 11px; line-height: 1.3; }
+            .desktop-menu-arrow { color: #8aa0bd; font-size: 20px; }
         }
 
 
@@ -374,7 +462,7 @@
         }
 
         /* Mobile corner navigation: app-like access with a full-screen glass blur. */
-        .mobile-more-layer, .mobile-menu-trigger { display: none; }
+        .mobile-more-layer, .mobile-menu-trigger, .desktop-menu-layer, .desktop-menu-trigger { display: none; }
         @media (max-width: 767px) {
             .app-container { padding-bottom: 0; }
             .bottom-nav { display: none !important; }
@@ -461,7 +549,11 @@
             .mobile-more-copy span { display: block; margin-top: 3px; color: var(--vp-muted); font-size: 11px; line-height: 1.3; }
             .mobile-more-arrow { color: #8aa0bd; font-size: 18px; }
         }
-        @media (min-width: 768px) { .mobile-more-layer, .mobile-menu-trigger { display: none !important; } }
+        @media (min-width: 768px) {
+            .mobile-more-layer, .mobile-menu-trigger { display: none !important; }
+            .desktop-menu-trigger { display: inline-grid !important; }
+            .desktop-menu-layer { display: block; }
+        }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
@@ -483,6 +575,7 @@
     </aside>
     <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
+        <button type="button" class="desktop-menu-trigger" id="desktopMenuTrigger" onclick="openDesktopMenu()" aria-label="Open VerifyPulse workspace navigation" aria-haspopup="dialog" aria-expanded="false" aria-controls="desktopMenu">☰</button>
         <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" onclick="openMobileMoreMenu()" aria-label="Open VerifyPulse menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="mobileMoreMenu">☰</button>
         <div style="display:flex; align-items:center;">
             <div class="logo-icon"><img src="logo.jpg" alt="Logo" class="custom-logo"></div>
@@ -845,6 +938,32 @@
         </div>
     </section>
 </div>
+<!-- Desktop-only corner navigation for PC workspace sections and public resources. -->
+<div class="desktop-menu-layer" id="desktopMenu" aria-hidden="true" onclick="if (event.target === this) closeDesktopMenu()">
+    <section class="desktop-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="desktopMenuTitle">
+        <div class="desktop-menu-head">
+            <div><h2 id="desktopMenuTitle">VerifyPulse</h2><p>Open a workspace or trusted resource without keeping navigation on screen.</p></div>
+            <button type="button" class="desktop-menu-close" aria-label="Close workspace navigation" onclick="closeDesktopMenu()">×</button>
+        </div>
+        <p class="desktop-menu-section-label">WORKSPACE</p>
+        <div class="desktop-menu-grid" id="desktopMainMenu">
+            <button type="button" class="desktop-menu-link desktop-main-nav is-active" data-desktop-tab="scan" onclick="openDesktopMainTab('scan', this)"><span class="desktop-menu-icon"><img src="logo.jpg" alt="" style="width:22px;height:22px;object-fit:contain;"></span><span class="desktop-menu-copy"><strong>Scan workspace</strong><span>Check links, messages and emails</span></span><span class="desktop-menu-arrow">›</span></button>
+            <button type="button" class="desktop-menu-link desktop-main-nav" data-desktop-tab="pulsecore" onclick="openDesktopMainTab('pulsecore', this)"><span class="desktop-menu-icon">💬</span><span class="desktop-menu-copy"><strong>PulseCore AI</strong><span>Ask cyber-safety questions</span></span><span class="desktop-menu-arrow">›</span></button>
+            <button type="button" class="desktop-menu-link desktop-main-nav" data-desktop-tab="tools" onclick="openDesktopMainTab('tools', this)"><span class="desktop-menu-icon">🧰</span><span class="desktop-menu-copy"><strong>Security tools</strong><span>Explore practical safety checks</span></span><span class="desktop-menu-arrow">›</span></button>
+            <button type="button" class="desktop-menu-link desktop-main-nav" data-desktop-tab="pro" onclick="openDesktopMainTab('pro', this)"><span class="desktop-menu-icon">⭐</span><span class="desktop-menu-copy"><strong>Business pilot</strong><span>Review pilot boundaries</span></span><span class="desktop-menu-arrow">›</span></button>
+            <button type="button" class="desktop-menu-link desktop-main-nav" data-desktop-tab="about" onclick="openDesktopMainTab('about', this)"><span class="desktop-menu-icon">ℹ️</span><span class="desktop-menu-copy"><strong>About &amp; trust</strong><span>Product information and feedback</span></span><span class="desktop-menu-arrow">›</span></button>
+        </div>
+        <p class="desktop-menu-section-label">TRUST &amp; RESOURCES</p>
+        <div class="desktop-menu-grid">
+            <a class="desktop-menu-link" href="trust.html"><span class="desktop-menu-icon">🛡️</span><span class="desktop-menu-copy"><strong>Trust Center</strong><span>Current controls and published boundaries</span></span><span class="desktop-menu-arrow">›</span></a>
+            <a class="desktop-menu-link" href="status.html"><span class="desktop-menu-icon">◉</span><span class="desktop-menu-copy"><strong>Service Status</strong><span>Threat-data and application health</span></span><span class="desktop-menu-arrow">›</span></a>
+            <a class="desktop-menu-link" href="risk-management.html"><span class="desktop-menu-icon">◌</span><span class="desktop-menu-copy"><strong>Risk Management</strong><span>Evidence, uncertainty and safe decisions</span></span><span class="desktop-menu-arrow">›</span></a>
+            <a class="desktop-menu-link" href="docs.html"><span class="desktop-menu-icon">⌘</span><span class="desktop-menu-copy"><strong>Developer Docs</strong><span>Technical integration and API information</span></span><span class="desktop-menu-arrow">›</span></a>
+            <a class="desktop-menu-link" href="enterprise.html"><span class="desktop-menu-icon">▦</span><span class="desktop-menu-copy"><strong>Enterprise / API</strong><span>Business-facing product overview</span></span><span class="desktop-menu-arrow">›</span></a>
+            <a class="desktop-menu-link" href="pilot.html"><span class="desktop-menu-icon">✦</span><span class="desktop-menu-copy"><strong>Business Pilot</strong><span>Controlled pilot discussion boundaries</span></span><span class="desktop-menu-arrow">›</span></a>
+        </div>
+    </section>
+</div>
 <!-- ==========================================
      PAYMENT MODAL (Hidden by default)
      ========================================== -->
@@ -932,6 +1051,9 @@
         document.querySelectorAll('.mobile-main-nav').forEach(el => {
             el.classList.toggle('is-active', el.dataset.mobileTab === tabId);
         });
+        document.querySelectorAll('.desktop-main-nav').forEach(el => {
+            el.classList.toggle('is-active', el.dataset.desktopTab === tabId);
+        });
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         window.scrollTo(0, 0);
@@ -964,8 +1086,32 @@
         const matchingMobileTab = document.querySelector(`.mobile-main-nav[data-mobile-tab="${tabId}"]`);
         openMobileMainTab(tabId, matchingMobileTab);
     }
+    // === DESKTOP CORNER NAVIGATION ===
+    function openDesktopMenu() {
+        const menu = document.getElementById('desktopMenu');
+        const trigger = document.getElementById('desktopMenuTrigger');
+        menu.classList.add('is-open');
+        menu.setAttribute('aria-hidden', 'false');
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('desktop-menu-open');
+    }
+    function closeDesktopMenu() {
+        const menu = document.getElementById('desktopMenu');
+        const trigger = document.getElementById('desktopMenuTrigger');
+        menu.classList.remove('is-open');
+        menu.setAttribute('aria-hidden', 'true');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('desktop-menu-open');
+    }
+    function openDesktopMainTab(tabId, element) {
+        closeDesktopMenu();
+        switchMainTab(tabId, element);
+    }
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') closeMobileMoreMenu();
+        if (event.key === 'Escape') {
+            closeMobileMoreMenu();
+            closeDesktopMenu();
+        }
     });
     function expandTool(toolId) {
         const toolBox = document.getElementById(toolId);
