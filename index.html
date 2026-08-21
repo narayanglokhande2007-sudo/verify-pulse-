@@ -461,7 +461,34 @@
             #tab-scan .desktop-how-card h3, #tab-scan .desktop-usecases-card h3 { letter-spacing: -0.02em; }
 
             /* PC single-surface workspace: header and scan action belong to one VerifyPulse panel. */
-            .top-header { background: transparent; border-bottom-color: transparent; }
+            .top-header { position: relative; min-height: 142px; padding: 20px 32px 16px; background: transparent; border-bottom-color: transparent; }
+            .top-header .header-identity { display: none !important; }
+            .desktop-brand-stage {
+                position: absolute;
+                left: 50%;
+                top: 17px;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                transform: translateX(-50%);
+                color: var(--vp-ink);
+                text-align: center;
+            }
+            .desktop-brand-stage h1 { margin: 0; color: var(--vp-ink); font-size: 29px; font-weight: 780; letter-spacing: -0.045em; line-height: 1; }
+            .desktop-brand-emblem { position: relative; display: grid; width: 48px; height: 48px; margin-top: 8px; place-items: center; isolation: isolate; }
+            .desktop-brand-emblem::before, .desktop-brand-emblem::after { position: absolute; inset: 1px; border: 1px solid rgba(10,132,255,0.34); border-radius: 50%; content: ''; }
+            .desktop-brand-emblem::after { inset: -4px; border-color: rgba(14,165,233,0.16); }
+            .desktop-brand-orbit { position: absolute; inset: -8px; border: 1px solid rgba(10,132,255,0.26); border-radius: 50%; animation: desktopBrandOrbit 9s linear infinite; }
+            .desktop-brand-orbit::after { position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; border-radius: 50%; background: #0a84ff; box-shadow: 0 0 12px rgba(10,132,255,0.72); content: ''; }
+            .desktop-brand-emblem img { position: relative; z-index: 1; width: 34px; height: 34px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.84); box-shadow: 0 7px 16px rgba(27,74,136,0.12); animation: desktopBrandFloat 4.8s var(--vp-ease) infinite; }
+            .desktop-brand-stage.is-scanning .desktop-brand-emblem::before { animation: desktopBrandPulse 1.25s ease-out infinite; }
+            .desktop-brand-stage.is-scanning .desktop-brand-emblem::after { animation: desktopBrandPulse 1.25s ease-out 0.32s infinite; }
+            .desktop-brand-stage.is-scanning .desktop-brand-orbit { border-color: rgba(10,132,255,0.72); animation-duration: 1.75s; }
+            .desktop-brand-stage.is-scanning .desktop-brand-emblem img { animation: desktopShieldScan 1.6s var(--vp-ease) infinite; box-shadow: 0 0 0 5px rgba(10,132,255,0.10), 0 10px 26px rgba(10,132,255,0.30); }
+            @keyframes desktopBrandOrbit { to { transform: rotate(360deg); } }
+            @keyframes desktopBrandFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+            @keyframes desktopBrandPulse { 0% { transform: scale(0.72); opacity: 0.86; } 100% { transform: scale(1.32); opacity: 0; } }
+            @keyframes desktopShieldScan { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } }
             #tab-scan.active { max-width: none; margin: 0; gap: 0; }
             #tab-scan .desktop-scanner-card {
                 min-height: 350px;
@@ -483,7 +510,7 @@
         }
 
         /* Mobile corner navigation: app-like access with a full-screen glass blur. */
-        .mobile-more-layer, .mobile-menu-trigger, .desktop-menu-layer, .desktop-menu-trigger { display: none; }
+        .mobile-more-layer, .mobile-menu-trigger, .desktop-menu-layer, .desktop-menu-trigger, .desktop-brand-stage { display: none; }
         @media (max-width: 767px) {
             .app-container { padding-bottom: 80px; }
             .bottom-nav { display: flex !important; }
@@ -598,12 +625,16 @@
     <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
         <button type="button" class="desktop-menu-trigger" id="desktopMenuTrigger" onclick="openDesktopMenu()" aria-label="Open VerifyPulse workspace navigation" aria-haspopup="dialog" aria-expanded="false" aria-controls="desktopMenu">☰</button>
-        <div style="display:flex; align-items:center;">
+        <div class="header-identity" style="display:flex; align-items:center;">
             <div class="logo-icon"><img src="logo.jpg" alt="Logo" class="custom-logo"></div>
             <div class="header-titles">
                 <h1>VerifyPulse</h1>
                 <p><img src="logo.jpg" alt="Logo" class="custom-logo-small"> <span id="tagline">AI scam detector</span></p>
             </div>
+        </div>
+        <div class="desktop-brand-stage" id="desktopBrandStage" aria-label="VerifyPulse security workspace">
+            <h1>VerifyPulse</h1>
+            <div class="desktop-brand-emblem" aria-hidden="true"><span class="desktop-brand-orbit"></span><img src="brand-shield.webp" alt=""></div>
         </div>
         <div style="display:flex; gap: 8px;">
             <div id="btn-en" class="lang-btn active" onclick="setLang('en')">EN</div>
@@ -1362,8 +1393,13 @@
             step.classList.toggle('done', stepIndex < index);
         });
     }
+    function setDesktopBrandScanning(isScanning) {
+        const stage = document.getElementById('desktopBrandStage');
+        if (stage) stage.classList.toggle('is-scanning', Boolean(isScanning));
+    }
     function startUnifiedJourney() {
         stopUnifiedJourney();
+        setDesktopBrandScanning(true);
         const loading = document.getElementById('unifiedLoading');
         if (!loading) return;
         loading.style.display = 'flex';
@@ -1380,6 +1416,7 @@
     function stopUnifiedJourney() {
         unifiedJourneyTimers.forEach(timer => window.clearTimeout(timer));
         unifiedJourneyTimers = [];
+        setDesktopBrandScanning(false);
         const loading = document.getElementById('unifiedLoading');
         if (!loading) return;
         loading.classList.remove('is-active');
