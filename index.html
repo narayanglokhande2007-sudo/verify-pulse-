@@ -461,12 +461,12 @@
             #tab-scan .desktop-how-card h3, #tab-scan .desktop-usecases-card h3 { letter-spacing: -0.02em; }
 
             /* PC single-surface workspace: header and scan action belong to one VerifyPulse panel. */
-            .top-header { position: relative; min-height: 142px; padding: 20px 32px 16px; background: transparent; border-bottom-color: transparent; }
+            .top-header { position: relative; min-height: 238px; padding: 24px 32px 20px; background: transparent; border-bottom-color: transparent; }
             .top-header .header-identity { display: none !important; }
             .desktop-brand-stage {
                 position: absolute;
                 left: 50%;
-                top: 17px;
+                top: 22px;
                 display: flex !important;
                 flex-direction: column;
                 align-items: center;
@@ -474,17 +474,17 @@
                 color: var(--vp-ink);
                 text-align: center;
             }
-            .desktop-brand-stage h1 { margin: 0; color: var(--vp-ink); font-size: 29px; font-weight: 780; letter-spacing: -0.045em; line-height: 1; }
-            .desktop-brand-emblem { position: relative; display: grid; width: 48px; height: 48px; margin-top: 8px; place-items: center; isolation: isolate; }
+            .desktop-brand-stage h1 { margin: 0; color: var(--vp-ink); font-size: 42px; font-weight: 800; letter-spacing: -0.052em; line-height: 1; }
+            .desktop-brand-emblem { position: relative; display: grid; width: 112px; height: 112px; margin-top: 16px; place-items: center; isolation: isolate; }
             .desktop-brand-emblem::before, .desktop-brand-emblem::after { position: absolute; inset: 1px; border: 1px solid rgba(10,132,255,0.34); border-radius: 50%; content: ''; }
-            .desktop-brand-emblem::after { inset: -4px; border-color: rgba(14,165,233,0.16); }
-            .desktop-brand-orbit { position: absolute; inset: -8px; border: 1px solid rgba(10,132,255,0.26); border-radius: 50%; animation: desktopBrandOrbit 9s linear infinite; }
-            .desktop-brand-orbit::after { position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; border-radius: 50%; background: #0a84ff; box-shadow: 0 0 12px rgba(10,132,255,0.72); content: ''; }
-            .desktop-brand-emblem img { position: relative; z-index: 1; width: 34px; height: 34px; border-radius: 11px; object-fit: contain; background: rgba(255,255,255,0.84); box-shadow: 0 7px 16px rgba(27,74,136,0.12); animation: desktopBrandFloat 4.8s var(--vp-ease) infinite; }
+            .desktop-brand-emblem::after { inset: -9px; border-color: rgba(14,165,233,0.16); }
+            .desktop-brand-orbit { position: absolute; inset: -17px; border: 1px solid rgba(10,132,255,0.26); border-radius: 50%; animation: desktopBrandOrbit 9s linear infinite; }
+            .desktop-brand-orbit::after { position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: #0a84ff; box-shadow: 0 0 18px rgba(10,132,255,0.72); content: ''; }
+            .desktop-brand-emblem img { position: relative; z-index: 1; width: 78px; height: 78px; border-radius: 22px; object-fit: contain; background: rgba(255,255,255,0.84); box-shadow: 0 12px 28px rgba(27,74,136,0.16); animation: desktopBrandFloat 4.8s var(--vp-ease) infinite; }
             .desktop-brand-stage.is-scanning .desktop-brand-emblem::before { animation: desktopBrandPulse 1.25s ease-out infinite; }
             .desktop-brand-stage.is-scanning .desktop-brand-emblem::after { animation: desktopBrandPulse 1.25s ease-out 0.32s infinite; }
             .desktop-brand-stage.is-scanning .desktop-brand-orbit { border-color: rgba(10,132,255,0.72); animation-duration: 1.75s; }
-            .desktop-brand-stage.is-scanning .desktop-brand-emblem img { animation: desktopShieldScan 1.6s var(--vp-ease) infinite; box-shadow: 0 0 0 5px rgba(10,132,255,0.10), 0 10px 26px rgba(10,132,255,0.30); }
+            .desktop-brand-stage.is-scanning .desktop-brand-emblem img { animation: desktopShieldScan 1.6s var(--vp-ease) infinite; box-shadow: 0 0 0 9px rgba(10,132,255,0.10), 0 16px 36px rgba(10,132,255,0.30); }
             @keyframes desktopBrandOrbit { to { transform: rotate(360deg); } }
             @keyframes desktopBrandFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
             @keyframes desktopBrandPulse { 0% { transform: scale(0.72); opacity: 0.86; } 100% { transform: scale(1.32); opacity: 0; } }
