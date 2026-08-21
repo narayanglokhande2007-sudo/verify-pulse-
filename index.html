@@ -373,70 +373,95 @@
             #tab-scan .desktop-how-card h3, #tab-scan .desktop-usecases-card h3 { letter-spacing: -0.02em; }
         }
 
-        /* Mobile public-page navigator: hidden until MORE is opened. */
-        .mobile-more-layer { display: none; }
-        .nav-more-trigger { border: 0; background: transparent; font-family: inherit; }
+        /* Mobile corner navigation: app-like access with a full-screen glass blur. */
+        .mobile-more-layer, .mobile-menu-trigger { display: none; }
         @media (max-width: 767px) {
-            body.mobile-more-open { overflow: hidden; }
+            .app-container { padding-bottom: 0; }
+            .bottom-nav { display: none !important; }
+            .top-header { gap: 10px; padding: 14px 16px; }
+            .top-header > div:first-child { min-width: 0; }
+            .mobile-menu-trigger {
+                display: inline-grid;
+                place-items: center;
+                width: 40px;
+                height: 40px;
+                flex: 0 0 40px;
+                margin-right: 2px;
+                border: 1px solid rgba(211, 228, 245, 0.96);
+                border-radius: 14px;
+                background: rgba(255,255,255,0.58);
+                color: var(--vp-ink);
+                font-size: 22px;
+                line-height: 1;
+                cursor: pointer;
+                box-shadow: 0 7px 18px rgba(55,88,132,0.08), inset 0 1px 0 rgba(255,255,255,0.92);
+                transition: transform 160ms var(--vp-ease), background 180ms var(--vp-ease), box-shadow 180ms var(--vp-ease);
+            }
+            .mobile-menu-trigger:active { transform: scale(0.94); background: rgba(234,245,255,0.94); }
+            body.mobile-more-open { overflow: hidden; overscroll-behavior: none; }
             .mobile-more-layer {
                 position: fixed;
                 inset: 0;
                 z-index: 280;
-                display: flex;
-                align-items: flex-end;
-                justify-content: center;
-                padding: 16px 12px 12px;
-                background: rgba(28, 48, 79, 0.18);
+                display: block;
+                padding: 10px;
+                background: rgba(24, 47, 82, 0.26);
                 opacity: 0;
                 pointer-events: none;
+                backdrop-filter: blur(22px) saturate(116%) brightness(0.86);
+                -webkit-backdrop-filter: blur(22px) saturate(116%) brightness(0.86);
                 transition: opacity 220ms var(--vp-ease);
             }
             .mobile-more-layer.is-open { opacity: 1; pointer-events: auto; }
             .mobile-more-sheet {
-                width: min(100%, 520px);
-                max-height: calc(100vh - 28px);
+                width: min(88vw, 356px);
+                height: calc(100dvh - 20px);
                 overflow-y: auto;
-                padding: 12px 14px calc(env(safe-area-inset-bottom, 0px) + 82px);
+                padding: 17px 14px 24px;
                 border: 1px solid rgba(255,255,255,0.88);
-                border-radius: 28px;
-                background: rgba(255,255,255,0.76);
-                box-shadow: 0 24px 72px rgba(33, 63, 106, 0.21), inset 0 1px 0 rgba(255,255,255,0.92);
-                backdrop-filter: blur(26px) saturate(150%);
-                -webkit-backdrop-filter: blur(26px) saturate(150%);
-                transform: translateY(28px) scale(0.985);
-                transform-origin: bottom center;
+                border-radius: 26px;
+                background: rgba(251, 254, 255, 0.78);
+                box-shadow: 0 24px 72px rgba(17, 41, 77, 0.28), inset 0 1px 0 rgba(255,255,255,0.94);
+                backdrop-filter: blur(28px) saturate(150%);
+                -webkit-backdrop-filter: blur(28px) saturate(150%);
+                transform: translateX(-28px) scale(0.985);
+                transform-origin: left top;
                 transition: transform 260ms var(--vp-ease);
             }
-            .mobile-more-layer.is-open .mobile-more-sheet { transform: translateY(0) scale(1); }
-            .mobile-more-handle { width: 38px; height: 4px; margin: 0 auto 12px; border-radius: 999px; background: rgba(81, 106, 140, 0.22); }
-            .mobile-more-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 2px 4px 14px; }
+            .mobile-more-layer.is-open .mobile-more-sheet { transform: translateX(0) scale(1); }
+            .mobile-more-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 2px 4px 16px; }
             .mobile-more-head h2 { margin: 0; color: var(--vp-ink); font-size: 20px; letter-spacing: -0.025em; }
             .mobile-more-head p { margin-top: 4px; font-size: 12px; line-height: 1.45; }
-            .mobile-more-close { width: 32px; height: 32px; flex: 0 0 32px; border: 1px solid rgba(214, 229, 244, 0.9); border-radius: 50%; background: rgba(255,255,255,0.66); color: #50627d; font-size: 21px; line-height: 1; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.88); }
+            .mobile-more-close { width: 34px; height: 34px; flex: 0 0 34px; border: 1px solid rgba(214, 229, 244, 0.9); border-radius: 12px; background: rgba(255,255,255,0.66); color: #50627d; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.88); }
+            .mobile-more-section-label { margin: 4px 5px 8px; color: #72829a; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; }
             .mobile-more-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+            .mobile-more-grid + .mobile-more-section-label { margin-top: 18px; }
             .mobile-more-link {
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                min-height: 58px;
+                width: 100%;
+                min-height: 56px;
                 padding: 11px 12px;
                 border: 1px solid rgba(255,255,255,0.84);
                 border-radius: 17px;
-                background: rgba(255,255,255,0.53);
+                background: rgba(255,255,255,0.54);
                 color: var(--vp-ink);
+                text-align: left;
                 text-decoration: none;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.84);
-                transition: transform 160ms var(--vp-ease), background 160ms var(--vp-ease), box-shadow 160ms var(--vp-ease);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.86);
+                transition: transform 160ms var(--vp-ease), background 160ms var(--vp-ease), box-shadow 160ms var(--vp-ease), border-color 160ms var(--vp-ease);
             }
-            .mobile-more-link:active { transform: scale(0.98); background: rgba(237, 247, 255, 0.9); }
-            .mobile-more-icon { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 12px; background: rgba(229, 242, 255, 0.84); color: var(--vp-blue-deep); font-size: 16px; }
+            .mobile-more-link:active { transform: scale(0.98); background: rgba(237,247,255,0.94); }
+            .mobile-main-nav { font-family: inherit; cursor: pointer; }
+            .mobile-main-nav.is-active { border-color: rgba(120, 190, 249, 0.8); background: rgba(225,242,255,0.82); box-shadow: 0 9px 20px rgba(63,130,188,0.12), inset 0 1px 0 rgba(255,255,255,0.92); }
+            .mobile-more-icon { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 12px; background: rgba(229,242,255,0.88); color: var(--vp-blue-deep); font-size: 16px; }
             .mobile-more-copy { min-width: 0; flex: 1; }
             .mobile-more-copy strong { display: block; color: var(--vp-ink); font-size: 13px; line-height: 1.2; }
             .mobile-more-copy span { display: block; margin-top: 3px; color: var(--vp-muted); font-size: 11px; line-height: 1.3; }
             .mobile-more-arrow { color: #8aa0bd; font-size: 18px; }
-            .nav-more-trigger .nav-icon { font-size: 21px; }
         }
-        @media (min-width: 768px) { .mobile-more-layer { display: none !important; } }
+        @media (min-width: 768px) { .mobile-more-layer, .mobile-menu-trigger { display: none !important; } }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
@@ -458,6 +483,7 @@
     </aside>
     <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
+        <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" onclick="openMobileMoreMenu()" aria-label="Open VerifyPulse menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="mobileMoreMenu">☰</button>
         <div style="display:flex; align-items:center;">
             <div class="logo-icon"><img src="logo.jpg" alt="Logo" class="custom-logo"></div>
             <div class="header-titles">
@@ -793,16 +819,23 @@
         <span>MORE</span>
     </button>
 </nav>
-<!-- Mobile-only direct navigation for public VerifyPulse pages. -->
+<!-- Mobile corner navigation for app sections and public VerifyPulse pages. -->
 <div class="mobile-more-layer" id="mobileMoreMenu" aria-hidden="true" onclick="if (event.target === this) closeMobileMoreMenu()">
     <section class="mobile-more-sheet" role="dialog" aria-modal="true" aria-labelledby="mobileMoreTitle">
-        <div class="mobile-more-handle" aria-hidden="true"></div>
         <div class="mobile-more-head">
-            <div><h2 id="mobileMoreTitle">Explore VerifyPulse</h2><p>Open important pages directly—no need to scroll to the end.</p></div>
+            <div><h2 id="mobileMoreTitle">VerifyPulse</h2><p>Your scam-risk workspace and trusted resources.</p></div>
             <button type="button" class="mobile-more-close" aria-label="Close menu" onclick="closeMobileMoreMenu()">×</button>
         </div>
+        <p class="mobile-more-section-label">WORKSPACE</p>
+        <div class="mobile-more-grid" id="mobileMainMenu">
+            <button type="button" class="mobile-more-link mobile-main-nav is-active" data-mobile-tab="scan" onclick="openMobileMainTab('scan', this)"><span class="mobile-more-icon"><img src="logo.jpg" alt="" class="custom-logo-small"></span><span class="mobile-more-copy"><strong>Scan workspace</strong><span>Check links, messages and emails</span></span><span class="mobile-more-arrow">›</span></button>
+            <button type="button" class="mobile-more-link mobile-main-nav" data-mobile-tab="pulsecore" onclick="openMobileMainTab('pulsecore', this)"><span class="mobile-more-icon">💬</span><span class="mobile-more-copy"><strong>PulseCore AI</strong><span>Ask cyber-safety questions</span></span><span class="mobile-more-arrow">›</span></button>
+            <button type="button" class="mobile-more-link mobile-main-nav" data-mobile-tab="tools" onclick="openMobileMainTab('tools', this)"><span class="mobile-more-icon">🧰</span><span class="mobile-more-copy"><strong>Security tools</strong><span>Explore practical safety checks</span></span><span class="mobile-more-arrow">›</span></button>
+            <button type="button" class="mobile-more-link mobile-main-nav" data-mobile-tab="pro" onclick="openMobileMainTab('pro', this)"><span class="mobile-more-icon">⭐</span><span class="mobile-more-copy"><strong>Business pilot</strong><span>Review pilot boundaries</span></span><span class="mobile-more-arrow">›</span></button>
+            <button type="button" class="mobile-more-link mobile-main-nav" data-mobile-tab="about" onclick="openMobileMainTab('about', this)"><span class="mobile-more-icon">ℹ️</span><span class="mobile-more-copy"><strong>About & trust</strong><span>Product information and feedback</span></span><span class="mobile-more-arrow">›</span></button>
+        </div>
+        <p class="mobile-more-section-label">TRUST &amp; RESOURCES</p>
         <div class="mobile-more-grid">
-            <button type="button" class="mobile-more-link" onclick="openMobileTabFromMore('about')"><span class="mobile-more-icon">ℹ️</span><span class="mobile-more-copy"><strong>About VerifyPulse</strong><span>Product information, privacy and feedback</span></span><span class="mobile-more-arrow">›</span></button>
             <a class="mobile-more-link" href="trust.html"><span class="mobile-more-icon">🛡️</span><span class="mobile-more-copy"><strong>Trust Center</strong><span>Current controls and published boundaries</span></span><span class="mobile-more-arrow">›</span></a>
             <a class="mobile-more-link" href="status.html"><span class="mobile-more-icon">◉</span><span class="mobile-more-copy"><strong>Service Status</strong><span>Threat-data and application health</span></span><span class="mobile-more-arrow">›</span></a>
             <a class="mobile-more-link" href="risk-management.html"><span class="mobile-more-icon">◌</span><span class="mobile-more-copy"><strong>Risk Management</strong><span>Evidence, uncertainty and safe decisions</span></span><span class="mobile-more-arrow">›</span></a>
@@ -896,31 +929,40 @@
             const handler = el.getAttribute('onclick') || '';
             el.classList.toggle('active', handler.includes(`'${tabId}'`));
         });
+        document.querySelectorAll('.mobile-main-nav').forEach(el => {
+            el.classList.toggle('is-active', el.dataset.mobileTab === tabId);
+        });
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         window.scrollTo(0, 0);
     }
-    // === MOBILE MORE NAVIGATION ===
+    // === MOBILE CORNER NAVIGATION ===
+    function getMobileMenuTrigger() {
+        return document.getElementById('mobileMenuTrigger') || document.getElementById('mobileMoreTrigger');
+    }
     function openMobileMoreMenu() {
         const menu = document.getElementById('mobileMoreMenu');
-        const trigger = document.getElementById('mobileMoreTrigger');
+        const trigger = getMobileMenuTrigger();
         menu.classList.add('is-open');
         menu.setAttribute('aria-hidden', 'false');
-        trigger.setAttribute('aria-expanded', 'true');
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
         document.body.classList.add('mobile-more-open');
     }
     function closeMobileMoreMenu() {
         const menu = document.getElementById('mobileMoreMenu');
-        const trigger = document.getElementById('mobileMoreTrigger');
+        const trigger = getMobileMenuTrigger();
         menu.classList.remove('is-open');
         menu.setAttribute('aria-hidden', 'true');
-        trigger.setAttribute('aria-expanded', 'false');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
         document.body.classList.remove('mobile-more-open');
     }
-    function openMobileTabFromMore(tabId) {
-        const matchingMobileTab = document.querySelector(`.bottom-nav .nav-item[onclick*="'${tabId}'"]`);
+    function openMobileMainTab(tabId, element) {
         closeMobileMoreMenu();
-        switchMainTab(tabId, matchingMobileTab);
+        switchMainTab(tabId, element);
+    }
+    function openMobileTabFromMore(tabId) {
+        const matchingMobileTab = document.querySelector(`.mobile-main-nav[data-mobile-tab="${tabId}"]`);
+        openMobileMainTab(tabId, matchingMobileTab);
     }
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') closeMobileMoreMenu();
