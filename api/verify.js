@@ -608,6 +608,14 @@ CRITICAL GUARDRAILS:
       }));
     }
 
+    // An obvious local high-confidence scam pattern should not be downgraded to
+    // NEEDS_VERIFICATION merely because every external provider is degraded.
+    const localRiskPrecheck = assessHighConfidenceFallbackRisk(text);
+    if (localRiskPrecheck && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
+      logScanReliabilityEvent({ requestId, stage: 'local_high_confidence_precheck', provider: 'local_rules', outcome: 'success' });
+      return res.status(200).json(safeResult(localRiskPrecheck));
+    }
+
     // Gemini for fact‑checking (news)
     if (checkType === 'news' && GEMINI_KEY) {
       try {
@@ -922,6 +930,12 @@ function assessHighConfidenceFallbackRisk(msg) {
   const authority = /\b(?:rbi|reserve bank|income tax|cbi|cyber crime|police|trai|customs|court|government|bank)\b/i.test(value);
   const untrustedContact = /\b(?:whatsapp|telegram|reply\s+(?:yes|ok)|verification call|video call|call now)\b|व्हाट्सअॅप|వాట్సాప్/i.test(value);
   const rewardClaim = /\b(?:lottery|prize|reward|cashback|gift)\b|लॉटरी|इनाम|బహుమతి|లాటరీ/i.test(value);
+  // Narrow local safeguard: a high-value prize/lottery promise combined with a
+  // direction to claim through an unverified link is a common social-engineering pattern.
+  // It deliberately does not classify ordinary rewards or legitimate announcements by keyword alone.
+  const highValueReward = /\b(?:\d+(?:[.,]\d+)?\s*)?(?:crore|lakh)\b|₹\s*\d{4,}|\b(?:million|billion)\b/i.test(value);
+  const claimLinkAction = /\b(?:click|tap|open|visit|claim|redeem)\b[^\n]{0,60}\b(?:link|here|below)\b|\b(?:link|below)\b[^\n]{0,60}\b(?:claim|redeem)\b/i.test(value);
+  const prizeClaimLinkBait = rewardClaim && highValueReward && claimLinkAction;
   // A real bank may send routine account notices, but a named-bank message that
   // threatens account blocking and demands a verification/processing fee is a
   // sufficiently specific social-engineering pattern to protect locally.
@@ -933,6 +947,7 @@ function assessHighConfidenceFallbackRisk(msg) {
     || (hasUrl && shortenedOrObscuredUrl && (sensitiveRequest || paymentRequest || (authority && pressure)))
     || (authority && pressure && paymentRequest && (sensitiveRequest || untrustedContact))
     || (rewardClaim && paymentRequest && untrustedContact)
+    || prizeClaimLinkBait
     || (namedBank && accountBlockingFeeTrap);
   if (!highRisk) return null;
   const findings = [];
@@ -943,10 +958,11 @@ function assessHighConfidenceFallbackRisk(msg) {
   if (authority && pressure) findings.push('The message combines an authority claim with urgent pressure.');
   if (namedBank && accountBlockingFeeTrap) findings.push('A named bank is used with an account-blocking threat and a verification or processing fee demand.');
   if (rewardClaim && paymentRequest && untrustedContact) findings.push('The message combines a reward claim, payment request, and an untrusted contact channel.');
+  if (prizeClaimLinkBait) findings.push('A high-value prize or lottery promise directs you to claim it through an unverified link.');
   return {
     verdict: 'SUSPICIOUS',
-    scamType: 'High-Confidence Social Engineering Risk',
-    confidence: 88,
+    scamType: prizeClaimLinkBait ? 'Prize Claim Social Engineering Risk' : 'High-Confidence Social Engineering Risk',
+    confidence: prizeClaimLinkBait ? 92 : 88,
     analysis: 'External model analysis is temporarily unavailable, but local high-confidence scam signals were detected. Treat this content as risky and verify independently.',
     findings,
     whatToDo: ['Do not click links, install files, pay, or share OTPs, PINs, passwords, or personal documents.', 'Contact the claimed organisation through an official website or helpline you find yourself.', 'Report suspected financial fraud quickly through 1930.'],

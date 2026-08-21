@@ -103,6 +103,30 @@ try {
   results.push({ case: 'local high-confidence fallback', status: localFallback.statusCode, verdict: localFallback.body.verdict });
 
   resetProviderCircuits();
+  const prizeClaimScam = await scan({
+    text: 'hii sir, Congratulations you won 1 crore prize click given link below to claim 1 crore prize',
+    address: '198.51.100.241'
+  });
+  assert.equal(prizeClaimScam.statusCode, 200);
+  assert.equal(prizeClaimScam.body?.verdict, 'SUSPICIOUS');
+  assert.equal(prizeClaimScam.body?.scamType, 'Prize Claim Social Engineering Risk');
+  assert.ok(prizeClaimScam.body?.evidenceSources.includes('Local high-confidence fallback rules'));
+  assert.equal(prizeClaimScam.body?.explainability.assessmentType, 'evidence-backed');
+  assert.ok(prizeClaimScam.body?.findings.some((finding) => /high-value prize|lottery promise/i.test(finding)));
+  results.push({ case: 'high-value prize claim link bait', status: prizeClaimScam.statusCode, verdict: prizeClaimScam.body.verdict });
+
+  resetProviderCircuits();
+  const ordinaryReward = await scan({
+    text: 'Congratulations, you won a 50-point prize in your school quiz. Collect it from the school office tomorrow.',
+    address: '198.51.100.242'
+  });
+  assert.equal(ordinaryReward.statusCode, 200);
+  assert.equal(ordinaryReward.body?.verdict, 'NEEDS_VERIFICATION');
+  assert.equal(ordinaryReward.body?.serviceStatus, 'degraded');
+  assert.equal(ordinaryReward.body?.explainability.assessmentType, 'service-status');
+  results.push({ case: 'ordinary prize notice keeps uncertainty boundary', status: ordinaryReward.statusCode, verdict: ordinaryReward.body.verdict });
+
+  resetProviderCircuits();
   const unavailable = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
     address: '198.51.100.202'
@@ -172,4 +196,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/6 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/8 focused reliability cases.`);
