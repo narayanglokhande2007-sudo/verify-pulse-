@@ -768,32 +768,30 @@
             </a>
         </div>
     </div>
-    <!-- ==========================================
-         BOTTOM NAVIGATION BAR
-         ========================================== -->
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchMainTab('scan', this)">
-            <span class="nav-icon"><img src="logo.jpg" alt="Logo" class="custom-logo-nav"></span>
-            <span>SCAN</span>
-        </div>
-        <div class="nav-item" onclick="switchMainTab('pulsecore', this)">
-            <span class="nav-icon">💬</span>
-            <span>AI CHAT</span>
-        </div>
-        <div class="nav-item" onclick="switchMainTab('tools', this)">
-            <span class="nav-icon">🧰</span>
-            <span>TOOLS</span>
-        </div>
-        <div class="nav-item" onclick="switchMainTab('pro', this)">
-            <span class="nav-icon">⭐</span>
-            <span>PRO</span>
-        </div>
-        <button type="button" class="nav-item nav-more-trigger" id="mobileMoreTrigger" onclick="openMobileMoreMenu()" aria-haspopup="dialog" aria-expanded="false" aria-controls="mobileMoreMenu">
-            <span class="nav-icon">☰</span>
-            <span>MORE</span>
-        </button>
-    </nav>
 </div>
+<!-- Kept outside the glass app container so mobile fixed positioning is viewport-based. -->
+<nav class="bottom-nav" aria-label="VerifyPulse mobile navigation">
+    <div class="nav-item active" onclick="switchMainTab('scan', this)">
+        <span class="nav-icon"><img src="logo.jpg" alt="Logo" class="custom-logo-nav"></span>
+        <span>SCAN</span>
+    </div>
+    <div class="nav-item" onclick="switchMainTab('pulsecore', this)">
+        <span class="nav-icon">💬</span>
+        <span>AI CHAT</span>
+    </div>
+    <div class="nav-item" onclick="switchMainTab('tools', this)">
+        <span class="nav-icon">🧰</span>
+        <span>TOOLS</span>
+    </div>
+    <div class="nav-item" onclick="switchMainTab('pro', this)">
+        <span class="nav-icon">⭐</span>
+        <span>PRO</span>
+    </div>
+    <button type="button" class="nav-item nav-more-trigger" id="mobileMoreTrigger" onclick="openMobileMoreMenu()" aria-haspopup="dialog" aria-expanded="false" aria-controls="mobileMoreMenu">
+        <span class="nav-icon">☰</span>
+        <span>MORE</span>
+    </button>
+</nav>
 <!-- Mobile-only direct navigation for public VerifyPulse pages. -->
 <div class="mobile-more-layer" id="mobileMoreMenu" aria-hidden="true" onclick="if (event.target === this) closeMobileMoreMenu()">
     <section class="mobile-more-sheet" role="dialog" aria-modal="true" aria-labelledby="mobileMoreTitle">

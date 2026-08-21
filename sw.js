@@ -1,4 +1,4 @@
-const CACHE_NAME = 'verifypulse-v2';
+const CACHE_NAME = 'verifypulse-v3';
 const urlsToCache = [
   '/',
   '/index.html',
