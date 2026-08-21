@@ -459,6 +459,27 @@
             #tab-scan .desktop-limit-card { background: rgba(255, 251, 235, 0.70) !important; border-color: rgba(253, 230, 153, 0.9) !important; }
             #tab-scan .desktop-how-card, #tab-scan .desktop-usecases-card { background: rgba(255,255,255,0.54); }
             #tab-scan .desktop-how-card h3, #tab-scan .desktop-usecases-card h3 { letter-spacing: -0.02em; }
+
+            /* PC single-surface workspace: header and scan action belong to one VerifyPulse panel. */
+            .top-header { background: transparent; border-bottom-color: transparent; }
+            #tab-scan.active { max-width: none; margin: 0; gap: 0; }
+            #tab-scan .desktop-scanner-card {
+                min-height: 350px;
+                margin: 0;
+                padding: 24px 22px 32px !important;
+                border: 0 !important;
+                border-radius: 0;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+            #tab-scan .scan-availability {
+                margin: 0 0 24px !important;
+                padding: 0 22px 8px !important;
+                border: 0 !important;
+                border-radius: 0;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
         }
 
         /* Mobile corner navigation: app-like access with a full-screen glass blur. */
