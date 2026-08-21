@@ -142,10 +142,62 @@
         @media (max-width: 360px) { .scan-journey { gap: 10px; padding: 11px; } .journey-radar { width: 58px; height: 58px; flex-basis: 58px; transform: scale(0.82); transform-origin: center; } }
         .file-preview { display: none; padding: 10px; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; color: #15803d; font-size: 13px; margin-top: 10px; align-items: center; justify-content: space-between; }
         .result-box { display: none; margin-top: 15px; background: white; padding: 15px; border-radius: 12px; color: #1e293b; text-align: left; }
+
+        /* Desktop dashboard: mobile layout remains the default below 768px. */
+        .desktop-sidebar { display: none; }
+        @media (min-width: 768px) {
+            body { display: block; padding: 28px; background: linear-gradient(135deg, #eaf1fb 0%, #f7f9fc 48%, #e7f0ff 100%); }
+            .app-container { width: 100%; max-width: 1440px; min-height: calc(100vh - 56px); margin: 0 auto; padding-bottom: 0; display: grid; grid-template-columns: 248px minmax(0, 1fr); background: #ffffff; border: 1px solid #dbe7f7; border-radius: 24px; box-shadow: 0 24px 60px rgba(30, 58, 138, 0.12); overflow: hidden; }
+            .desktop-sidebar { display: flex; grid-column: 1; grid-row: 1 / span 2; flex-direction: column; gap: 8px; min-height: 100%; padding: 24px 16px; background: linear-gradient(180deg, #0f1f47 0%, #173c8a 100%); color: #ffffff; }
+            .desktop-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.16); }
+            .desktop-brand img { width: 34px; height: 34px; object-fit: contain; padding: 3px; border-radius: 9px; background: #ffffff; }
+            .desktop-brand strong { font-size: 19px; letter-spacing: 0.01em; }
+            .desktop-brand span { display: block; margin-top: 3px; font-size: 11px; color: #bfdbfe; }
+            .desktop-sidebar .nav-item { width: 100%; flex: none; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 12px 14px; border-radius: 12px; color: #bfdbfe; font-size: 13px; text-align: left; }
+            .desktop-sidebar .nav-icon { width: 24px; height: 24px; font-size: 18px; opacity: 1; }
+            .desktop-sidebar .custom-logo-nav { width: 20px; height: 20px; padding: 2px; border-radius: 6px; background: #ffffff; filter: none; }
+            .desktop-sidebar .nav-item:hover, .desktop-sidebar .nav-item.active { background: rgba(255,255,255,0.16); color: #ffffff; }
+            .desktop-sidebar .nav-item.active .custom-logo-nav { filter: none; }
+            .desktop-sidebar-note { margin-top: auto; padding: 14px; border: 1px solid rgba(191,219,254,0.26); border-radius: 14px; background: rgba(15, 23, 42, 0.18); color: #dbeafe; font-size: 11px; line-height: 1.55; }
+            .top-header { grid-column: 2; padding: 20px 32px; border-bottom: 1px solid #e5edf8; }
+            .header-titles h1 { font-size: 23px; }
+            .tab-content { grid-column: 2; width: 100%; max-width: 1320px; margin: 0 auto; padding: 30px 32px 42px; }
+            .bottom-nav { display: none; }
+            #tab-scan.active { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(310px, 0.82fr); grid-template-areas: "scanner availability" "scanner how" "scanner usecases" "scanner limitations"; gap: 20px; align-items: start; }
+            #tab-scan .desktop-scanner-card { grid-area: scanner; position: sticky; top: 94px; margin-bottom: 0; min-height: 455px; display: flex; flex-direction: column; justify-content: center; }
+            #tab-scan .scan-availability { grid-area: availability; margin-bottom: 0 !important; }
+            #tab-scan .desktop-how-card { grid-area: how; margin-bottom: 0; }
+            #tab-scan .desktop-usecases-card { grid-area: usecases; margin-bottom: 0; }
+            #tab-scan .desktop-limit-card { grid-area: limitations; margin-bottom: 0; }
+            #tab-tools .tools-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+            #tab-tools .tool-box.expanded { grid-column: span 3; }
+            #tab-tools .tool-box { min-height: 134px; }
+            #tab-pro { display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+            #tab-pro.active { display: grid; }
+            #tab-pro > .text-center { grid-column: 1 / -1; }
+            #tab-pro .price-card { margin-bottom: 0; height: 100%; }
+            #tab-about.active { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+            #tab-about > .card, #tab-about > .stats-grid, #tab-about > .text-center { margin-bottom: 0; }
+            #tab-about > .card:first-child, #tab-about > .stats-grid, #tab-about > .text-center, #tab-about > div:nth-last-child(2) { grid-column: 1 / -1; }
+            #tab-pulsecore > div { height: calc(100vh - 180px) !important; min-height: 560px; }
+            .card, .price-card { border-radius: 18px; }
+        }
     </style>
 </head>
 <body>
 <div class="app-container">
+    <aside class="desktop-sidebar" aria-label="VerifyPulse desktop navigation">
+        <div class="desktop-brand">
+            <img src="logo.jpg" alt="VerifyPulse logo">
+            <div><strong>VerifyPulse</strong><span>Scam-risk workspace</span></div>
+        </div>
+        <div class="nav-item active" onclick="switchMainTab('scan', this)"><span class="nav-icon"><img src="logo.jpg" alt="" class="custom-logo-nav"></span><span>Scan workspace</span></div>
+        <div class="nav-item" onclick="switchMainTab('pulsecore', this)"><span class="nav-icon">💬</span><span>PulseCore AI</span></div>
+        <div class="nav-item" onclick="switchMainTab('tools', this)"><span class="nav-icon">🧰</span><span>Security tools</span></div>
+        <div class="nav-item" onclick="switchMainTab('pro', this)"><span class="nav-icon">⭐</span><span>Business pilot</span></div>
+        <div class="nav-item" onclick="switchMainTab('about', this)"><span class="nav-icon">ℹ️</span><span>About & trust</span></div>
+        <div class="desktop-sidebar-note"><strong>Use safe inputs.</strong><br>Never paste OTPs, PINs, passwords, bank credentials, or unnecessary personal information.</div>
+    </aside>
     <!-- Top Header with Language Toggle & Custom Logo -->
     <header class="top-header">
         <div style="display:flex; align-items:center;">
@@ -165,11 +217,11 @@
          ========================================== -->
     <div id="tab-scan" class="tab-content active">
         
-        <div class="card text-center" style="padding: 10px; margin-bottom: 20px;">
+        <div class="card text-center scan-availability" style="padding: 10px; margin-bottom: 20px;">
             <span style="font-size: 12px; color: #64748b; font-weight: bold;">ℹ️ Service availability can vary when external analysis providers are busy. A missing live analysis result is not treated as SAFE.</span>
         </div>
         <!-- The Core Scanner -->
-        <div class="card text-center" style="border: 2px solid #bfdbfe; background: #f8fafc; padding: 25px 20px;">
+        <div class="card text-center desktop-scanner-card" style="border: 2px solid #bfdbfe; background: #f8fafc; padding: 25px 20px;">
             <h3 style="font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <img src="logo.jpg" alt="Logo" class="custom-logo-small" style="width: 20px; height: 20px;"> 
                 Scan Links & Messages
@@ -194,7 +246,7 @@
             <div class="result-box" id="unifiedResult" style="border: 1px solid #e2e8f0;"></div>
         </div>
         <!-- How It Works -->
-        <div class="card">
+        <div class="card desktop-how-card">
             <h3>🚀 How It Works</h3>
             <div style="display:flex; gap:15px; margin-top:15px; align-items:flex-start;">
                 <div style="background:#eff6ff; color:#3b82f6; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">1</div>
@@ -210,7 +262,7 @@
             </div>
         </div>
         <!-- Use Cases -->
-        <div class="card">
+        <div class="card desktop-usecases-card">
             <h3>🌍 Global Use Cases</h3>
             <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; justify-content:center;">
                 <span class="colored-pill" style="background:#fce7f3; color:#be185d;">Amazon Scam</span>
@@ -222,7 +274,7 @@
             </div>
         </div>
         
-        <div class="card" style="background: #fffbeb; border: 1px solid #fde68a;">
+        <div class="card desktop-limit-card" style="background: #fffbeb; border: 1px solid #fde68a;">
             <p style="color: #b45309; font-size: 13px;">⚠️ <strong>Limitations:</strong> This tool may not be 100% accurate. Always verify sensitive information through official channels.</p>
         </div>
     </div>
@@ -565,8 +617,10 @@
     }
     // === TAB & TOOL LOGIC ===
     function switchMainTab(tabId, element) {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => {
+            const handler = el.getAttribute('onclick') || '';
+            el.classList.toggle('active', handler.includes(`'${tabId}'`));
+        });
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         window.scrollTo(0, 0);
