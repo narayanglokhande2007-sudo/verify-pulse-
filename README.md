@@ -2,7 +2,7 @@
 
 > **AI-assisted scam-risk checks for suspicious links, messages, and emails in India.**
 
-[Live site](https://www.verify-pulse.com/) · [API documentation](https://www.verify-pulse.com/docs.html) · [Trust Center](https://www.verify-pulse.com/trust.html) · [Service status](https://www.verify-pulse.com/status.html)
+[Live site](https://www.verify-pulse.com/) · [API documentation](https://www.verify-pulse.com/docs.html) · [Trust Center](https://www.verify-pulse.com/trust.html) · [Service status](https://www.verify-pulse.com/status.html) · [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
 VerifyPulse is an India-focused cybersecurity project that helps people pause before acting on suspicious digital content. It combines scam-risk signals, historical reputation checks, provider-resilient AI analysis, and human-readable safety guidance to support safer decisions around suspicious URLs, messages, and emails.
 
@@ -35,6 +35,20 @@ Online fraud commonly uses urgency, impersonation, fake KYC updates, malicious l
 | [Service Status](https://www.verify-pulse.com/status.html) | View public service and published-data metadata checks. |
 | [Security contact](https://www.verify-pulse.com/.well-known/security.txt) | Report a potential security vulnerability responsibly. |
 
+## Repository guide
+
+| Location | What a visitor will find |
+|---|---|
+| [`api/`](api/) | Public serverless request routes, including the verification endpoint. |
+| [`lib/`](lib/) | Shared privacy, evidence, risk-control, and reliability components. |
+| [`tests/`](tests/) | Automated checks for key safety, reliability, and public-UI behaviour. |
+| [`docs/`](docs/) | Technical, privacy, pilot, and operational-boundary documentation. |
+| [`pipeline/`](pipeline/) | Published-data processing and controlled quality/integrity utilities. |
+| [Security policy](SECURITY.md) | Private reporting route and safe research boundaries. |
+| [Contributing guide](CONTRIBUTING.md) | How to give responsible feedback or propose a small change. |
+
+This repository is intended to show the real project structure and documented boundaries. It is not a collection of SEO articles, and it does not publish private benchmark data, provider credentials, user submissions, or malicious files.
+
 ## High-level flow
 
 ```text
@@ -66,11 +80,11 @@ The test suite covers core verdict behavior, URL and intent forensics, decision 
 
 ## Security and responsible disclosure
 
-Please do **not** publish security vulnerabilities in a public issue. Use the contact details in [security.txt](https://www.verify-pulse.com/.well-known/security.txt). The current [security operations and incident-response runbook](docs/SECURITY_OPERATIONS_AND_INCIDENT_RESPONSE.md) and [data-handling baseline](docs/DATA_HANDLING_AND_RETENTION_BASELINE.md) explain the controlled-pilot approach.
+Please do **not** publish security vulnerabilities in a public issue. Read the repository [Security Policy](SECURITY.md) and use the contact details in [security.txt](https://www.verify-pulse.com/.well-known/security.txt). The current [security operations and incident-response runbook](docs/SECURITY_OPERATIONS_AND_INCIDENT_RESPONSE.md) and [data-handling baseline](docs/DATA_HANDLING_AND_RETENTION_BASELINE.md) explain the controlled-pilot approach.
 
 ## Contributing
 
-Thoughtful, responsible feedback is welcome. Before proposing a change, please keep the following principles in mind:
+Thoughtful, responsible feedback is welcome. Read the full [Contributing guide](CONTRIBUTING.md) before proposing a change. The main principles are:
 
 1. Do not weaken privacy controls, input validation, rate controls, evidence boundaries, or fallback safety behavior.
 2. Do not add claims of guaranteed scam detection, guaranteed accuracy, or financial-security certification without independently verifiable evidence.

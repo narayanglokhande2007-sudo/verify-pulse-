@@ -1,0 +1,52 @@
+name: Bug report or documentation feedback
+description: Report a reproducible public bug or suggest a factual documentation correction.
+title: "[Feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve VerifyPulse.
+
+        **Do not post security vulnerabilities, API keys, passwords, OTPs, PINs, bank/card details, personal information, raw user scan inputs, unreviewed suspicious links, malware, or private benchmark data here.**
+
+        For a security vulnerability, follow the private reporting instructions in [SECURITY.md](../../SECURITY.md).
+  - type: dropdown
+    id: category
+    attributes:
+      label: What are you reporting?
+      options:
+        - Public website behaviour
+        - Documentation correction
+        - Accessibility or wording issue
+        - Test or developer-experience issue
+        - Other responsible feedback
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Clear summary
+      description: Explain the public issue or improvement in a few sentences. Remove any sensitive information before submitting.
+      placeholder: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Safe reproduction steps
+      description: List only safe, non-sensitive steps that another contributor can repeat.
+      placeholder: "1. Open...\n2. Choose...\n3. Observe..."
+  - type: textarea
+    id: context
+    attributes:
+      label: Optional context
+      description: Browser/device version, screenshots with sensitive details removed, or relevant public repository path.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed personal data, credentials, payment details, and private or harmful material from this report.
+          required: true
+        - label: This report is not a security vulnerability. If it is, I will use the private process in SECURITY.md instead.
+          required: true
