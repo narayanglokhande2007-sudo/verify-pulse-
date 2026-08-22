@@ -729,7 +729,7 @@
                 <div id="pulseCoreTyping" style="font-size: 11px; color: #64748b; font-style: italic; margin-left: 15px; margin-bottom: 5px; display: none;">PulseCore is typing...</div>
                 <div style="display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px;">
                     <input type="text" id="pulseCoreInput" placeholder="Type a message..." onkeypress="handlePulseKeyPress(event)" style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 14px;">
-                    <button onclick="sendPulseMessage()" style="background: #2563eb; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">➤</button>
+                    <button type="button" id="pulseCoreSend" onclick="sendPulseMessage()" aria-label="Send PulseCore message" style="background: #2563eb; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">➤</button>
                 </div>
             </div>
             <style>
@@ -1204,20 +1204,37 @@
         updateStats();
     }
     // === API CALL LOGIC ===
-    async function callAPI(checkType, inputText) {
-        const response = await fetch('/api/verify', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ text: inputText, checkType: checkType }) 
-        });
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Server returned an error instead of JSON.");
+    async function requestVerify(payload, { timeoutMs = 15000 } = {}) {
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeoutId = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
+        try {
+            const response = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: controller ? controller.signal : undefined
+            });
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                if (response.status >= 500) throw new Error('VerifyPulse service is temporarily unavailable. This is not a SAFE result; please try again shortly.');
+                throw new Error('VerifyPulse returned an unexpected response. Please try again shortly.');
+            }
+            const data = await response.json();
+            if (!response.ok || data?.error) {
+                throw new Error(data?.message || data?.error || `Server error ${response.status}`);
+            }
+            return data;
+        } catch (error) {
+            if (error?.name === 'AbortError') {
+                throw new Error('The analysis is taking longer than expected. This is not a SAFE result; please try again shortly.');
+            }
+            throw error;
+        } finally {
+            if (timeoutId) window.clearTimeout(timeoutId);
         }
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Server error ' + response.status);
-        if (data.error) throw new Error(data.error);
-        return data;
+    }
+    async function callAPI(checkType, inputText, extraPayload = {}) {
+        return requestVerify({ text: inputText, checkType, ...extraPayload });
     }
     function escapeHTML(str) {
         if (str === null || str === undefined) return '';
@@ -1436,9 +1453,7 @@
             if (uploadedFileBase64) {
                 payload.fileData = { mimeType: uploadedFileMime, base64: uploadedFileBase64 };
             }
-            const response = await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error);
+            const data = await requestVerify(payload);
             displayEnhancedResult('unifiedResult', data); 
         } catch (e) { 
             showError('unifiedResult', e.message); 
@@ -1503,44 +1518,68 @@
     }
 </script>
 <script>
+    let pulseCoreBusy = false;
+    function setPulseCoreBusy(isBusy) {
+        pulseCoreBusy = Boolean(isBusy);
+        const input = document.getElementById('pulseCoreInput');
+        const sendButton = document.getElementById('pulseCoreSend');
+        if (input) input.disabled = pulseCoreBusy;
+        if (sendButton) {
+            sendButton.disabled = pulseCoreBusy;
+            sendButton.style.opacity = pulseCoreBusy ? '0.6' : '1';
+            sendButton.style.cursor = pulseCoreBusy ? 'wait' : 'pointer';
+            sendButton.setAttribute('aria-busy', String(pulseCoreBusy));
+        }
+    }
+    function appendPulseCoreMessage(container, className, text, { markdown = false } = {}) {
+        const message = document.createElement('div');
+        message.className = className;
+        if (markdown) {
+            const safeMarkdown = escapeHTML(text);
+            if (window.marked && typeof window.marked.parse === 'function') {
+                try { message.innerHTML = window.marked.parse(safeMarkdown); }
+                catch { message.innerHTML = safeMarkdown.replace(/\n/g, '<br>'); }
+            } else {
+                message.innerHTML = safeMarkdown.replace(/\n/g, '<br>');
+            }
+        } else {
+            message.textContent = text;
+        }
+        container.appendChild(message);
+    }
     async function sendPulseMessage() {
         const input = document.getElementById('pulseCoreInput');
         const text = input.value.trim();
-        if (!text) return;
-        
+        if (!text || pulseCoreBusy) return;
+
         const msgs = document.getElementById('pulseCoreMessages');
-        msgs.innerHTML += `<div class="msg-user">${escapeHTML(text)}</div>`;
+        appendPulseCoreMessage(msgs, 'msg-user', text);
         input.value = '';
         msgs.scrollTop = msgs.scrollHeight;
-        
+        setPulseCoreBusy(true);
         document.getElementById('pulseCoreTyping').style.display = 'block';
         try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ checkType: 'chatbot', text: text })
-            });
-            const rawBody = await res.text();
-            let data = null;
-            try { data = rawBody ? JSON.parse(rawBody) : null; } catch { data = null; }
-            document.getElementById('pulseCoreTyping').style.display = 'none';
+            const data = await requestVerify({ checkType: 'chatbot', text });
             const reply = typeof data?.reply === 'string' ? data.reply.trim() : '';
             if (reply) {
-                // Use marked to parse the markdown into readable chat formatting.
-                msgs.innerHTML += `<div class="msg-bot">${marked.parse(reply)}</div>`;
-            } else if (!res.ok) {
-                msgs.innerHTML += `<div class="msg-bot">PulseCore se abhi complete response nahi mila. Yeh SAFE result nahi hai. Banking ya cyber-safety matter ko official bank app/website se verify karo aur thodi der baad phir try karo.</div>`;
+                appendPulseCoreMessage(msgs, 'msg-bot', reply, { markdown: true });
             } else {
-                msgs.innerHTML += `<div class="msg-bot">PulseCore ne abhi usable reply return nahi kiya. Please official source se verify karo aur thodi der baad phir try karo.</div>`;
+                appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore ne abhi usable reply return nahi kiya. Please official source se verify karo aur thodi der baad phir try karo.');
             }
-        } catch(e) {
+        } catch (e) {
+            appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore se abhi connection complete nahi ho paya. Yeh SAFE result nahi hai. Internet check karke thodi der baad try karo, aur urgent banking/cyber-fraud matter ke liye official bank app ya 1930 use karo.');
+        } finally {
             document.getElementById('pulseCoreTyping').style.display = 'none';
-            msgs.innerHTML += `<div class="msg-bot">PulseCore se abhi connection complete nahi ho paya. Yeh SAFE result nahi hai. Internet check karke thodi der baad try karo, aur urgent banking/cyber-fraud matter ke liye official bank app ya 1930 use karo.</div>`;
+            setPulseCoreBusy(false);
+            input.focus();
+            msgs.scrollTop = msgs.scrollHeight;
         }
-        msgs.scrollTop = msgs.scrollHeight;
     }
     function handlePulseKeyPress(e) {
-        if (e.key === 'Enter') sendPulseMessage();
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendPulseMessage();
+        }
     }
 </script>
 </body>

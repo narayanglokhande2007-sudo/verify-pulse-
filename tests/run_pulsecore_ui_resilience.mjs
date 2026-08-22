@@ -8,15 +8,20 @@ assert.ok(start >= 0 && end > start, 'PulseCore send lifecycle must exist.');
 const chatFunction = source.slice(start, end);
 
 for (const marker of [
-  'const rawBody = await res.text();',
-  'JSON.parse(rawBody)',
-  'PulseCore se abhi complete response nahi mila.',
+  "requestVerify({ checkType: 'chatbot', text })",
+  'const reply = typeof data?.reply',
   'PulseCore ne abhi usable reply return nahi kiya.',
   'PulseCore se abhi connection complete nahi ho paya.',
-  'Yeh SAFE result nahi hai.'
+  'Yeh SAFE result nahi hai.',
+  'setPulseCoreBusy(true)',
+  'setPulseCoreBusy(false)',
+  'appendPulseCoreMessage'
 ]) assert.ok(chatFunction.includes(marker), `Missing resilient PulseCore marker: ${marker}`);
 
 assert.equal(chatFunction.includes('Error connecting to PulseCore.'), false, 'Raw generic connection error must not be rendered.');
-assert.ok(chatFunction.indexOf('const rawBody = await res.text();') < chatFunction.indexOf('const reply = typeof data?.reply'), 'Response body must be parsed defensively before reply handling.');
+assert.ok(chatFunction.indexOf("requestVerify({ checkType: 'chatbot', text })") < chatFunction.indexOf('const reply = typeof data?.reply'), 'The verified response must resolve before reply handling.');
+assert.ok(source.includes('async function requestVerify(payload'), 'A shared timeout-safe request helper must exist.');
+assert.ok(source.includes("if (error?.name === 'AbortError')"), 'Request timeout must show a safe readable outcome.');
+assert.ok(source.includes('const safeMarkdown = escapeHTML(text);'), 'AI markdown must be escaped before browser rendering.');
 
-console.log('PulseCore UI resilience suite passed: JSON, non-JSON, missing-reply, and network-error paths remain readable.');
+console.log('PulseCore UI resilience suite passed: bounded requests, readable fallback, duplicate-submit protection, and safe markdown rendering verified.');

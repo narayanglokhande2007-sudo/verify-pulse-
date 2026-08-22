@@ -23,7 +23,7 @@ const scanFunctionStart = source.indexOf('async function checkUnified()');
 const scanFunctionEnd = source.indexOf('// === TOOLS TAB LOGIC ===', scanFunctionStart);
 assert.ok(scanFunctionStart >= 0 && scanFunctionEnd > scanFunctionStart, 'Unified scan lifecycle must remain present.');
 const scanFunction = source.slice(scanFunctionStart, scanFunctionEnd);
-assert.ok(scanFunction.indexOf('startUnifiedJourney();') < scanFunction.indexOf("fetch('/api/verify'"), 'Journey must start before the request begins.');
+assert.ok(scanFunction.indexOf('startUnifiedJourney();') < scanFunction.indexOf('requestVerify(payload)'), 'Journey must start before the request begins.');
 assert.ok(scanFunction.indexOf('stopUnifiedJourney();') > scanFunction.indexOf('finally'), 'Journey must stop in the request cleanup path.');
 
 console.log('Scan-journey UI suite passed: truthful stages, accessibility, reduced-motion handling, and cleanup lifecycle verified.');

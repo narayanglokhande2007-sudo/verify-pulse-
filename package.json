@@ -18,12 +18,13 @@
     "test:request-budget": "node tests/run_request_budget.mjs",
     "test:input-controls": "node tests/run_input_controls.mjs",
     "test:verdict-contract": "node tests/run_verdict_contract.mjs",
+    "test:inline-scripts": "node tests/check_inline_scripts.mjs",
     "test:scan-journey-ui": "node tests/run_scan_journey_ui.mjs",
     "test:pulsecore-reliability": "node tests/run_pulsecore_reliability.mjs",
     "test:pulsecore-ui-resilience": "node tests/run_pulsecore_ui_resilience.mjs",
     "test:trust-center-pages": "node tests/run_trust_center_pages.mjs",
     "test:status-endpoint": "node tests/run_status_endpoint.mjs",
-    "test": "npm run test:india-regression && npm run test:url-forensics && npm run test:intent-forensics && npm run test:decision-calibration && npm run test:shadow-evaluation && npm run test:b2b-access-controls && npm run test:threat-intelligence && npm run test:historical-reputation && npm run test:historical-index-full && npm run test:request-budget && npm run test:input-controls && npm run test:verdict-contract && npm run test:scan-journey-ui && npm run test:pulsecore-reliability && npm run test:pulsecore-ui-resilience && npm run test:trust-center-pages && npm run test:status-endpoint && npm run test:scan-reliability"
+    "test": "npm run test:india-regression && npm run test:url-forensics && npm run test:intent-forensics && npm run test:decision-calibration && npm run test:shadow-evaluation && npm run test:b2b-access-controls && npm run test:threat-intelligence && npm run test:historical-reputation && npm run test:historical-index-full && npm run test:request-budget && npm run test:input-controls && npm run test:verdict-contract && npm run test:inline-scripts && npm run test:scan-journey-ui && npm run test:pulsecore-reliability && npm run test:pulsecore-ui-resilience && npm run test:trust-center-pages && npm run test:status-endpoint && npm run test:scan-reliability"
   },
   "engines": {
     "node": ">=18.0.0"
