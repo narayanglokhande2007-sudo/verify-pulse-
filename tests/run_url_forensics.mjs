@@ -46,6 +46,12 @@ const cases = [
     id: 'routine-url-free-notification-is-not-flagged',
     input: 'Your UPI transaction has been completed. Check your official app for details.',
     expectedHighRisk: false
+  },
+  {
+    id: 'jio-style-claim-link-keeps-verification-boundary',
+    input: 'You have exclusive Jio coupons. Claim now: https://t.jio/JIOCPN/qlJG1N',
+    expectedHighRisk: false,
+    expectedSignal: 'brand_host_mismatch_jio'
   }
 ];
 

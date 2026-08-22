@@ -40,9 +40,15 @@ export default async function handler(req, res) {
   }
   const externalAnalysisText = sanitizeForExternalAnalysis(text);
   const GROQ_KEY = process.env.GROQ_API_KEY;
+  // Groq retired llama-3.3-70b-versatile on 2026-08-16 for free/developer use.
+  // Keep this configurable, but use Groq's current production replacement by default.
+  const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const SAFE_BROWSING_KEY = process.env.SAFE_BROWSING_API_KEY;
+  // Optional commercial-safe replacement for deprecated Safe Browsing v4.
+  // No Web Risk call is made unless the user explicitly configures this key.
+  const WEB_RISK_KEY = process.env.GOOGLE_WEB_RISK_API_KEY;
   const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
@@ -234,9 +240,14 @@ export default async function handler(req, res) {
     const findings = Array.isArray(result.findings) ? result.findings.slice(0, 5) : [];
     const evidence = [];
 
-    if (sources.includes('Google Safe Browsing')) {
+    const googleReputationSource = sources.includes('Google Web Risk')
+      ? 'Google Web Risk'
+      : sources.includes('Google Safe Browsing')
+        ? 'Google Safe Browsing'
+        : null;
+    if (googleReputationSource) {
       evidence.push({
-        source: 'Google Safe Browsing',
+        source: googleReputationSource,
         type: 'external-url-reputation',
         detail: verdict === 'DANGEROUS'
           ? 'The submitted URL matched a known malicious threat result.'
@@ -328,7 +339,7 @@ export default async function handler(req, res) {
     let summary;
     if (verdict === 'CAUTION' || verdict === 'CONSENT_REQUIRED') {
       summary = 'This result was produced by a privacy protection control, not by a scam classification.';
-    } else if (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS') {
+    } else if (googleReputationSource && verdict === 'DANGEROUS') {
       summary = 'A known-malicious URL reputation match contributed to this high-risk result.';
     } else if (sources.includes('Trusted domain registry')) {
       summary = 'The result is based on an exact parsed-hostname registry match; it does not authenticate a message sender.';
@@ -358,7 +369,7 @@ export default async function handler(req, res) {
       || sources.includes('Local multilingual intent forensics')
       || sources.includes('Source-aware threat intelligence')
       || sources.includes('Historical multi-source threat reputation')
-      || (sources.includes('Google Safe Browsing') && verdict === 'DANGEROUS');
+      || (Boolean(googleReputationSource) && verdict === 'DANGEROUS');
     const isPrivacyProtection = sources.includes('Privacy guard');
 
     return {
@@ -404,7 +415,7 @@ CRITICAL GUARDRAILS:
 5. SAFETY: Do not request passwords, OTPs, PINs, card details, or government identifiers. Do not claim certainty when information needs official verification.`;
       const failedChatProviders = [];
       const chatAttempt = async ({ stage, provider, operation }) => {
-        const timeoutMs = requestBudget.timeoutFor({ capMs: 1200, minimumMs: 300 });
+        const timeoutMs = requestBudget.timeoutFor({ capMs: 2400, minimumMs: 500 });
         if (!timeoutMs) {
           failedChatProviders.push({ provider, errorCode: 'chat_budget_exhausted' });
           return null;
@@ -425,7 +436,7 @@ CRITICAL GUARDRAILS:
       const callGroqChat = async (apiKey, timeoutMs) => {
         const data = await fetchJsonWithTimeout('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'system', content: chatbotPrompt }, { role: 'user', content: externalAnalysisText }], temperature: 0.2, max_tokens: 800 })
+          body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: 'system', content: chatbotPrompt }, { role: 'user', content: externalAnalysisText }], temperature: 0.2, max_tokens: 800 })
         }, { provider: 'groq', timeoutMs });
         return String(data.choices?.[0]?.message?.content || '').trim();
       };
@@ -564,24 +575,28 @@ CRITICAL GUARDRAILS:
     // ---- Cached live knowledge boost ----
     const recentScamURLs = await getRecentScamUrls();
     const knowledgeLine = recentScamURLs.length > 0 ? `\n\nLatest known phishing/scam URLs (for reference):\n${recentScamURLs.join('\n')}` : '';
-    // Safe Browsing check
-    if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && SAFE_BROWSING_KEY) {
+    // Google URL-reputation check. Web Risk is preferred when explicitly configured;
+    // the existing Safe Browsing v4 path remains a compatibility fallback only.
+    if (['url', 'phishing', 'scam', 'gmail', 'unified'].includes(checkType) && (WEB_RISK_KEY || SAFE_BROWSING_KEY)) {
       try {
         const urls = text.match(/https?:\/\/[^\s]+/g) || [];
         for (let urlStr of urls) {
-        const cleanUrl = urlStr.replace(/[.,;)]+$/, '');
-        const safeBrowsingTimeout = requestBudget.timeoutFor({ capMs: 650, minimumMs: 250 });
-        if (!safeBrowsingTimeout) break;
-        const sbResult = await checkWithSafeBrowsing(cleanUrl, SAFE_BROWSING_KEY, safeBrowsingTimeout);
-        if (sbResult?.checked) evidenceSources.push('Google Safe Browsing');
-        if (sbResult && sbResult.found) return res.status(200).json(safeResult(sbResult));
+          const cleanUrl = urlStr.replace(/[.,;)]+$/, '');
+          const googleReputationTimeout = requestBudget.timeoutFor({ capMs: 800, minimumMs: 300 });
+          if (!googleReputationTimeout) break;
+          const reputationSource = WEB_RISK_KEY ? 'Google Web Risk' : 'Google Safe Browsing';
+          const googleResult = WEB_RISK_KEY
+            ? await checkWithWebRisk(cleanUrl, WEB_RISK_KEY, googleReputationTimeout)
+            : await checkWithSafeBrowsing(cleanUrl, SAFE_BROWSING_KEY, googleReputationTimeout);
+          if (googleResult?.checked) evidenceSources.push(reputationSource);
+          if (googleResult?.found) return res.status(200).json(safeResult(googleResult));
         }
       } catch (e) {
-        console.error('Safe Browsing check failed:', e.message);
+        console.error('Google URL reputation check failed:', e.message);
       }
     }
     // A SAFE shortcut is allowed only for a parsed URL whose canonical hostname
-    // matches the registry. Safe Browsing evidence is included only when that check ran.
+    // matches the registry. Google URL-reputation evidence is included only when a lookup ran.
     if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType) && isTrustedMessage(text)) {
       return res.status(200).json(safeResult({
         verdict: 'SAFE',
@@ -661,13 +676,13 @@ CRITICAL GUARDRAILS:
       const verdict = String(result?.verdict || '').trim().toUpperCase();
       return Boolean(verdict) && !['UNCERTAIN', 'SERVICE_UNAVAILABLE'].includes(verdict);
     };
-    const attempt = async ({ stage, provider, operation }) => {
+    const attempt = async ({ stage, provider, operation, capMs = 2200 }) => {
       if (providerAttempts >= MAX_EXTERNAL_PROVIDER_ATTEMPTS) {
         failedProviders.push({ provider, errorCode: 'provider_attempt_limit' });
         logScanReliabilityEvent({ requestId, stage, provider, outcome: 'skipped_budget', errorCode: 'provider_attempt_limit', durationMs: requestBudget.elapsedMs() });
         return null;
       }
-      const timeoutMs = requestBudget.timeoutFor({ capMs: 1050, minimumMs: 300 });
+      const timeoutMs = requestBudget.timeoutFor({ capMs, minimumMs: 500 });
       if (!timeoutMs) {
         failedProviders.push({ provider, errorCode: 'scan_budget_exhausted' });
         logScanReliabilityEvent({ requestId, stage, provider, outcome: 'skipped_budget', errorCode: 'scan_budget_exhausted', durationMs: requestBudget.elapsedMs() });
@@ -688,6 +703,7 @@ CRITICAL GUARDRAILS:
     if (GEMINI_KEY) {
       const geminiResult = await attempt({
         stage: 'primary_scan', provider: 'gemini',
+        capMs: 2400,
         operation: (timeoutMs) => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine, null, GEMINI_MODEL, timeoutMs)
       });
       if (geminiResult) return res.status(200).json(safeResult(geminiResult));
@@ -698,7 +714,8 @@ CRITICAL GUARDRAILS:
     if (GROQ_KEY) {
       const groqResult = await attempt({
         stage: 'fallback_scan', provider: 'groq',
-        operation: (timeoutMs) => callGroq(GROQ_KEY, externalAnalysisText, checkType, 'llama-3.3-70b-versatile', knowledgeLine, timeoutMs)
+        capMs: 2200,
+        operation: (timeoutMs) => callGroq(GROQ_KEY, externalAnalysisText, checkType, GROQ_MODEL, knowledgeLine, timeoutMs)
       });
       if (groqResult) return res.status(200).json(safeResult(groqResult));
     } else {
@@ -708,6 +725,7 @@ CRITICAL GUARDRAILS:
     if (ANTHROPIC_KEY) {
       const anthropicResult = await attempt({
         stage: 'secondary_fallback_scan', provider: 'anthropic',
+        capMs: 2200,
         operation: (timeoutMs) => callAnthropic(ANTHROPIC_KEY, externalAnalysisText, checkType, ANTHROPIC_MODEL, knowledgeLine, timeoutMs)
       });
       if (anthropicResult) return res.status(200).json(safeResult(anthropicResult));
@@ -718,6 +736,7 @@ CRITICAL GUARDRAILS:
     if (OPENROUTER_KEY) {
       const openRouterResult = await attempt({
         stage: 'secondary_fallback_scan', provider: 'openrouter',
+        capMs: 1400,
         operation: (timeoutMs) => callOpenRouter(OPENROUTER_KEY, externalAnalysisText, checkType, knowledgeLine, timeoutMs)
       });
       if (openRouterResult) return res.status(200).json(safeResult(openRouterResult));
@@ -800,6 +819,32 @@ async function checkWithSafeBrowsing(inputUrl, apiKey, timeoutMs = 650) {
     return { found: false, checked: true };
   } catch (e) { return { found: false, checked: false }; }
 }
+async function checkWithWebRisk(inputUrl, apiKey, timeoutMs = 800) {
+  try {
+    const query = new URLSearchParams();
+    query.append('threatTypes', 'MALWARE');
+    query.append('threatTypes', 'SOCIAL_ENGINEERING');
+    query.append('uri', inputUrl);
+    query.append('key', apiKey);
+    const data = await fetchJsonWithTimeout(`https://webrisk.googleapis.com/v1/uris:search?${query.toString()}`, {
+      method: 'GET'
+    }, { provider: 'google_web_risk', timeoutMs });
+    if (Array.isArray(data.threat?.threatTypes) && data.threat.threatTypes.length > 0) {
+      return {
+        found: true,
+        verdict: 'DANGEROUS',
+        confidence: 100,
+        analysis: 'Known malicious link detected by Google Web Risk.',
+        findings: [`Google Web Risk matched: ${data.threat.threatTypes.join(', ')}.`],
+        evidenceSources: ['Google Web Risk']
+      };
+    }
+    return { found: false, checked: true };
+  } catch {
+    return { found: false, checked: false };
+  }
+}
+
 async function callGemini(text, apiKey, type = 'news', knowledgeLine = '', fileData = null, model = process.env.GEMINI_MODEL || 'gemini-2.5-flash', timeoutMs = 1050) {
   const systemPrompt = getPrompt(type, knowledgeLine) + " You must return valid JSON.";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
@@ -934,7 +979,7 @@ function assessHighConfidenceFallbackRisk(msg) {
   // direction to claim through an unverified link is a common social-engineering pattern.
   // It deliberately does not classify ordinary rewards or legitimate announcements by keyword alone.
   const highValueReward = /\b(?:\d+(?:[.,]\d+)?\s*)?(?:crore|lakh)\b|₹\s*\d{4,}|\b(?:million|billion)\b/i.test(value);
-  const claimLinkAction = /\b(?:click|tap|open|visit|claim|redeem)\b[^\n]{0,60}\b(?:link|here|below)\b|\b(?:link|below)\b[^\n]{0,60}\b(?:claim|redeem)\b/i.test(value);
+  const claimLinkAction = /\b(?:click|tap|open|visit|claim|redeem)\b[^\n]{0,60}\b(?:link|here|below)\b|\b(?:link|below)\b[^\n]{0,60}\b(?:claim|redeem)\b|\b(?:click|tap|open|visit|claim|redeem)\b[^\n]{0,60}\bhttps?:\/\//i.test(value);
   const prizeClaimLinkBait = rewardClaim && highValueReward && claimLinkAction;
   // A real bank may send routine account notices, but a named-bank message that
   // threatens account blocking and demands a verification/processing fee is a

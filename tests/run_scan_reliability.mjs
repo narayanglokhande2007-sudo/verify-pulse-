@@ -116,6 +116,16 @@ try {
   results.push({ case: 'high-value prize claim link bait', status: prizeClaimScam.statusCode, verdict: prizeClaimScam.body.verdict });
 
   resetProviderCircuits();
+  const directPrizeUrlScam = await scan({
+    text: 'Congratulations, you won a Rs 1 lakh prize. Click https://reward.example/claim to redeem it now.',
+    address: '198.51.100.243'
+  });
+  assert.equal(directPrizeUrlScam.statusCode, 200);
+  assert.equal(directPrizeUrlScam.body?.verdict, 'SUSPICIOUS');
+  assert.equal(directPrizeUrlScam.body?.scamType, 'Prize Claim Social Engineering Risk');
+  results.push({ case: 'high-value prize direct URL bait', status: directPrizeUrlScam.statusCode, verdict: directPrizeUrlScam.body.verdict });
+
+  resetProviderCircuits();
   const ordinaryReward = await scan({
     text: 'Congratulations, you won a 50-point prize in your school quiz. Collect it from the school office tomorrow.',
     address: '198.51.100.242'
@@ -196,4 +206,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/8 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/9 focused reliability cases.`);
