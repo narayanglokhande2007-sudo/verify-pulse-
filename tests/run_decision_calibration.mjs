@@ -21,6 +21,16 @@ const cases = [
     id: 'model-assisted-safe',
     input: { verdict: 'SAFE', confidence: 74, evidenceSources: [] },
     expected: { riskBand: 'lower-risk', decisionBasis: 'model-assisted', safeIsNotAuthentication: true }
+  },
+  {
+    id: 'google-no-match-does-not-prove-safe',
+    input: { verdict: 'SAFE', confidence: 74, evidenceSources: ['Google Safe Browsing'] },
+    expected: { riskBand: 'lower-risk', decisionBasis: 'model-assisted', safeIsNotAuthentication: true }
+  },
+  {
+    id: 'google-web-risk-positive-match-is-evidence',
+    input: { verdict: 'DANGEROUS', confidence: 100, evidenceSources: ['Google Web Risk'] },
+    expected: { riskBand: 'critical-risk', decisionBasis: 'evidence-backed', independentVerificationRecommended: true }
   }
 ];
 
