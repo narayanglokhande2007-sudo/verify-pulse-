@@ -178,6 +178,7 @@ try {
   assert.equal(safeProviderReason.body?.verdict, 'NEEDS_VERIFICATION');
   const groqReason = safeProviderReason.body?.failedProviders.find((entry) => entry.provider === 'groq');
   assert.equal(groqReason?.providerStatus, 400);
+  assert.equal(groqReason?.errorCode, 'provider_request_parameter');
   assert.equal(groqReason?.providerReason, 'request_parameter');
   assert.doesNotMatch(JSON.stringify(safeProviderReason.body), /private fixture detail|unsupported parameter response_format/i);
   results.push({ case: 'safe provider error category excludes raw response text', status: safeProviderReason.statusCode, verdict: safeProviderReason.body.verdict });
