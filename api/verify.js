@@ -735,6 +735,7 @@ CRITICAL GUARDRAILS:
           provider,
           errorCode: result.errorCode,
           providerStatus: Number.isInteger(result.providerStatus) ? result.providerStatus : null,
+          providerReason: typeof result.providerReason === 'string' ? result.providerReason : null,
         });
       }
       if (result.ok && !hasUsableVerdict(result.result)) {

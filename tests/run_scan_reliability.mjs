@@ -63,7 +63,12 @@ global.fetch = async (url) => {
   }
   if (target.includes('raw.githubusercontent.com')) return jsonResponse(503, { error: 'temporarily unavailable' });
   if (target.includes('safebrowsing.googleapis.com')) return jsonResponse(200, {});
-  if (target.includes('api.groq.com')) return jsonResponse(429, { error: { message: 'rate limited' } });
+  if (target.includes('api.groq.com')) {
+    if (mode === 'safe-provider-reason') {
+      return jsonResponse(400, { error: { type: 'invalid_request_error', message: 'unsupported parameter response_format; private fixture detail must not be exposed' } });
+    }
+    return jsonResponse(429, { error: { message: 'rate limited' } });
+  }
   if (target.includes('generativelanguage.googleapis.com')) return jsonResponse(503, { error: { message: 'upstream unavailable' } });
   if (target.includes('api.anthropic.com')) {
     if (mode === 'anthropic-success') {
@@ -164,6 +169,21 @@ try {
   results.push({ case: 'clean official URL retains registry SAFE result', status: cleanOfficialUrl.statusCode, verdict: cleanOfficialUrl.body.verdict });
 
   resetProviderCircuits();
+  mode = 'safe-provider-reason';
+  const safeProviderReason = await scan({
+    text: 'Community office closes at 5 PM today for maintenance.',
+    address: '198.51.100.246'
+  });
+  assert.equal(safeProviderReason.statusCode, 200);
+  assert.equal(safeProviderReason.body?.verdict, 'NEEDS_VERIFICATION');
+  const groqReason = safeProviderReason.body?.failedProviders.find((entry) => entry.provider === 'groq');
+  assert.equal(groqReason?.providerStatus, 400);
+  assert.equal(groqReason?.providerReason, 'request_parameter');
+  assert.doesNotMatch(JSON.stringify(safeProviderReason.body), /private fixture detail|unsupported parameter response_format/i);
+  results.push({ case: 'safe provider error category excludes raw response text', status: safeProviderReason.statusCode, verdict: safeProviderReason.body.verdict });
+
+  resetProviderCircuits();
+  mode = 'all-providers-fail';
   const unavailable = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
     address: '198.51.100.202'
@@ -237,4 +257,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/11 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/12 focused reliability cases.`);
