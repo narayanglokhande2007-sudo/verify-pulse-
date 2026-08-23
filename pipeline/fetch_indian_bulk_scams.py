@@ -24,12 +24,15 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
+import source_health_policy as health_policy
+
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "daily-data"
 INDIA_OUTPUT = DATA_DIR / "india_scams.jsonl"
 GLOBAL_OUTPUT = DATA_DIR / "global_scams.jsonl"
 LATEST_OUTPUT = DATA_DIR / "latest_scams.json"
 HEALTH_OUTPUT = DATA_DIR / "source_health.json"
+HEALTH_HISTORY_OUTPUT = DATA_DIR / "source_health_history.json"
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 DEFAULT_MAX_RECORDS_PER_SOURCE = 600
@@ -176,20 +179,29 @@ def write_records(path: Path, records: list[dict[str, str]]) -> None:
 
 def collect(*, max_records_per_source: int, minimum_successful_sources: int) -> dict[str, Any]:
     observed_at = utc_now().isoformat()
+    history, history_load = health_policy.load_history(HEALTH_HISTORY_OUTPUT)
     all_records: list[dict[str, str]] = []
     health_entries: list[dict[str, Any]] = []
     seen: set[str] = set()
+    successful_sources = 0
 
-    for url, name in SOURCE_CATALOG:
-        records, health = fetch_source(url, name, max_records=max_records_per_source, observed_at=observed_at)
+    for url, name in health_policy.order_sources(SOURCE_CATALOG, history):
+        # A one-run cooldown is allowed only after three other sources are already
+        # usable in this same run. A deferred source never counts as successful.
+        if health_policy.may_defer_source(history, name, successful_sources):
+            records: list[dict[str, str]] = []
+            health = health_policy.deferred_health(name, url, observed_at)
+        else:
+            records, health = fetch_source(url, name, max_records=max_records_per_source, observed_at=observed_at)
         health_entries.append(health)
+        if health["status"] in {"ok", "partial"} and health["acceptedRecords"] > 0:
+            successful_sources += 1
         for record in records:
             if record["url"] in seen:
                 continue
             seen.add(record["url"])
             all_records.append(record)
 
-    successful_sources = sum(item["status"] in {"ok", "partial"} and item["acceptedRecords"] > 0 for item in health_entries)
     india_records = [record for record in all_records if india_related(record["url"])]
     global_records = [record for record in all_records if record not in india_records]
     write_records(INDIA_OUTPUT, india_records)
@@ -205,9 +217,16 @@ def collect(*, max_records_per_source: int, minimum_successful_sources: int) -> 
         "indiaRecords": len(india_records),
         "globalRecords": len(global_records),
         "maxRecordsPerSource": max_records_per_source,
+        "healthPolicy": {
+            "historyLoad": history_load,
+            "deferredSources": [entry["name"] for entry in health_entries if entry["status"] == "deferred"],
+            "minimumHealthySourcesBeforeDeferral": health_policy.HEALTHY_SOURCES_BEFORE_DEFERRAL,
+        },
         "sources": health_entries,
     }
     atomic_write(HEALTH_OUTPUT, json.dumps(health, ensure_ascii=False, indent=2) + "\n")
+    next_history = health_policy.update_history(history, health_entries, observed_at)
+    atomic_write(HEALTH_HISTORY_OUTPUT, json.dumps(next_history, ensure_ascii=False, indent=2) + "\n")
     if successful_sources < minimum_successful_sources:
         raise RuntimeError(f"Only {successful_sources} usable sources; require at least {minimum_successful_sources}.")
     return health
