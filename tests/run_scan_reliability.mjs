@@ -154,6 +154,7 @@ try {
   assert.ok(officialPromotion.body?.evidenceSources.includes('Local sender-authentication policy'));
   assert.equal(officialPromotion.body?.explainability.assessmentType, 'evidence-backed');
   assert.match(officialPromotion.body?.explainability.summary || '', /sender and requested action cannot be authenticated/i);
+  assert.ok(officialPromotion.body?.explainability.evidence.some((entry) => entry.source === 'Local sender-authentication policy' && /requested action is authentic/i.test(entry.detail || '')));
   results.push({ case: 'official promotional link keeps sender-verification boundary', status: officialPromotion.statusCode, verdict: officialPromotion.body.verdict });
 
   resetProviderCircuits();

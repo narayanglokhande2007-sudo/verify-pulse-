@@ -331,7 +331,7 @@ export default async function handler(req, res) {
       evidence.push({
         source: 'Local sender-authentication policy',
         type: 'deterministic-verification-policy',
-        detail: 'An official hostname does not authenticate the sender or prove that a promotional offer is current.'
+        detail: 'An official hostname does not authenticate the sender or prove that a requested action is authentic or current.'
       });
     }
     if (sources.includes('Local URL and brand forensics')) {
