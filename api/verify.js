@@ -746,11 +746,14 @@ CRITICAL GUARDRAILS:
       return result.ok ? result.result : null;
     };
 
-    // Gemini 2.5 Flash is the primary high-volume route. Groq remains a bounded independent fallback.
+    // Gemini 2.5 Flash is the primary high-volume route. Its measured timeout
+    // rate under the protected 2.4s cap justified a 4.0s accuracy-first window;
+    // the shared 8.5s request budget still protects the 10s Vercel ceiling.
+    // Groq remains a bounded independent fallback.
     if (GEMINI_KEY) {
       const geminiResult = await attempt({
         stage: 'primary_scan', provider: 'gemini',
-        capMs: 2400,
+        capMs: 4000,
         operation: (timeoutMs) => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine, null, GEMINI_MODEL, timeoutMs)
       });
       if (geminiResult) return res.status(200).json(safeResult(geminiResult));
