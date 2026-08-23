@@ -16,6 +16,7 @@
       "payment-demand",
       "customer-care-impersonation",
       "investment-and-job-fraud",
+      "captcha-job-fee-fraud",
       "multilingual-scam",
       "unicode-obfuscation",
       "official-domain-safety",
@@ -339,6 +340,28 @@
       "categories": ["multilingual-scam"],
       "sourceBasis": ["i4c"],
       "input": "School cyber-safety notice: किसी unknown link पर OTP, PIN या personal details share न करें. Suspicious payment request को अपने parents और bank से verify करें.",
+      "checkType": "unified",
+      "expectedVerdict": "SAFE",
+      "expectedEvidenceSource": null
+    },
+    {
+      "id": "i4c-captcha-job-upfront-fee-trap",
+      "classification": "source-grounded-synthetic-scam",
+      "riskClass": "scam",
+      "categories": ["captcha-job-fee-fraud", "investment-and-job-fraud", "payment-demand"],
+      "sourceBasis": ["i4c"],
+      "input": "High-paying CAPTCHA filling job: earn Rs 5,000 daily with minimal effort. Pay a registration fee now to start work.",
+      "checkType": "unified",
+      "expectedVerdict": "SUSPICIOUS",
+      "expectedEvidenceSource": "Local multilingual intent forensics"
+    },
+    {
+      "id": "i4c-captcha-job-prevention-advisory",
+      "classification": "source-grounded-synthetic-benign-advisory",
+      "riskClass": "benign",
+      "categories": ["captcha-job-fee-fraud", "routine-notification-safety"],
+      "sourceBasis": ["i4c"],
+      "input": "Cyber safety advisory: Never pay a registration fee for high-paying CAPTCHA filling jobs. Verify job platforms independently before sharing personal or financial details.",
       "checkType": "unified",
       "expectedVerdict": "SAFE",
       "expectedEvidenceSource": null

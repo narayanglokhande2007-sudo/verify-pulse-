@@ -27,6 +27,17 @@ const cases = [
     expectedHighRisk: false
   },
   {
+    id: 'captcha-job-upfront-fee-trap',
+    input: 'High-paying CAPTCHA filling job: earn Rs 5,000 daily with minimal effort. Pay a registration fee now to start work.',
+    expectedHighRisk: true,
+    expectedSignal: 'captcha_job_upfront_fee_trap'
+  },
+  {
+    id: 'preventive-captcha-job-awareness',
+    input: 'Cyber safety advisory: Never pay a registration fee for high-paying CAPTCHA filling jobs. Verify job platforms independently before sharing personal or financial details.',
+    expectedHighRisk: false
+  },
+  {
     id: 'preventive-customer-care-guidance',
     input: 'For payment support, find your bank contact details only on its official website. Do not install a screen-sharing app during a financial transaction.',
     expectedHighRisk: false

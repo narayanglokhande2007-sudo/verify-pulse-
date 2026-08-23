@@ -14,7 +14,7 @@
   "lib/url_forensics.js": "9e5cddb30c814b240dd4f0615279141f7b391e81e6ca16c73f1477c274f37f2b",
   "lib/threat_intelligence.js": "5f1b7a6969d6619f54b3af6c9ad700e8e7c772ef4b5f8ebc1b0096840a30f630",
   "lib/request_budget.js": "c9169e84da116f19ec2156f208e7d132a99215f76b852a735fc6aec9f070154a",
-  "lib/intent_forensics.js": "21f498d14cdec27450f796851ffd7b44d2272352882360354e4247d4c8668f56",
+  "lib/intent_forensics.js": "81d4c78959c07c61bba6dd1a5ffe9176a20912dfbee0e3560d546d9a774518c3",
   "lib/decision_calibration.js": "19515cc45896eba61a72e280ed36be9328977b03fb67dd9da8704b4a78fc07f0",
   "lib/shadow_evaluation.js": "1baab9c8b4011910dce85556db7ab7f1894be474d5b4c506a4accb17ca89ffef",
   "api/brand_protection_api.js": "6bc964ffe72450172abfbfc27f0d33cf03c5d1a516295f948716131b35206732",
