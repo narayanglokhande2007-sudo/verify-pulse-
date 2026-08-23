@@ -1,17 +1,17 @@
 {
   "schemaVersion": "vp-bounded-feed-health-1",
-  "generatedAt": "2026-08-20T15:17:38.498449+00:00",
+  "generatedAt": "2026-08-23T15:12:59.401537+00:00",
   "sourceCount": 5,
   "successfulSources": 5,
   "acceptedRecords": 2700,
-  "indiaRecords": 53,
-  "globalRecords": 2647,
+  "indiaRecords": 51,
+  "globalRecords": 2649,
   "maxRecordsPerSource": 600,
   "sources": [
     {
       "name": "URLhaus",
       "provenance": "https://urlhaus.abuse.ch/downloads/text/",
-      "checkedAt": "2026-08-20T15:17:38.498449+00:00",
+      "checkedAt": "2026-08-23T15:12:59.401537+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -20,16 +20,16 @@
     {
       "name": "OpenPhish",
       "provenance": "https://openphish.com/feed.txt",
-      "checkedAt": "2026-08-20T15:17:38.498449+00:00",
+      "checkedAt": "2026-08-23T15:12:59.401537+00:00",
       "status": "ok",
       "acceptedRecords": 300,
-      "bytesRead": 16839,
+      "bytesRead": 17143,
       "truncated": false
     },
     {
       "name": "Phishing Army",
       "provenance": "https://phishing.army/download/phishing_army_blocklist_extended.txt",
-      "checkedAt": "2026-08-20T15:17:38.498449+00:00",
+      "checkedAt": "2026-08-23T15:12:59.401537+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -38,7 +38,7 @@
     {
       "name": "Phishing.Database",
       "provenance": "https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt",
-      "checkedAt": "2026-08-20T15:17:38.498449+00:00",
+      "checkedAt": "2026-08-23T15:12:59.401537+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -47,7 +47,7 @@
     {
       "name": "Blackbook",
       "provenance": "https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt",
-      "checkedAt": "2026-08-20T15:17:38.498449+00:00",
+      "checkedAt": "2026-08-23T15:12:59.401537+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 312402,
