@@ -153,8 +153,21 @@ try {
   assert.ok(officialPromotion.body?.evidenceSources.includes('Trusted domain registry'));
   assert.ok(officialPromotion.body?.evidenceSources.includes('Local sender-authentication policy'));
   assert.equal(officialPromotion.body?.explainability.assessmentType, 'evidence-backed');
-  assert.match(officialPromotion.body?.explainability.summary || '', /sender and promotional offer cannot be authenticated/i);
+  assert.match(officialPromotion.body?.explainability.summary || '', /sender and requested action cannot be authenticated/i);
   results.push({ case: 'official promotional link keeps sender-verification boundary', status: officialPromotion.statusCode, verdict: officialPromotion.body.verdict });
+
+  resetProviderCircuits();
+  const officialKycRequest = await scan({
+    text: 'SBI Security Alert: update your KYC verification at https://www.sbi.co.in/ now.',
+    address: '198.51.100.247'
+  });
+  assert.equal(officialKycRequest.statusCode, 200);
+  assert.equal(officialKycRequest.body?.verdict, 'NEEDS_VERIFICATION');
+  assert.equal(officialKycRequest.body?.scamType, 'Financial or Service Verification Requires Sender Verification');
+  assert.ok(officialKycRequest.body?.evidenceSources.includes('Trusted domain registry'));
+  assert.ok(officialKycRequest.body?.evidenceSources.includes('Local sender-authentication policy'));
+  assert.equal(officialKycRequest.body?.explainability.assessmentType, 'evidence-backed');
+  results.push({ case: 'official KYC link keeps sender-verification boundary', status: officialKycRequest.statusCode, verdict: officialKycRequest.body.verdict });
 
   resetProviderCircuits();
   const cleanOfficialUrl = await scan({
@@ -258,4 +271,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/12 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/${results.length} focused reliability cases.`);

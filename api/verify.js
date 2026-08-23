@@ -194,16 +194,27 @@ export default async function handler(req, res) {
     // Keep ordinary official links SAFE, but require independent verification when
     // an unverified sender combines an official-domain link with a promotion/claim.
     const promotion = /\b(?:free|offer|reward|prize|gift|cashback|coupon|congratulations|exclusive|bonus|deal|data pack|recharge)\b/i.test(value);
-    const action = /\b(?:claim|redeem|click|tap|open|visit|collect|get now|activate)\b/i.test(value);
-    if (!promotion || !action) return null;
+    const promotionalAction = /\b(?:claim|redeem|click|tap|open|visit|collect|get now|activate)\b/i.test(value);
+    const verificationAction = /\b(?:update|verify|re-?verify|complete|renew|submit)\b[\s\S]{0,80}\b(?:kyc|account|bank|card|wallet|sim|number|fastag|profile|details?)\b|\b(?:kyc|account|bank|card|wallet|sim|number|fastag|profile|details?)\b[\s\S]{0,80}\b(?:update|verify|re-?verify|complete|renew|submit)\b/i.test(value);
+    const requiresSenderVerification = verificationAction || (promotion && promotionalAction);
+    if (!requiresSenderVerification) return null;
 
+    const isVerificationRequest = verificationAction;
     return {
       verdict: 'NEEDS_VERIFICATION',
-      scamType: 'Promotional Message Requires Sender Verification',
+      scamType: isVerificationRequest
+        ? 'Financial or Service Verification Requires Sender Verification'
+        : 'Promotional Message Requires Sender Verification',
       confidence: 60,
-      analysis: 'The link hostname matches a trusted registry, but the promotional offer and sender cannot be authenticated from the message alone. This is not a scam confirmation and not a SAFE result; verify the offer in the official app or by manually entering the official website.',
-      findings: ['The link hostname matches the trusted-domain registry.', 'The message contains a promotion or reward and asks you to take an action.', 'A text message cannot prove that the sender or offer is authentic or current.'],
-      whatToDo: ['Open the official app or manually type the official website instead of using the message link.', 'Check whether the same offer appears in your authenticated account before claiming, paying, or sharing information.'],
+      analysis: isVerificationRequest
+        ? 'The link hostname matches a trusted registry, but the sender and verification request cannot be authenticated from the message alone. This is not a scam confirmation and not a SAFE result; verify the request in the official app or by manually entering the official website.'
+        : 'The link hostname matches a trusted registry, but the promotional offer and sender cannot be authenticated from the message alone. This is not a scam confirmation and not a SAFE result; verify the offer in the official app or by manually entering the official website.',
+      findings: isVerificationRequest
+        ? ['The link hostname matches the trusted-domain registry.', 'The message asks you to verify or update a financial or service-related detail.', 'A text message cannot prove that the sender or verification request is authentic or current.']
+        : ['The link hostname matches the trusted-domain registry.', 'The message contains a promotion or reward and asks you to take an action.', 'A text message cannot prove that the sender or offer is authentic or current.'],
+      whatToDo: isVerificationRequest
+        ? ['Open the official app or manually type the official website instead of using the message link.', 'Check whether the same verification request appears after you sign in before sharing information or making changes.']
+        : ['Open the official app or manually type the official website instead of using the message link.', 'Check whether the same offer appears in your authenticated account before claiming, paying, or sharing information.'],
       evidenceSources: ['Trusted domain registry', 'Local sender-authentication policy']
     };
   }
@@ -372,7 +383,7 @@ export default async function handler(req, res) {
     } else if (googleReputationSource && verdict === 'DANGEROUS') {
       summary = 'A known-malicious URL reputation match contributed to this high-risk result.';
     } else if (sources.includes('Local sender-authentication policy')) {
-      summary = 'The URL hostname is official, but the message sender and promotional offer cannot be authenticated from text alone, so independent verification is required.';
+      summary = 'The URL hostname is official, but the message sender and requested action cannot be authenticated from text alone, so independent verification is required.';
     } else if (sources.includes('Trusted domain registry')) {
       summary = 'The result is based on an exact parsed-hostname registry match; it does not authenticate a message sender.';
     } else if (sources.includes('Local notification ambiguity rules')) {
