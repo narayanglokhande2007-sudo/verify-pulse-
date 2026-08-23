@@ -1,6 +1,6 @@
 {
   "restoreCopyPath": ".github/verify-pulse/restore-points/daily_scam_fetch.yml",
   "schemaVersion": "vp-daily-fetcher-restore-point-1",
-  "sha256": "db73747cf6f8022ea2a3d78a04f5bdec58132957686e7bbc50a6dbc7997acc95",
+  "sha256": "8aff2e6ab65d45c1f28165b64a72571d66719b48bedee98a18bc3fd75e53c7da",
   "targetPath": ".github/workflows/daily_scam_fetch.yml"
 }
