@@ -22,6 +22,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set up Node.js for workflow safety guard
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          check-latest: true
+
+      - name: Verify scheduled workflow safety before data collection
+        shell: bash
+        run: node tests/run_daily_workflow_safety.mjs
+
       - name: Collect compact bounded public indicators
         shell: bash
         run: |
