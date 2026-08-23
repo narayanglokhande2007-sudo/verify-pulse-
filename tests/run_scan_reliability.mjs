@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import verifyHandler from '../api/verify.js';
 import { resetProviderCircuits } from '../lib/scan_reliability.js';
+import { resetHistoricalReputationCache } from '../lib/historical_reputation.js';
 
 function createResponse() {
   return {
@@ -137,6 +138,32 @@ try {
   results.push({ case: 'ordinary prize notice keeps uncertainty boundary', status: ordinaryReward.statusCode, verdict: ordinaryReward.body.verdict });
 
   resetProviderCircuits();
+  const officialPromotion = await scan({
+    text: 'Congratulations! Your free Jio recharge reward is ready. Claim it at https://www.jio.com/offers now.',
+    address: '198.51.100.244'
+  });
+  assert.equal(officialPromotion.statusCode, 200);
+  assert.equal(officialPromotion.body?.verdict, 'NEEDS_VERIFICATION');
+  assert.equal(officialPromotion.body?.scamType, 'Promotional Message Requires Sender Verification');
+  assert.ok(officialPromotion.body?.evidenceSources.includes('Trusted domain registry'));
+  assert.ok(officialPromotion.body?.evidenceSources.includes('Local sender-authentication policy'));
+  assert.equal(officialPromotion.body?.explainability.assessmentType, 'evidence-backed');
+  assert.match(officialPromotion.body?.explainability.summary || '', /sender and promotional offer cannot be authenticated/i);
+  results.push({ case: 'official promotional link keeps sender-verification boundary', status: officialPromotion.statusCode, verdict: officialPromotion.body.verdict });
+
+  resetProviderCircuits();
+  const cleanOfficialUrl = await scan({
+    text: 'https://www.jio.com/',
+    checkType: 'url',
+    address: '198.51.100.245'
+  });
+  assert.equal(cleanOfficialUrl.statusCode, 200);
+  assert.equal(cleanOfficialUrl.body?.verdict, 'SAFE');
+  assert.ok(cleanOfficialUrl.body?.evidenceSources.includes('Trusted domain registry'));
+  assert.equal(cleanOfficialUrl.body?.evidenceSources.includes('Local sender-authentication policy'), false);
+  results.push({ case: 'clean official URL retains registry SAFE result', status: cleanOfficialUrl.statusCode, verdict: cleanOfficialUrl.body.verdict });
+
+  resetProviderCircuits();
   const unavailable = await scan({
     text: 'Your neighbourhood library will close at 5 PM today for maintenance.',
     address: '198.51.100.202'
@@ -150,6 +177,7 @@ try {
   results.push({ case: 'degraded verification response', status: unavailable.statusCode, verdict: unavailable.body.verdict });
 
   resetProviderCircuits();
+  resetHistoricalReputationCache();
   mode = 'historical-match';
   const historicalMatch = await scan({
     text: HISTORICAL_TEST_URL,
@@ -196,8 +224,11 @@ try {
   assert.equal(circuitProtected.statusCode, 200);
   assert.equal(circuitProtected.body?.verdict, 'NEEDS_VERIFICATION');
   assert.equal(circuitProtected.body?.serviceStatus, 'degraded');
-  assert.ok(circuitProtected.body?.failedProviders.some((entry) => entry.errorCode === 'provider_circuit_open'));
-  results.push({ case: 'circuit breaker returns verification state', status: circuitProtected.statusCode, verdict: circuitProtected.body.verdict });
+  assert.ok(circuitProtected.body?.failedProviders.some((entry) => entry.provider === 'groq' && entry.errorCode === 'provider_circuit_open'));
+  assert.ok(circuitProtected.body?.failedProviders.some((entry) => entry.provider === 'gemini' && entry.errorCode === 'provider_upstream_error'));
+  assert.ok(circuitProtected.body?.failedProviders.some((entry) => entry.provider === 'anthropic' && entry.errorCode === 'provider_upstream_error'));
+  assert.equal(circuitProtected.body?.failedProviders.filter((entry) => entry.errorCode === 'provider_circuit_open').length, 1);
+  results.push({ case: 'rate-limit circuit preserves transient fallback retry', status: circuitProtected.statusCode, verdict: circuitProtected.body.verdict });
 } finally {
   global.fetch = originalFetch;
   for (const [key, value] of Object.entries(originalEnv)) {
@@ -206,4 +237,4 @@ try {
 }
 
 console.table(results);
-console.log(`Scan reliability suite passed: ${results.length}/9 focused reliability cases.`);
+console.log(`Scan reliability suite passed: ${results.length}/11 focused reliability cases.`);

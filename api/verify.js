@@ -185,6 +185,29 @@ export default async function handler(req, res) {
     return true;
   }
 
+  function assessTrustedDomainMessageAmbiguity(msg) {
+    const value = String(msg || '').trim();
+    if (!value) return null;
+
+    // A real official URL proves only the hostname. It does not authenticate who
+    // sent a promotional message or establish that a time-limited offer is current.
+    // Keep ordinary official links SAFE, but require independent verification when
+    // an unverified sender combines an official-domain link with a promotion/claim.
+    const promotion = /\b(?:free|offer|reward|prize|gift|cashback|coupon|congratulations|exclusive|bonus|deal|data pack|recharge)\b/i.test(value);
+    const action = /\b(?:claim|redeem|click|tap|open|visit|collect|get now|activate)\b/i.test(value);
+    if (!promotion || !action) return null;
+
+    return {
+      verdict: 'NEEDS_VERIFICATION',
+      scamType: 'Promotional Message Requires Sender Verification',
+      confidence: 60,
+      analysis: 'The link hostname matches a trusted registry, but the promotional offer and sender cannot be authenticated from the message alone. This is not a scam confirmation and not a SAFE result; verify the offer in the official app or by manually entering the official website.',
+      findings: ['The link hostname matches the trusted-domain registry.', 'The message contains a promotion or reward and asks you to take an action.', 'A text message cannot prove that the sender or offer is authentic or current.'],
+      whatToDo: ['Open the official app or manually type the official website instead of using the message link.', 'Check whether the same offer appears in your authenticated account before claiming, paying, or sharing information.'],
+      evidenceSources: ['Trusted domain registry', 'Local sender-authentication policy']
+    };
+  }
+
   function assessTextOnlySocialEngineering(msg) {
     const urls = String(msg || '').match(/https?:\/\/[^\s]+/g) || [];
     if (urls.length > 0) return null;
@@ -293,6 +316,13 @@ export default async function handler(req, res) {
         detail: 'The message resembles a routine notification but lacks an independently authenticated sender or official-domain proof.'
       });
     }
+    if (sources.includes('Local sender-authentication policy')) {
+      evidence.push({
+        source: 'Local sender-authentication policy',
+        type: 'deterministic-verification-policy',
+        detail: 'An official hostname does not authenticate the sender or prove that a promotional offer is current.'
+      });
+    }
     if (sources.includes('Local URL and brand forensics')) {
       evidence.push({
         source: 'Local URL and brand forensics',
@@ -341,6 +371,8 @@ export default async function handler(req, res) {
       summary = 'This result was produced by a privacy protection control, not by a scam classification.';
     } else if (googleReputationSource && verdict === 'DANGEROUS') {
       summary = 'A known-malicious URL reputation match contributed to this high-risk result.';
+    } else if (sources.includes('Local sender-authentication policy')) {
+      summary = 'The URL hostname is official, but the message sender and promotional offer cannot be authenticated from text alone, so independent verification is required.';
     } else if (sources.includes('Trusted domain registry')) {
       summary = 'The result is based on an exact parsed-hostname registry match; it does not authenticate a message sender.';
     } else if (sources.includes('Local notification ambiguity rules')) {
@@ -365,6 +397,7 @@ export default async function handler(req, res) {
       || sources.includes('Local social-engineering rules')
       || sources.includes('Local high-confidence fallback rules')
       || sources.includes('Local notification ambiguity rules')
+      || sources.includes('Local sender-authentication policy')
       || sources.includes('Local URL and brand forensics')
       || sources.includes('Local multilingual intent forensics')
       || sources.includes('Source-aware threat intelligence')
@@ -598,6 +631,13 @@ CRITICAL GUARDRAILS:
     // A SAFE shortcut is allowed only for a parsed URL whose canonical hostname
     // matches the registry. Google URL-reputation evidence is included only when a lookup ran.
     if (['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType) && isTrustedMessage(text)) {
+      const trustedDomainAmbiguity = assessTrustedDomainMessageAmbiguity(text);
+      if (trustedDomainAmbiguity) {
+        return res.status(200).json(safeResult({
+          ...trustedDomainAmbiguity,
+          evidenceSources: [...evidenceSources, ...trustedDomainAmbiguity.evidenceSources]
+        }));
+      }
       return res.status(200).json(safeResult({
         verdict: 'SAFE',
         scamType: 'Trusted Domain URL',
@@ -690,7 +730,13 @@ CRITICAL GUARDRAILS:
       }
       providerAttempts += 1;
       const result = await runProviderAttempt({ requestId, stage, provider, operation: () => operation(timeoutMs) });
-      if (!result.ok) failedProviders.push({ provider, errorCode: result.errorCode });
+      if (!result.ok) {
+        failedProviders.push({
+          provider,
+          errorCode: result.errorCode,
+          providerStatus: Number.isInteger(result.providerStatus) ? result.providerStatus : null,
+        });
+      }
       if (result.ok && !hasUsableVerdict(result.result)) {
         failedProviders.push({ provider, errorCode: 'invalid_provider_verdict' });
         logScanReliabilityEvent({ requestId, stage, provider, outcome: 'failure', errorCode: 'invalid_provider_verdict' });
