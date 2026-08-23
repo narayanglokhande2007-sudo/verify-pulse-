@@ -47,16 +47,10 @@ jobs:
 
 
       - name: Collect compact bounded public indicators
-      
+        shell: bash
         run: |
-        
-          python pipeline/fetch_indian_bulk_scams.py \
-          
-            --max-records-per-source 600 \
-            
-            --min-successful-sources 2
-            
-
+          set -euo pipefail
+          python pipeline/fetch_indian_bulk_scams.py --max-records-per-source 600 --min-successful-sources 2
 
       - name: Build and validate current threat-intelligence snapshot
       
