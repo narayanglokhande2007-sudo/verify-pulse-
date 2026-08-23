@@ -37,26 +37,26 @@ assert.ok(
   'Workflow must prepare Node.js before running its safety guard.'
 );
 
-const escapedGuardName = workflowSafetyGuard.replace(/[.*+?^${}()|[]\]/g, '\$&');
-const guardPattern = new RegExp(`- name: ${escapedGuardName}[\s\S]*?(?=\n      - name:|$)`);
+const escapedGuardName = workflowSafetyGuard.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const guardPattern = new RegExp(`- name: ${escapedGuardName}[\\s\\S]*?(?=\\n      - name:|$)`);
 const guardMatch = workflow.match(guardPattern);
 assert.ok(guardMatch, 'Workflow safety guard step must exist.');
-assert.match(guardMatch[0], /shell:s*bash/, 'Workflow safety guard must explicitly use Bash.');
+assert.match(guardMatch[0], /shell:\s*bash/, 'Workflow safety guard must explicitly use Bash.');
 assert.ok(guardMatch[0].includes(workflowSafetyTest), 'Workflow safety guard must run the dedicated regression test.');
 
 for (const step of requiredSteps) {
-  const escapedName = step.name.replace(/[.*+?^${}()|[]\]/g, '\$&');
-  const stepPattern = new RegExp(`- name: ${escapedName}[\s\S]*?(?=\n      - name:|$)`);
+  const escapedName = step.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const stepPattern = new RegExp(`- name: ${escapedName}[\\s\\S]*?(?=\\n      - name:|$)`);
   const match = workflow.match(stepPattern);
   assert.ok(match, `Workflow step '${step.name}' must exist.`);
-  assert.match(match[0], /shell:s*bash/, `${step.name} must explicitly use Bash.`);
+  assert.match(match[0], /shell:\s*bash/, `${step.name} must explicitly use Bash.`);
   assert.match(match[0], /set -euo pipefail/, `${step.name} must use strict shell error handling.`);
   assert.ok(match[0].includes(step.command), `${step.name} must preserve its validated command and arguments on one line.`);
 }
 
 assert.doesNotMatch(
   workflow,
-  /\\s*\n\s*\n/,
+  /\\\s*\n\s*\n/,
   'No workflow shell command may use a continuation followed by a blank line.'
 );
 
