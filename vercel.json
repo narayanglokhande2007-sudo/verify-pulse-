@@ -46,7 +46,19 @@
           "value": "http"
         }
       ],
-      "destination": "https://verify-pulse.vercel.app/$1",
+      "destination": "https://www.verify-pulse.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "verify-pulse.vercel.app"
+        }
+      ],
+      "destination": "https://www.verify-pulse.com/$1",
       "permanent": true
     }
   ]

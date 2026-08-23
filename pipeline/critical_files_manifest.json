@@ -18,7 +18,7 @@
   "lib/shadow_evaluation.js": "1baab9c8b4011910dce85556db7ab7f1894be474d5b4c506a4accb17ca89ffef",
   "lib/threat_intelligence.js": "5f1b7a6969d6619f54b3af6c9ad700e8e7c772ef4b5f8ebc1b0096840a30f630",
   "lib/url_forensics.js": "9e5cddb30c814b240dd4f0615279141f7b391e81e6ca16c73f1477c274f37f2b",
-  "package.json": "a4924e94339c3bc7f9586543f280ebeacdfab7de70e35aef48babe4bfa174258",
+  "package.json": "172a0b4e08057d7f7bbf83d4c50e97f8bef56ecc7df9df47a04a836779650463",
   "pipeline/brand_protection.py": "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
   "pipeline/build_historical_reputation_index.py": "64f0396bdd56448c71a446077adc6617af1cc88f24cfc1504f4f9c3b4c3b63d2",
   "pipeline/build_threat_intelligence.py": "bbdffc4bfb098c8fd877653f95a03793e4e62abab43f8e1ec5d84f710ec422c5",
@@ -34,5 +34,5 @@
   "pipeline/self_healing.py": "efa24ee201d1d9e21bc0b9fdac364f7b14291294126a19c45b1e5d3af2a22721",
   "pipeline/source_health_policy.py": "4db3ebe3df48a560edb19c42f1e6b41539fc24a600ffa27e84868cd6e2e82cd7",
   "pipeline/threat_intelligence_report.py": "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b",
-  "vercel.json": "e23ced470e757f265fc5480450cea510f31bc3c46fa92baaaef8f3de8eca6a91"
+  "vercel.json": "b15a1f21e73150635bc152878f3e61dee24761bb84d22380930dc10a94a82a8d"
 }
