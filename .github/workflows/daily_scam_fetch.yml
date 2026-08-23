@@ -1,240 +1,73 @@
 name: Daily Indian Scam Fetcher
-
-
-
 on:
-
   schedule:
-  
     # Runs every day at 00:00 UTC (5:30 AM IST).
-    
     - cron: '0 0 * * *'
-    
   workflow_dispatch:
-  
-
-
 jobs:
-
   refresh-validated-threat-data:
-  
     runs-on: ubuntu-latest
-    
     timeout-minutes: 12
-    
     permissions:
-    
       contents: write
-      
-
-
     steps:
-    
       - name: Checkout repository
-      
         uses: actions/checkout@v4
-        
-
-
       - name: Set up Python
-      
         uses: actions/setup-python@v5
-        
         with:
-        
           python-version: '3.11'
-          
-
-
       - name: Set up Node.js for workflow safety guard
-      
         uses: actions/setup-node@v4
-        
         with:
-        
           node-version: '20'
-          
           check-latest: true
-          
-
-
       - name: Verify scheduled workflow safety before data collection
-      
         shell: bash
-        
         run: node tests/run_daily_workflow_safety.mjs
-        
-
-
       - name: Verify trusted Daily Fetcher restore point
-      
         shell: bash
-        
         run: python pipeline/daily_fetcher_restore.py verify
-        
-
-
       - name: Collect compact bounded public indicators
-      
         shell: bash
-        
         run: |
-        
           set -euo pipefail
-          
           python pipeline/fetch_indian_bulk_scams.py --max-records-per-source 600 --min-successful-sources 2
-          
-
-
       - name: Build and validate current threat-intelligence snapshot
-      
         shell: bash
-        
         run: |
-        
           set -euo pipefail
-          
           python pipeline/build_threat_intelligence.py
-          
           python pipeline/check_threat_intelligence_freshness.py --max-age-hours 30 --min-active-indicators 1 --require-same-day
-          
-
-
       - name: Refresh and validate permanent historical reputation index
-      
         shell: bash
-        
         run: |
-        
           set -euo pipefail
-          
           python pipeline/refresh_historical_reputation.py --json
-          
           python pipeline/check_historical_reputation_index.py --require-fresh --min-successful-sources 2
-          
-
-
       - name: Commit only validated compact artifacts
-      
         shell: bash
-        
         run: |
-        
           set -euo pipefail
-          
           git config --local user.email "action@github.com"
-          
           git config --local user.name "VerifyPulse Automation Bot"
-          
           git add pipeline/daily-data/india_scams.jsonl
-          
           git add pipeline/daily-data/global_scams.jsonl
-          
           git add pipeline/daily-data/latest_scams.json
-          
           git add pipeline/daily-data/source_health.json
-          
           git add pipeline/daily-data/source_health_history.json
-          
           git add pipeline/daily-data/latest_threat_intel.json
-          
           git add pipeline/daily-data/threat_intel_stats.json
-          
           git add pipeline/daily-data/historical-reputation-index/manifest.json
-          
           git add pipeline/daily-data/historical-reputation-index/integrity.json
-          
           git add pipeline/daily-data/historical-reputation-index/source_health.json
-          
           git add pipeline/daily-data/historical-reputation-index/shards
-          
           git diff --cached --quiet || (git commit -m "Automated validated threat-data refresh" && git push)
-          
-
-
       - name: Write privacy-safe Daily Fetcher run report
-      
         if: always()
-        
         shell: bash
-        
         env:
-        
           GITHUB_JOB_STATUS: ${{ job.status }}
-          
         run: |
-        
           set -euo pipefail
-          
           python pipeline/daily_fetcher_report.py --outcome "$GITHUB_JOB_STATUS" --github-summary "$GITHUB_STEP_SUMMARY"
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
