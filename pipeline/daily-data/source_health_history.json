@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "vp-source-health-history-1",
+  "sources": {
+    "Blackbook": {
+      "consecutiveFailures": 0,
+      "cooldownRunsRemaining": 0,
+      "recentOutcomes": [
+        {
+          "at": "2026-08-23T22:09:01.711042+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        }
+      ]
+    },
+    "OpenPhish": {
+      "consecutiveFailures": 0,
+      "cooldownRunsRemaining": 0,
+      "recentOutcomes": [
+        {
+          "at": "2026-08-23T22:09:01.711042+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        }
+      ]
+    },
+    "Phishing Army": {
+      "consecutiveFailures": 0,
+      "cooldownRunsRemaining": 0,
+      "recentOutcomes": [
+        {
+          "at": "2026-08-23T22:09:01.711042+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        }
+      ]
+    },
+    "Phishing.Database": {
+      "consecutiveFailures": 0,
+      "cooldownRunsRemaining": 0,
+      "recentOutcomes": [
+        {
+          "at": "2026-08-23T22:09:01.711042+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        }
+      ]
+    },
+    "URLhaus": {
+      "consecutiveFailures": 0,
+      "cooldownRunsRemaining": 0,
+      "recentOutcomes": [
+        {
+          "at": "2026-08-23T22:09:01.711042+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        }
+      ]
+    }
+  },
+  "updatedAt": "2026-08-23T22:09:01.711042+00:00"
+}
