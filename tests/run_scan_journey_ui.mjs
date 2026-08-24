@@ -44,7 +44,9 @@ assert.ok(!desktopMotion.includes('desktopBrandOrbit'), 'Legacy full-orbit deskt
 assert.ok(!desktopMotion.includes('desktopBrandFloat'), 'The shield image itself must remain static.');
 assert.ok(!desktopMotion.includes('desktopShieldScan'), 'The shield image must not receive scan-state animation.');
 assert.ok(desktopMotion.includes('animation: none !important; transform: none !important;'), 'The desktop shield visual must explicitly remain static.');
-assert.ok(source.includes('desktop-verify-pulse-shield.webp'), 'The supplied VerifyPulse logo asset must remain wired to the desktop shield visual.');
+assert.ok(source.includes('desktop-verify-pulse-shield.webp'), 'The original VerifyPulse circuit-shield asset must remain wired to the desktop visual.');
+assert.ok(desktopMotion.includes('clip-path: polygon(50% 13%'), 'The desktop logo must be cropped to the shield mark rather than display as a square image card.');
+assert.ok(!desktopMotion.includes('border-radius: 30px'), 'The desktop circuit mark must not render as an image card.');
 assert.ok(desktopMotion.includes('animation: desktopBrandHalo 2.2s'), 'Idle scan effect must use the compact reference-inspired timing.');
 assert.ok(desktopMotion.includes('animation-duration: 1.6s'), 'Active scan effect must use the faster reference-inspired timing.');
 assert.ok(!desktopMotion.includes('rotate(180deg)'), 'Desktop shield must remain upright while scanning.');
