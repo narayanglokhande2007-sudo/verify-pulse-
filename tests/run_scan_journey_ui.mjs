@@ -17,7 +17,9 @@ const requiredMarkers = [
   '@media (prefers-reduced-motion: reduce)',
   'Checking secure signals without opening the submitted link.',
   '<span class="desktop-brand-scanline"></span>',
+  '<span class="desktop-brand-shield-wave"></span>',
   'desktopBrandScanSweep',
+  'desktopBrandShieldWave',
   'desktopBrandActiveHalo'
 ];
 for (const marker of requiredMarkers) assert.ok(source.includes(marker), `Missing scan-journey marker: ${marker}`);
@@ -33,13 +35,17 @@ const desktopMotionStart = source.indexOf('@media (min-width: 768px)');
 const desktopMotionEnd = source.indexOf('/* Mobile corner navigation:', desktopMotionStart);
 assert.ok(desktopMotionStart >= 0 && desktopMotionEnd > desktopMotionStart, 'Desktop motion scope must remain inside the desktop breakpoint.');
 const desktopMotion = source.slice(desktopMotionStart, desktopMotionEnd);
-for (const marker of ['desktop-brand-scanline', '@media (prefers-reduced-motion: no-preference)', 'desktopBrandHalo', 'desktopBrandScanSweep', 'desktopBrandActiveHalo', 'desktopShieldScan']) {
-  assert.ok(desktopMotion.includes(marker), `Missing desktop shield-motion marker: ${marker}`);
+for (const marker of ['desktop-brand-scanline', 'desktop-brand-shield-wave', '@media (prefers-reduced-motion: no-preference)', 'desktopBrandHalo', 'desktopBrandShieldWave', 'desktopBrandScanSweep', 'desktopBrandActiveHalo']) {
+  assert.ok(desktopMotion.includes(marker), `Missing desktop shield-effect marker: ${marker}`);
 }
 assert.ok(!desktopMotion.includes('desktopBrandOrbit'), 'Legacy full-orbit desktop shield animation must not return.');
+assert.ok(!desktopMotion.includes('desktopBrandFloat'), 'The shield image itself must remain static.');
+assert.ok(!desktopMotion.includes('desktopShieldScan'), 'The shield image must not receive scan-state animation.');
+assert.ok(desktopMotion.includes('animation: none !important; transform: none !important;'), 'The desktop shield image must explicitly remain static.');
 assert.ok(!desktopMotion.includes('rotate(180deg)'), 'Desktop shield must remain upright while scanning.');
 const styleEnd = source.indexOf('</style>');
 const cssOutsideDesktopMotion = source.slice(0, desktopMotionStart) + source.slice(desktopMotionEnd, styleEnd);
 assert.ok(!cssOutsideDesktopMotion.includes('desktop-brand-scanline'), 'Desktop shield scan-line CSS must not leak into mobile styles.');
+assert.ok(!cssOutsideDesktopMotion.includes('desktop-brand-shield-wave'), 'Desktop shield-wave CSS must not leak into mobile styles.');
 
 console.log('Scan-journey UI suite passed: truthful stages, desktop-only shield motion, reduced-motion handling, and cleanup lifecycle verified.');
