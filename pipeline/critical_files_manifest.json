@@ -3,7 +3,7 @@
   "api/insurance_partnership_api.js": "d222ce5fe3d27db95a1a244350367db15d9a5eb65d1a8661eaca389ae4fbeee7",
   "api/v1/scan.js": "56a7853cdd088934bcdbfd6e64c87c13aaceadd6484105c9824a393825e383b8",
   "api/verify.js": "194c6e7a55317b515e5394f98395119becd183a28fa4f71e89b9aa9e8aa0f330",
-  "index.html": "d9536689ace3397cb9dc2c21127705d0d1ac8440f97a0d54391ac70418860fa1",
+  "index.html": "b8df8abf2d61063952af76b3ee9ed45f1e7f0222c1525d05a267e1837c45c235",
   "lib/audit_events.js": "6b3af73e1128e6cf130832911236e9fbfb3115368f8e05e5a480ad89aa09978c",
   "lib/canary_engine.js": "d89e12786bd228b5a4056c6bbb762579997e6f0dd515affa0215565fc073e9db",
   "lib/db_helper.js": "5a4779b5527eba0831215c139aa1f731b37cb0a28a54f613e130a6b57bbd41fa",
