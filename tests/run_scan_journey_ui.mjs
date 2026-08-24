@@ -19,7 +19,7 @@ const requiredMarkers = [
   '<span class="desktop-brand-scanline"></span>',
   '<span class="desktop-brand-shield-ghost"></span>',
   '<span class="desktop-brand-shield-wave"></span>',
-  '<svg class="desktop-scan-shield"',
+  '<img class="desktop-scan-shield" src="desktop-verify-pulse-shield.webp" alt="">',
   'desktopBrandScanSweep',
   'desktopBrandShieldWave',
   'desktopBrandActiveHalo'
@@ -44,6 +44,7 @@ assert.ok(!desktopMotion.includes('desktopBrandOrbit'), 'Legacy full-orbit deskt
 assert.ok(!desktopMotion.includes('desktopBrandFloat'), 'The shield image itself must remain static.');
 assert.ok(!desktopMotion.includes('desktopShieldScan'), 'The shield image must not receive scan-state animation.');
 assert.ok(desktopMotion.includes('animation: none !important; transform: none !important;'), 'The desktop shield visual must explicitly remain static.');
+assert.ok(source.includes('desktop-verify-pulse-shield.webp'), 'The supplied VerifyPulse logo asset must remain wired to the desktop shield visual.');
 assert.ok(desktopMotion.includes('animation: desktopBrandHalo 2.2s'), 'Idle scan effect must use the compact reference-inspired timing.');
 assert.ok(desktopMotion.includes('animation-duration: 1.6s'), 'Active scan effect must use the faster reference-inspired timing.');
 assert.ok(!desktopMotion.includes('rotate(180deg)'), 'Desktop shield must remain upright while scanning.');
