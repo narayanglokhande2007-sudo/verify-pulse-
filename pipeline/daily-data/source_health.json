@@ -1,11 +1,11 @@
 {
   "schemaVersion": "vp-bounded-feed-health-1",
-  "generatedAt": "2026-08-25T01:13:29.861452+00:00",
+  "generatedAt": "2026-08-26T01:16:00.340418+00:00",
   "sourceCount": 5,
   "successfulSources": 5,
-  "acceptedRecords": 2696,
-  "indiaRecords": 57,
-  "globalRecords": 2639,
+  "acceptedRecords": 2699,
+  "indiaRecords": 56,
+  "globalRecords": 2643,
   "maxRecordsPerSource": 600,
   "healthPolicy": {
     "historyLoad": "loaded",
@@ -16,7 +16,7 @@
     {
       "name": "URLhaus",
       "provenance": "https://urlhaus.abuse.ch/downloads/text/",
-      "checkedAt": "2026-08-25T01:13:29.861452+00:00",
+      "checkedAt": "2026-08-26T01:16:00.340418+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -27,10 +27,10 @@
     {
       "name": "OpenPhish",
       "provenance": "https://openphish.com/feed.txt",
-      "checkedAt": "2026-08-25T01:13:29.861452+00:00",
+      "checkedAt": "2026-08-26T01:16:00.340418+00:00",
       "status": "ok",
-      "acceptedRecords": 296,
-      "bytesRead": 16717,
+      "acceptedRecords": 299,
+      "bytesRead": 14464,
       "truncated": false,
       "attempts": 1,
       "retryRecovered": false
@@ -38,7 +38,7 @@
     {
       "name": "Phishing Army",
       "provenance": "https://phishing.army/download/phishing_army_blocklist_extended.txt",
-      "checkedAt": "2026-08-25T01:13:29.861452+00:00",
+      "checkedAt": "2026-08-26T01:16:00.340418+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -49,7 +49,7 @@
     {
       "name": "Phishing.Database",
       "provenance": "https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt",
-      "checkedAt": "2026-08-25T01:13:29.861452+00:00",
+      "checkedAt": "2026-08-26T01:16:00.340418+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -60,7 +60,7 @@
     {
       "name": "Blackbook",
       "provenance": "https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt",
-      "checkedAt": "2026-08-25T01:13:29.861452+00:00",
+      "checkedAt": "2026-08-26T01:16:00.340418+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 312402,
