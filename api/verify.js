@@ -1129,20 +1129,19 @@ Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirm
 
 async function callGeminiLiveSearch(sanitizedText, apiKey, timeoutMs = 4500) {
   const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   
-  const systemPrompt = You are an advanced Live OSINT Search Agent for a B2B cybersecurity product.
+  const systemPrompt = `You are an advanced Live OSINT Search Agent for a B2B cybersecurity product.
 CRITICAL RULES:
 1. Search the live web to determine if the sanitized text/URL is a scam, phishing, or a safe official entity.
 2. If multiple reliable sources confirm it is a scam, return DANGEROUS.
 3. If it is a widely recognized, legitimate official website/brand, return SAFE.
 4. If there is not enough information on the internet, return NEEDS_VERIFICATION.
 5. Provide a detailed 'analysis' explaining what you found on the live web.
-6. Return ONLY valid JSON matching this schema: {"verdict": "SAFE"|"DANGEROUS"|"NEEDS_VERIFICATION", "confidence": number, "analysis": "string"};
+6. Return ONLY valid JSON matching this schema: {"verdict": "SAFE"|"DANGEROUS"|"NEEDS_VERIFICATION", "confidence": number, "analysis": "string"}`;
 
   const body = {
-    contents: [{ parts: [{ text: "SYSTEM INSTRUCTION:\n$systemPrompt
-\nSanitized Input to Search: \"$sanitizedText\"" }] }],
+    contents: [{ parts: [{ text: `SYSTEM INSTRUCTION:\n${systemPrompt}\n\nSanitized Input to Search: "${sanitizedText}"` }] }],
     tools: [{ googleSearch: {} }],
     generationConfig: { temperature: 0.1 }
   };
