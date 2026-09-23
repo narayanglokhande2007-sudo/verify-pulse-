@@ -766,13 +766,26 @@ CRITICAL GUARDRAILS:
     // rate under the protected 2.4s cap justified a 4.0s accuracy-first window;
     // the shared 8.5s request budget still protects the 10s Vercel ceiling.
     // Groq remains a bounded independent fallback.
-    if (GEMINI_KEY) {
-      const geminiResult = await attempt({
+        if (GEMINI_KEY) {
+      let geminiResult = await attempt({
         stage: 'primary_scan', provider: 'gemini',
-        capMs: 4000,
+        capMs: 3000,
         operation: (timeoutMs) => callGemini(externalAnalysisText, GEMINI_KEY, checkType, knowledgeLine, null, GEMINI_MODEL, timeoutMs)
       });
-      if (geminiResult) return res.status(200).json(safeResult(geminiResult));
+      if (geminiResult) {
+        if (geminiResult.verdict === 'NEEDS_VERIFICATION') {
+          const liveSearchResult = await attempt({
+            stage: 'live_osint_search', provider: 'gemini_search',
+            capMs: 4500,
+            operation: (timeoutMs) => callGeminiLiveSearch(externalAnalysisText, GEMINI_KEY, timeoutMs)
+          });
+          if (liveSearchResult && liveSearchResult.verdict !== 'NEEDS_VERIFICATION') {
+            liveSearchResult.evidenceSources = (liveSearchResult.evidenceSources || []).concat(['Live OSINT AI Search']);
+            geminiResult = liveSearchResult;
+          }
+        }
+        return res.status(200).json(safeResult(geminiResult));
+      }
     } else {
       failedProviders.push({ provider: 'gemini', errorCode: 'provider_not_configured' });
     }
@@ -1111,4 +1124,35 @@ Examples of SAFE: Environmental heat wave alert from Govt, Zerodha trade confirm
   if (type === 'upi') return `Analyze UPI ID for fraud. Return JSON.${knowledgeLine}`;
   if (type === 'gmail') return baseSCAM + knowledgeLine;
   return `Analyze and return JSON with verdict, confidence, analysis, findings.`;
+}
+
+
+async function callGeminiLiveSearch(sanitizedText, apiKey, timeoutMs = 4500) {
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey";
+  
+  const systemPrompt = You are an advanced Live OSINT Search Agent for a B2B cybersecurity product.
+CRITICAL RULES:
+1. Search the live web to determine if the sanitized text/URL is a scam, phishing, or a safe official entity.
+2. If multiple reliable sources confirm it is a scam, return DANGEROUS.
+3. If it is a widely recognized, legitimate official website/brand, return SAFE.
+4. If there is not enough information on the internet, return NEEDS_VERIFICATION.
+5. Provide a detailed 'analysis' explaining what you found on the live web.
+6. Return ONLY valid JSON matching this schema: {"verdict": "SAFE"|"DANGEROUS"|"NEEDS_VERIFICATION", "confidence": number, "analysis": "string"};
+
+  const body = {
+    contents: [{ parts: [{ text: "SYSTEM INSTRUCTION:\n$systemPrompt
+\nSanitized Input to Search: \"$sanitizedText\"" }] }],
+    tools: [{ googleSearch: {} }],
+    generationConfig: { temperature: 0.1 }
+  };
+
+  const data = await fetchJsonWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, { provider: 'gemini_search', timeoutMs });
+  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) throw new Error('Empty Gemini Search response');
+  
+  let parsed;
+  try { parsed = JSON.parse(content); } catch { const m = content.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Invalid JSON'); }
+  if (parsed.confidence > 0 && parsed.confidence <= 1) parsed.confidence = Math.round(parsed.confidence * 100);
+  return parsed;
 }
