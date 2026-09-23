@@ -11,6 +11,7 @@ import { lookupThreatIntelligence } from '../lib/threat_intelligence.js';
 import { lookupHistoricalReputation } from '../lib/historical_reputation.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 import { getPulseCoreLocalGuidance } from '../lib/pulsecore_local_guidance.js';
+import { directLocalLookup } from '../lib/indexed_direct_lookup.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
 
@@ -576,12 +577,16 @@ CRITICAL GUARDRAILS:
       }));
     }
 
-    // Run fresh and retained-history reputation checks together. Both are
-    // bounded and fail-safe; a lookup outage never creates a SAFE result.
-    const [historicalReputation, threatIntelligence] = await Promise.all([
-      lookupHistoricalReputation(text),
-      lookupThreatIntelligence(text)
-    ]);
+    // Run fresh and retained-history reputation checks together.
+    // ZERO-DOWNTIME B2B LOGIC: Try Direct Indexed Volume first.
+    let historicalReputation = await directLocalLookup(text);
+    
+    // Fallback to network lookup if local volume is unmounted or missing
+    if (!historicalReputation || historicalReputation.error === "volume_offline") {
+      historicalReputation = await lookupHistoricalReputation(text);
+    }
+
+    const threatIntelligence = await lookupThreatIntelligence(text);
     if (historicalReputation.matched) {
       const strongestMatch = historicalReputation.matches[0];
       const highConfidence = strongestMatch.confidence >= 90 || strongestMatch.sourceCount >= 2;
