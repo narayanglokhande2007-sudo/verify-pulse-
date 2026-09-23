@@ -34,6 +34,6 @@
     "lib/canary_engine.js":  "d89e12786bd228b5a4056c6bbb762579997e6f0dd515affa0215565fc073e9db",
     "pipeline/build_threat_intelligence.py":  "bbdffc4bfb098c8fd877653f95a03793e4e62abab43f8e1ec5d84f710ec422c5",
     "pipeline/integrity_monitor.py":  "94c6f3d32e7b396ee10410c44b1b331f9c1b471296e5c4d64ab0dfde9359d311",
-    "api/verify.js":  "30f0e978864de2c3b51b28b0b603a630687373350142b4a03b296612d10a2cf1",
+    "api/verify.js":  "bf726f804f888616056afa496d9965580322e9826d85044e467e5710f2efe3a7",
     "pipeline/daily_fetcher_restore.py":  "5537d3e99ea9f2cb9458c83bf4e6b96dfe088523c0645568e0c474712b0a746d"
 }
