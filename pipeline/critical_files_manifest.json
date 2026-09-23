@@ -26,7 +26,7 @@
     "pipeline/check_threat_intelligence_freshness.py":  "70b630917f3ae2be1db39e4e8a9d4fd22753d216171f38ef7f22b0d79804eb9b",
     "pipeline/daily_fetcher_report.py":  "6424bee7bc4b92a3a9cba564892556227d91febe2cba47ae8449e7e024b0879c",
     "pipeline/daily_fetcher_restore.py":  "5537d3e99ea9f2cb9458c83bf4e6b96dfe088523c0645568e0c474712b0a746d",
-    "pipeline/fetch_indian_bulk_scams.py":  "17f427c71ea8dfd12bf26a43d0e8f88e4c3993bae9c0933323e955a4fb005ef3",
+    "pipeline/fetch_indian_bulk_scams.py":  "c53cbe7c0000df4031b3fb64a9fb8c5192366272a7b735a461d071bbddc8b734",
     "pipeline/integrity_monitor.py":  "94c6f3d32e7b396ee10410c44b1b331f9c1b471296e5c4d64ab0dfde9359d311",
     "pipeline/pulse_agent_war_games.py":  "a0ace078eb779049a08415886d63034fdf71ce86d3cc6af1def292f73f9cf6a1",
     "pipeline/refresh_historical_reputation.py":  "eb822a445fe4d34e96ad2bd9ad9f7b118a9b493866599ca4b4fbcbea6f538e3e",
