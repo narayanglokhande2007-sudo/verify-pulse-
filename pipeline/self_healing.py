@@ -62,6 +62,7 @@ CRITICAL_FILES = (
     "pipeline/pulse_agent_war_games.py",
     "pipeline/integrity_monitor.py",
     "pipeline/self_healing.py",
+    "lib/indexed_direct_lookup.js",
 )
 
 
