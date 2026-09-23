@@ -1517,17 +1517,21 @@
         const result = document.getElementById('passwordResult');
         if (!pwd) { result.innerHTML = ''; return; }
         let strength = 0;
-        if (pwd.length >= 9) strength++;
+        let tips = [];
+        if (pwd.length >= 9) strength++; else tips.push("Make it at least 9 characters long.");
         if (pwd.length >= 12) strength++;
-        if (/[A-Z]/.test(pwd)) strength++;
-        if (/[a-z]/.test(pwd)) strength++;
-        if (/[0-9]/.test(pwd)) strength++;
-        if (/[^A-Za-z0-9]/.test(pwd)) strength++;
-        let cls, txt, color;
+        if (/[A-Z]/.test(pwd)) strength++; else tips.push("Add uppercase letters (A-Z).");
+        if (/[a-z]/.test(pwd)) strength++; else tips.push("Add lowercase letters (a-z).");
+        if (/[0-9]/.test(pwd)) strength++; else tips.push("Add numbers (0-9).");
+        if (/[^A-Za-z0-9]/.test(pwd)) strength++; else tips.push("Add special characters (@, #, !, etc.).");
+        
+        let txt, color;
         if (strength <= 2) { color = '#ef4444'; txt = 'Weak'; }
         else if (strength <= 4) { color = '#f59e0b'; txt = 'Moderate'; }
         else { color = '#22c55e'; txt = 'Strong'; }
-        result.innerHTML = `<div style="color:${color}; font-weight:bold;">🔐 ${txt} (score ${strength}/6)</div>`;
+        
+        let suggestionHtml = tips.length > 0 ? `<ul style="margin-top:8px; padding-left:20px; font-size:13px; color:#475569;"><li>${tips.slice(0,3).join('</li><li>')}</li></ul>` : '';
+        result.innerHTML = `<div style="color:${color}; font-weight:bold;">🔐 ${txt} (score ${strength}/6)</div>${suggestionHtml}`;
     }
 </script>
 <script>
@@ -1577,10 +1581,10 @@
             if (reply) {
                 appendPulseCoreMessage(msgs, 'msg-bot', reply, { markdown: true });
             } else {
-                appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore ne abhi usable reply return nahi kiya. Please official source se verify karo aur thodi der baad phir try karo.');
+                appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore is currently unable to return a usable reply. Please verify via official sources and try again later.');
             }
         } catch (e) {
-            appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore se abhi connection complete nahi ho paya. Yeh SAFE result nahi hai. Internet check karke thodi der baad try karo, aur urgent banking/cyber-fraud matter ke liye official bank app ya 1930 use karo.');
+            appendPulseCoreMessage(msgs, 'msg-bot', 'PulseCore could not establish a secure connection. This is NOT a SAFE result. Please check your internet connection, and for urgent banking or cyber-fraud matters, use your official bank app or contact the national cyber helpline (1930).');
         } finally {
             document.getElementById('pulseCoreTyping').style.display = 'none';
             setPulseCoreBusy(false);
