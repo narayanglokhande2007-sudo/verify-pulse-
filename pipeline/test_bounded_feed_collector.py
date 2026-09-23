@@ -165,7 +165,7 @@ def test_cooldown_never_bypasses_minimum_sources() -> None:
 
 
 def main() -> int:
-    assert len(collector.SOURCE_CATALOG) == 5, collector.SOURCE_CATALOG
+    assert len(collector.SOURCE_CATALOG) == 30, collector.SOURCE_CATALOG
     assert collector.DEFAULT_MAX_RECORDS_PER_SOURCE <= 600
     assert collector.MAX_RESPONSE_BYTES <= 2 * 1024 * 1024
     assert collector.REQUEST_TIMEOUT_SECONDS <= 12
