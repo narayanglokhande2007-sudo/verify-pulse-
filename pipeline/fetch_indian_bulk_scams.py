@@ -50,6 +50,17 @@ SOURCE_CATALOG = (
     ("https://phishing.army/download/phishing_army_blocklist_extended.txt", "Phishing Army"),
     ("https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt", "Phishing.Database"),
     ("https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt", "Blackbook"),
+    # New Massive Bulk Datasets added for B2B expansion
+    ("https://phishstats.info/phish_score.csv", "PhishStats Global"),
+    ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/urls.txt", "Maltrail Malware"),
+    ("https://raw.githubusercontent.com/Dogino/Discord-Phishing-URLs/main/scam-urls.txt", "Social/Telecom Scams"),
+    ("https://raw.githubusercontent.com/joshua-s/active-phishing-domains/master/active-phishing-domains.txt", "Active Phishing Daily"),
+    ("https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt", "BlocklistProject Phishing"),
+),
+    ("https://openphish.com/feed.txt", "OpenPhish"),
+    ("https://phishing.army/download/phishing_army_blocklist_extended.txt", "Phishing Army"),
+    ("https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt", "Phishing.Database"),
+    ("https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt", "Blackbook"),
 )
 
 INDIA_MARKERS = (
