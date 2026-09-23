@@ -10,8 +10,9 @@ const [verifySource, requestBudgetSource, vercelConfigSource] = await Promise.al
 const vercelConfig = JSON.parse(vercelConfigSource);
 
 assert.match(verifySource, /const GROQ_MODEL = process\.env\.GROQ_MODEL \|\| 'openai\/gpt-oss-120b';/);
-assert.doesNotMatch(verifySource, /model:\s*['\"]llama-3\.3-70b-versatile['\"]/);
-assert.match(verifySource, /capMs: 4000/);
+assert.doesNotMatch(verifySource, /model:\s*['"]llama-3\.3-70b-versatile['"]/);
+assert.match(verifySource, /capMs: 3000/);
+assert.match(verifySource, /capMs: 4500/);
 assert.match(verifySource, /capMs: 2200/);
 assert.match(requestBudgetSource, /VERIFYPULSE_SCAN_BUDGET_MS, 8500, 9000/);
 assert.equal(vercelConfig.functions?.['api/verify.js']?.maxDuration, 10);
