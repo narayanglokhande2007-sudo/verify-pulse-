@@ -45,7 +45,42 @@ RETRYABLE_HTTP_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
 # Small, source-attributed set. Adding a source requires a health/reliability
 # review; do not restore unbounded bulk collection here.
 SOURCE_CATALOG = (
+    # --- Original Sources ---
     ("https://urlhaus.abuse.ch/downloads/text/", "URLhaus"),
+    ("https://openphish.com/feed.txt", "OpenPhish"),
+    ("https://phishing.army/download/phishing_army_blocklist_extended.txt", "Phishing Army"),
+    ("https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt", "Phishing.Database"),
+    ("https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt", "Blackbook"),
+    
+    # --- Wave 1 Additions ---
+    ("https://phishstats.info/phish_score.csv", "PhishStats Global"),
+    ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/urls.txt", "Maltrail Malware URLs"),
+    ("https://raw.githubusercontent.com/Dogino/Discord-Phishing-URLs/main/scam-urls.txt", "Social/Telecom Scams"),
+    ("https://raw.githubusercontent.com/joshua-s/active-phishing-domains/master/active-phishing-domains.txt", "Active Phishing Daily"),
+    ("https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt", "BlocklistProject Phishing"),
+
+    # --- Wave 2 Additions: 20 Advanced Threat Intel Sources ---
+    ("https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt", "DigitalSide OSINT"),
+    ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/suspicious/domain.txt", "Maltrail Suspicious Domains"),
+    ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/domain.txt", "Maltrail Malware Domains"),
+    ("https://blocklistproject.github.io/Lists/fraud.txt", "BlocklistProject Fraud"),
+    ("https://blocklistproject.github.io/Lists/scam.txt", "BlocklistProject Scam"),
+    ("https://blocklistproject.github.io/Lists/malware.txt", "BlocklistProject Malware"),
+    ("https://blocklistproject.github.io/Lists/ransomware.txt", "BlocklistProject Ransomware"),
+    ("https://blocklistproject.github.io/Lists/crypto.txt", "BlocklistProject Crypto"),
+    ("https://raw.githubusercontent.com/shreyasminocha/shady-hosts/main/data/hosts", "Shady Hosts"),
+    ("https://phishunt.io/feed.txt", "Phishunt Feed"),
+    ("https://cybercrime-tracker.net/all.php", "CyberCrime Tracker"),
+    ("https://v.firebog.net/hosts/Prigent-Phishing.txt", "Prigent Phishing"),
+    ("https://v.firebog.net/hosts/Prigent-Malware.txt", "Prigent Malware"),
+    ("https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts", "FadeMind Risk Hosts"),
+    ("https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Extension/GoodbyeAds-Fraud-Malware-Filter.txt", "GoodbyeAds Fraud & Malware"),
+    ("https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt", "Disconnect Malvertising"),
+    ("https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/master/hosts/hosts0", "Ultimate Hosts Blacklist"),
+    ("https://phishing.database.red/phishing-links-NEW-today.txt", "Phishing.Database NEW"),
+    ("https://phishing.database.red/phishing-links-INACTIVE.txt", "Phishing.Database Historical"),
+    ("https://urlhaus.abuse.ch/downloads/hostfile/", "URLhaus Hostfile"),
+),
     ("https://openphish.com/feed.txt", "OpenPhish"),
     ("https://phishing.army/download/phishing_army_blocklist_extended.txt", "Phishing Army"),
     ("https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt", "Phishing.Database"),
