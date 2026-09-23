@@ -48,6 +48,27 @@ process.env.SAFE_BROWSING_API_KEY = 'fixture-safe-browsing-key';
 const HISTORICAL_TEST_URL = 'https://historical-fixture.example.test/';
 const HISTORICAL_TEST_HASH = crypto.createHash('sha256').update(HISTORICAL_TEST_URL, 'utf8').digest('hex');
 let mode = 'all-providers-fail';
+import fs from 'node:fs/promises';
+const originalReadFile = fs.readFile;
+fs.readFile = async (filePath, options) => {
+  const target = String(filePath).replace(/\\/g, '/');
+  if (mode === 'historical-match' && target.includes('pipeline/daily-data/historical-reputation-index')) {
+    if (target.endsWith('manifest.json')) {
+      return JSON.stringify({
+        schemaVersion: 'vp-historical-reputation-index-1', generatedAt: '2026-08-17T00:00:00.000Z',
+        shardPrefixLength: 3, uniqueIndexedKeys: 1, sourceCount: 1, shardCount: 4096,
+        sourceCatalog: [{ id: 0, name: 'OpenPhish', confidence: 90, qualityTier: 'verified', category: 'phishing-url' }]
+      });
+    }
+    const prefixMatch = target.match(/\/shards\/([a-f0-9]{3})\.json$/);
+    if (prefixMatch) {
+      const prefix = prefixMatch[1];
+      return JSON.stringify({ v: 1, p: prefix, r: HISTORICAL_TEST_HASH.startsWith(prefix) ? [[HISTORICAL_TEST_HASH, 'u', [0], 1717200000, 1717286400]] : [] });
+    }
+  }
+  return originalReadFile(filePath, options);
+};
+
 global.fetch = async (url) => {
   const target = String(url);
   if (mode === 'historical-match' && target.includes('verify-pulse.com/pipeline/daily-data/historical-reputation-index')) {
