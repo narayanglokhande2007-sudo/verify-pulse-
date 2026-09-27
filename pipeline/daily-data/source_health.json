@@ -1,22 +1,34 @@
 {
   "schemaVersion": "vp-bounded-feed-health-1",
-  "generatedAt": "2026-09-26T03:48:23.828420+00:00",
+  "generatedAt": "2026-09-27T03:57:43.411040+00:00",
   "sourceCount": 30,
   "successfulSources": 19,
-  "acceptedRecords": 10511,
-  "indiaRecords": 526,
-  "globalRecords": 9985,
+  "acceptedRecords": 10519,
+  "indiaRecords": 551,
+  "globalRecords": 9968,
   "maxRecordsPerSource": 600,
   "healthPolicy": {
     "historyLoad": "loaded",
-    "deferredSources": [],
+    "deferredSources": [
+      "PhishStats Global",
+      "Maltrail Malware URLs",
+      "Active Phishing Daily",
+      "DigitalSide OSINT",
+      "Maltrail Suspicious Domains",
+      "Maltrail Malware Domains",
+      "Shady Hosts",
+      "Prigent Phishing",
+      "GoodbyeAds Fraud & Malware",
+      "Phishing.Database NEW",
+      "Phishing.Database Historical"
+    ],
     "minimumHealthySourcesBeforeDeferral": 3
   },
   "sources": [
     {
       "name": "URLhaus",
       "provenance": "https://urlhaus.abuse.ch/downloads/text/",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -27,10 +39,10 @@
     {
       "name": "OpenPhish",
       "provenance": "https://openphish.com/feed.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
-      "acceptedRecords": 298,
-      "bytesRead": 14650,
+      "acceptedRecords": 300,
+      "bytesRead": 14095,
       "truncated": false,
       "attempts": 1,
       "retryRecovered": false
@@ -38,7 +50,7 @@
     {
       "name": "Phishing Army",
       "provenance": "https://phishing.army/download/phishing_army_blocklist_extended.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -49,7 +61,7 @@
     {
       "name": "Phishing.Database",
       "provenance": "https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-links-ACTIVE.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -60,7 +72,7 @@
     {
       "name": "Blackbook",
       "provenance": "https://raw.githubusercontent.com/stamparm/blackbook/master/blackbook.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 312402,
@@ -71,7 +83,7 @@
     {
       "name": "Social/Telecom Scams",
       "provenance": "https://raw.githubusercontent.com/Dogino/Discord-Phishing-URLs/main/scam-urls.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 703349,
@@ -82,7 +94,7 @@
     {
       "name": "BlocklistProject Phishing",
       "provenance": "https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -93,7 +105,7 @@
     {
       "name": "BlocklistProject Fraud",
       "provenance": "https://blocklistproject.github.io/Lists/fraud.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -104,7 +116,7 @@
     {
       "name": "BlocklistProject Scam",
       "provenance": "https://blocklistproject.github.io/Lists/scam.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 223675,
@@ -115,7 +127,7 @@
     {
       "name": "BlocklistProject Malware",
       "provenance": "https://blocklistproject.github.io/Lists/malware.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -126,7 +138,7 @@
     {
       "name": "BlocklistProject Ransomware",
       "provenance": "https://blocklistproject.github.io/Lists/ransomware.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 66764,
@@ -137,7 +149,7 @@
     {
       "name": "BlocklistProject Crypto",
       "provenance": "https://blocklistproject.github.io/Lists/crypto.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 27787,
@@ -148,10 +160,10 @@
     {
       "name": "Phishunt Feed",
       "provenance": "https://phishunt.io/feed.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
-      "bytesRead": 35073,
+      "bytesRead": 33728,
       "truncated": false,
       "attempts": 1,
       "retryRecovered": false
@@ -159,7 +171,7 @@
     {
       "name": "CyberCrime Tracker",
       "provenance": "https://cybercrime-tracker.net/all.php",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 876599,
@@ -170,7 +182,7 @@
     {
       "name": "Prigent Malware",
       "provenance": "https://v.firebog.net/hosts/Prigent-Malware.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -181,7 +193,7 @@
     {
       "name": "FadeMind Risk Hosts",
       "provenance": "https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 58157,
@@ -192,7 +204,7 @@
     {
       "name": "Disconnect Malvertising",
       "provenance": "https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
       "acceptedRecords": 600,
       "bytesRead": 44155,
@@ -203,7 +215,7 @@
     {
       "name": "Ultimate Hosts Blacklist",
       "provenance": "https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/master/hosts/hosts0",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "partial",
       "acceptedRecords": 600,
       "bytesRead": 2097152,
@@ -214,10 +226,10 @@
     {
       "name": "URLhaus Hostfile",
       "provenance": "https://urlhaus.abuse.ch/downloads/hostfile/",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
       "status": "ok",
-      "acceptedRecords": 384,
-      "bytesRead": 11562,
+      "acceptedRecords": 381,
+      "bytesRead": 11460,
       "truncated": false,
       "attempts": 1,
       "retryRecovered": false
@@ -225,145 +237,134 @@
     {
       "name": "PhishStats Global",
       "provenance": "https://phishstats.info/phish_score.csv",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Maltrail Malware URLs",
       "provenance": "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/urls.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Active Phishing Daily",
       "provenance": "https://raw.githubusercontent.com/joshua-s/active-phishing-domains/master/active-phishing-domains.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "DigitalSide OSINT",
       "provenance": "https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 3,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "URLError: <urlopen error timed out>",
-      "retryableFailure": true
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Maltrail Suspicious Domains",
       "provenance": "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/suspicious/domain.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Maltrail Malware Domains",
       "provenance": "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/malware/domain.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Shady Hosts",
       "provenance": "https://raw.githubusercontent.com/shreyasminocha/shady-hosts/main/data/hosts",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Prigent Phishing",
       "provenance": "https://v.firebog.net/hosts/Prigent-Phishing.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "GoodbyeAds Fraud & Malware",
       "provenance": "https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Extension/GoodbyeAds-Fraud-Malware-Filter.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 1,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "HTTPError: HTTP Error 404: Not Found",
-      "retryableFailure": false
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Phishing.Database NEW",
       "provenance": "https://phishing.database.red/phishing-links-NEW-today.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 3,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
-      "retryableFailure": true
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     },
     {
       "name": "Phishing.Database Historical",
       "provenance": "https://phishing.database.red/phishing-links-INACTIVE.txt",
-      "checkedAt": "2026-09-26T03:48:23.828420+00:00",
-      "status": "failed",
+      "checkedAt": "2026-09-27T03:57:43.411040+00:00",
+      "status": "deferred",
       "acceptedRecords": 0,
       "bytesRead": 0,
       "truncated": false,
-      "attempts": 3,
+      "attempts": 0,
       "retryRecovered": false,
-      "error": "URLError: <urlopen error [Errno -5] No address associated with hostname>",
-      "retryableFailure": true
+      "healthPolicy": "one-run-cooldown-after-repeated-failures"
     }
   ]
 }
