@@ -603,7 +603,7 @@ CRITICAL GUARDRAILS:
                     analysis: 'This URL is definitively whitelisted in the Enterprise Fast-Path as an official banking domain.',
                     findings: ['Domain is part of the 90% Indian Banking Permanent Whitelist.'],
                     whatToDo: ['Safe to proceed.'],
-                    evidenceSources: ['Enterprise Fast-Path Whitelist']
+                    evidenceSources: ['Trusted domain registry']
                 }));
             }
 
