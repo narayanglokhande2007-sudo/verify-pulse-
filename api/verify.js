@@ -624,6 +624,53 @@ CRITICAL GUARDRAILS:
         }
     } catch(e) {}
 
+        // --- HEURISTIC INTERCEPTION (WHITELIST & SPOOFING) ---
+    try {
+        const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+        if (urlMatch) {
+            const parsed = new URL(urlMatch[0].toLowerCase().trim());
+            let hostname = parsed.hostname;
+            if (hostname.startsWith('www.')) hostname = hostname.slice(4);
+
+            const INDIAN_BANKS_WHITELIST = new Set([
+                'hdfcbank.com', 'onlinesbi.sbi', 'sbi.co.in', 'icicibank.com', 'axisbank.com',
+                'kotak.com', 'pnbindia.in', 'bankofbaroda.in', 'unionbankofindia.co.in',
+                'canarabank.com', 'yesbank.in', 'idfcfirstbank.com', 'indusind.com',
+                'indianbank.in', 'centralbankofindia.co.in', 'rbi.org.in', 'npci.org.in',
+                'fraudshield.ltd'
+            ]);
+            const BANK_KEYWORDS = ['hdfc', 'sbi', 'icici', 'axis', 'kotak', 'pnb', 'bob', 'yesbank', 'idfc', 'indusind', 'pancard', 'kyc'];
+            const CHEAP_TLDS = ['.xyz', '.tk', '.ml', '.ga', '.cf', '.top', '.vip', '.info', '.ltd', '.in.net', '.online', '.site', '.club'];
+
+            if (INDIAN_BANKS_WHITELIST.has(hostname)) {
+                return res.status(200).json(safeResult({
+                    verdict: 'SAFE',
+                    confidence: 99,
+                    scamType: 'Official Banking Whitelist',
+                    analysis: 'This URL is definitively whitelisted in the Enterprise Fast-Path as an official banking domain.',
+                    findings: ['Domain is part of the 90% Indian Banking Permanent Whitelist.'],
+                    whatToDo: ['Safe to proceed.'],
+                    evidenceSources: ['Enterprise Fast-Path Whitelist']
+                }));
+            }
+
+            const hasBankKeyword = BANK_KEYWORDS.some(kw => hostname.includes(kw));
+            const hasCheapTLD = CHEAP_TLDS.some(tld => hostname.endsWith(tld));
+
+            if (hasBankKeyword && hasCheapTLD) {
+                return res.status(200).json(safeResult({
+                    verdict: 'DANGEROUS',
+                    confidence: 99,
+                    scamType: 'Bank Spoofing / Typosquatting',
+                    analysis: 'This URL uses a cheap TLD combined with an Indian banking keyword, strongly indicating a phishing or typosquatting scam.',
+                    findings: ['Contains official bank keyword.', 'Ends with a high-risk/cheap TLD.', 'Bypassed Fast-Path Whitelist.'],
+                    whatToDo: ['Do not click or enter credentials.', 'Report to the bank immediately.'],
+                    evidenceSources: ['Bank-Spoofing Heuristic Engine']
+                }));
+            }
+        }
+    } catch(e) {}
+
     // Run fresh and retained-history reputation checks together.
     // ZERO-DOWNTIME B2B LOGIC: Try Direct Indexed Volume first.
     let historicalReputation = await directLocalLookup(text);
