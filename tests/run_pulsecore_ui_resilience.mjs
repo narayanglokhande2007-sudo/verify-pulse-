@@ -10,9 +10,9 @@ const chatFunction = source.slice(start, end);
 for (const marker of [
   "requestVerify({ checkType: 'chatbot', text })",
   'const reply = typeof data?.reply',
-  'PulseCore ne abhi usable reply return nahi kiya.',
-  'PulseCore se abhi connection complete nahi ho paya.',
-  'Yeh SAFE result nahi hai.',
+  'PulseCore is currently unable to return a usable reply.',
+  'PulseCore could not establish a secure connection.',
+  'This is NOT a SAFE result.',
   'setPulseCoreBusy(true)',
   'setPulseCoreBusy(false)',
   'appendPulseCoreMessage'
