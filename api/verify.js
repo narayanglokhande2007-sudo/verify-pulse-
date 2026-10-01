@@ -595,17 +595,7 @@ CRITICAL GUARDRAILS:
             const BANK_KEYWORDS = ['hdfc', 'sbi', 'icici', 'axis', 'kotak', 'pnb', 'bob', 'yesbank', 'idfc', 'indusind', 'pancard', 'kyc'];
             const CHEAP_TLDS = ['.xyz', '.tk', '.ml', '.ga', '.cf', '.top', '.vip', '.info', '.ltd', '.in.net', '.online', '.site', '.club'];
 
-            if (INDIAN_BANKS_WHITELIST.has(hostname)) {
-                return res.status(200).json(safeResult({
-                    verdict: 'SAFE',
-                    confidence: 99,
-                    scamType: 'Official Banking Whitelist',
-                    analysis: 'This URL is definitively whitelisted in the Enterprise Fast-Path as an official banking domain.',
-                    findings: ['Domain is part of the 90% Indian Banking Permanent Whitelist.'],
-                    whatToDo: ['Safe to proceed.'],
-                    evidenceSources: ['Trusted domain registry']
-                }));
-            }
+            
 
             const hasBankKeyword = BANK_KEYWORDS.some(kw => hostname.includes(kw));
             const hasCheapTLD = CHEAP_TLDS.some(tld => hostname.endsWith(tld));
