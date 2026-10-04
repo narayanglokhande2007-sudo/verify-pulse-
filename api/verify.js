@@ -45,7 +45,7 @@ export default async function handler(req, res) {
           b2bTenantId = authResult.identity?.tenantId || 'legacy';
           b2bTier = 1; // Default to Tier 1 limit
           
-          const quotaResult = checkB2BQuota(b2bTenantId, b2bTier);
+          const quotaResult = await checkB2BQuota(b2bTenantId, b2bTier);
           res.setHeader('X-VerifyPulse-Quota-Limit', String(quotaResult.limit));
           res.setHeader('X-VerifyPulse-Quota-Used', String(quotaResult.used));
           
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
   } else {
       // B2C Anonymous User Flow
       const clientIp = getClientIp(req);
-      const b2cQuota = checkB2CQuota(clientIp);
+      const b2cQuota = await checkB2CQuota(clientIp);
       
       res.setHeader('X-VerifyPulse-B2C-Quota-Limit', String(b2cQuota.limit));
       res.setHeader('X-VerifyPulse-B2C-Quota-Used', String(b2cQuota.used));
