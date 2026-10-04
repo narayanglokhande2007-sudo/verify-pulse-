@@ -6,14 +6,14 @@ import crypto from 'node:crypto';
 function generateB2BKey(tenantName, tier) {
     // Generate a secure random string
     const rawSecret = crypto.randomBytes(32).toString('base64url');
-    const apiKey = p_live_ + rawSecret;
+    const apiKey = "vp_live_" + rawSecret;
     
     // Hash it for the Vercel Environment Variables (Security)
     const hash = crypto.createHash('sha256').update(apiKey).digest('hex');
     
     // Create the Registry Entry for VERIFYPULSE_B2B_KEY_REGISTRY
     const registryEntry = {
-        keyId: key_ + crypto.randomBytes(8).toString('hex'),
+        keyId: "key_" + crypto.randomBytes(8).toString('hex'),
         tenantId: tenantName.toLowerCase().replace(/[^a-z0-9]/g, '_'),
         sha256: hash,
         scopes: ["b2b:scan"],
@@ -21,15 +21,15 @@ function generateB2BKey(tenantName, tier) {
         status: "active"
     };
 
-    console.log(\n======================================================);
-    console.log(✅ API KEY GENERATED FOR:  (Tier ));
-    console.log(======================================================);
-    console.log(🔑 GIVE THIS TO THE CLIENT (They put this in their headers):);
-    console.log(x-api-key: );
-    console.log(x-verifypulse-key-id: );
-    console.log(\n🔒 ADD THIS TO VERCEL ENV (VERIFYPULSE_B2B_KEY_REGISTRY):);
+    console.log(`\n======================================================`);
+    console.log(`✅ API KEY GENERATED FOR: ${tenantName} (Tier ${tier})`);
+    console.log(`======================================================`);
+    console.log(`🔑 GIVE THIS TO THE CLIENT (They put this in their headers):`);
+    console.log(`x-api-key: ${apiKey}`);
+    console.log(`x-verifypulse-key-id: ${registryEntry.keyId}`);
+    console.log(`\n🔒 ADD THIS TO VERCEL ENV (VERIFYPULSE_B2B_KEY_REGISTRY):`);
     console.log(JSON.stringify([registryEntry], null, 2));
-    console.log(======================================================\n);
+    console.log(`======================================================\n`);
 }
 
 // Generate a key for Steve (FraudShield)
