@@ -13,6 +13,7 @@ import { lookupHistoricalReputation } from '../lib/historical_reputation.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 import { getPulseCoreLocalGuidance } from '../lib/pulsecore_local_guidance.js';
 import { directLocalLookup } from '../lib/indexed_direct_lookup.js';
+import { analyzeFinancialThreats } from '../lib/financial_forensics.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
 
@@ -145,6 +146,23 @@ export default async function handler(req, res) {
       evidenceSources: r.evidenceSources,
       ...getShadowSignals()
     });
+
+    // Tier 2: Deep Financial & Telecom Threat Analysis
+    const rawInput = String(req.body.text || req.body.url || req.body.message || '');
+    const urlCands = extractUrlCandidates(rawInput);
+    r.financialForensics = analyzeFinancialThreats(rawInput, urlCands);
+    if (r.financialForensics && r.financialForensics.warnings && r.financialForensics.warnings.length > 0) {
+      r.findings = [...r.findings, ...r.financialForensics.warnings];
+      
+      // Zero-Day Auto-Escalation: Override safe verdicts if APK or extreme financial threat is detected
+      if (r.verdict === 'SAFE' && r.financialForensics.riskScore >= 80) {
+        r.verdict = 'SUSPICIOUS';
+        r.scamType = 'High-Risk Financial Indicator Detected (APK / Mule Route)';
+        r.confidence = Math.max(r.confidence, 85);
+        r.evidenceSources.push('financial_forensics');
+      }
+    }
+
     r.enterpriseEvidence = {
       schemaVersion: 'vp-enterprise-evidence-1',
       correlationId: requestId,
