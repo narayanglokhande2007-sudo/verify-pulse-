@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const tier = 1; 
     
     // Fetch live usage
-    const quota = checkB2BQuota(tenantId, tier);
+    const quota = await checkB2BQuota(tenantId, tier);
 
     // Calculate "Value Saved" (Psychological B2B Metric)
     // Assume 2.5% of all scans were high-risk, and each prevented fraud saved ₹10,000.
