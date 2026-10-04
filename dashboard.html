@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifyPulse | Client Co-Pilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        vpdark: '#0f172a',
+                        vppanel: '#1e293b',
+                        vpcyan: '#06b6d4',
+                        vpgreen: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .neon-text { text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="w-full max-w-md p-8 glass-panel rounded-2xl shadow-2xl transition-all">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-vpcyan neon-text tracking-wider"><i class="fa-solid fa-shield-halved"></i> VerifyPulse</h1>
+            <p class="text-gray-400 mt-2 text-sm uppercase tracking-widest">Enterprise Co-Pilot</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Access Key</label>
+                <input type="password" id="api-key-input" placeholder="vp_live_..." class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-vpcyan focus:outline-none text-white transition-all">
+            </div>
+            <button onclick="login()" class="w-full bg-vpcyan hover:bg-cyan-500 text-slate-900 font-bold py-3 px-4 rounded-lg transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                Authenticate Securely <i class="fa-solid fa-lock ml-2"></i>
+            </button>
+            <p id="auth-error" class="text-red-400 text-sm text-center hidden mt-2"></p>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="hidden w-full min-h-screen flex flex-col">
+        <!-- Top Nav -->
+        <nav class="glass-panel px-6 py-4 flex justify-between items-center border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-shield-halved text-vpcyan text-2xl"></i>
+                <span class="text-xl font-bold tracking-wider">VerifyPulse <span class="text-gray-500 font-normal">| Co-Pilot</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">Secure Session</p>
+                    <p id="tenant-name" class="font-bold text-vpcyan uppercase tracking-wider">LOADING...</p>
+                </div>
+                <button onclick="logout()" class="p-2 text-gray-400 hover:text-white transition-all" title="Secure Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-1">Threat Intelligence Overview</h2>
+                <p class="text-gray-400 text-sm">Live telemetry and protection metrics for your ecosystem.</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Value Saved -->
+                <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-vpgreen text-6xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <h3 class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-2">Estimated Value Saved</h3>
+                    <p id="value-saved" class="text-4xl font-bold text-vpgreen drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">₹0</p>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fa-solid fa-arrow-trend-up text-vpgreen"></i> Protected capital</p>
+                </div>
+
+                <!-- Frauds Prevented -->
+                <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-red-500 text-6xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-bug-slash"></i></div>
+                    <h3 class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-2">Threats Neutralized</h3>
+                    <p id="frauds-prevented" class="text-4xl font-bold text-red-400">0</p>
+                    <p class="text-xs text-gray-500 mt-2">Phishing, Scams, Zero-Day</p>
+                </div>
+
+                <!-- Quota -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <div class="flex justify-between items-end mb-2">
+                        <h3 class="text-gray-400 text-sm font-semibold uppercase tracking-wider">Deep AI Scans (Tier <span id="tier-level">1</span>)</h3>
+                        <span id="quota-percentage" class="text-vpcyan font-bold text-sm">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-2.5 mb-2">
+                        <div id="quota-bar" class="bg-vpcyan h-2.5 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span id="quota-used">0 Used</span>
+                        <span id="quota-limit">5000 Limit</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="glass-panel p-6 rounded-xl mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Heuristic Engine Telemetry (7 Days)</h3>
+                    <span class="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs animate-pulse flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div> System Active</span>
+                </div>
+                <div class="h-64 w-full">
+                    <canvas id="telemetryChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Security Disclaimer -->
+            <div class="text-center text-xs text-gray-600 mt-12">
+                <p>VerifyPulse Enterprise Cloud Infrastructure &bull; End-to-End Encrypted</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check Auth on Load
+        window.onload = () => {
+            const token = localStorage.getItem('vp_api_key');
+            if (token) {
+                loadDashboard(token);
+            }
+        };
+
+        async function login() {
+            const input = document.getElementById('api-key-input').value.trim();
+            const err = document.getElementById('auth-error');
+            if(!input) { err.textContent = "Please enter an access key"; err.classList.remove('hidden'); return; }
+            
+            const btn = document.querySelector('button');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+            
+            await loadDashboard(input);
+            btn.innerHTML = 'Authenticate Securely <i class="fa-solid fa-lock ml-2"></i>';
+        }
+
+        function logout() {
+            localStorage.removeItem('vp_api_key');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.body.classList.replace('items-start', 'items-center');
+            document.getElementById('api-key-input').value = '';
+        }
+
+        async function loadDashboard(token) {
+            const err = document.getElementById('auth-error');
+            try {
+                const res = await fetch('/api/dashboard', {
+                    headers: { 'x-api-key': token }
+                });
+                const data = await res.json();
+
+                if(res.status === 401) {
+                    localStorage.removeItem('vp_api_key');
+                    err.textContent = "Invalid or Expired Security Key.";
+                    err.classList.remove('hidden');
+                    document.getElementById('dashboard-screen').classList.add('hidden');
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                    return;
+                }
+
+                if(!res.ok) throw new Error(data.message || 'Server error');
+
+                // Success! Save token and show dashboard
+                localStorage.setItem('vp_api_key', token);
+                err.classList.add('hidden');
+                
+                // Switch screens
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.body.classList.replace('items-center', 'items-start');
+
+                // Populate Data
+                document.getElementById('tenant-name').textContent = data.tenant;
+                document.getElementById('tier-level').textContent = data.tier;
+                
+                // Format Currency safely
+                const inrFormat = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+                document.getElementById('value-saved').textContent = inrFormat.format(data.metrics.estimated_financial_value_saved_inr);
+                
+                document.getElementById('frauds-prevented').textContent = data.metrics.frauds_prevented;
+                
+                document.getElementById('quota-used').textContent = data.usage.ai_scans_used + ' Used';
+                document.getElementById('quota-limit').textContent = data.usage.ai_scans_limit + ' Limit';
+                document.getElementById('quota-percentage').textContent = data.usage.percentage_exhausted;
+                
+                // Animate progress bar
+                setTimeout(() => {
+                    document.getElementById('quota-bar').style.width = data.usage.percentage_exhausted;
+                }, 500);
+
+                // Render Chart (Mock data representing typical scam pattern)
+                renderChart();
+
+            } catch(e) {
+                console.error(e);
+                err.textContent = "Connection Error. Ensure the API is reachable.";
+                err.classList.remove('hidden');
+            }
+        }
+
+        let chartInstance = null;
+        function renderChart() {
+            const ctx = document.getElementById('telemetryChart').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+            
+            // Abstract chart to look professional and busy
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'],
+                    datasets: [{
+                        label: 'Threats Detected',
+                        data: [12, 19, 15, 25, 22, 30, Math.floor(Math.random() * 20) + 10],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
