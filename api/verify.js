@@ -14,6 +14,7 @@ import { createRequestBudget } from '../lib/request_budget.js';
 import { getPulseCoreLocalGuidance } from '../lib/pulsecore_local_guidance.js';
 import { directLocalLookup } from '../lib/indexed_direct_lookup.js';
 import { analyzeFinancialThreats } from '../lib/financial_forensics.js';
+import { applyTenantCustomRules } from '../lib/tenant_custom_rules.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
 
@@ -161,6 +162,11 @@ export default async function handler(req, res) {
         r.confidence = Math.max(r.confidence, 85);
         r.evidenceSources.push('financial_forensics');
       }
+    }
+
+    // Tier 3: Custom Tenant AI Fine-Tuning & Rule Overrides
+    if (typeof b2bTier !== 'undefined' && typeof b2bTenantId !== 'undefined') {
+        r = applyTenantCustomRules(b2bTenantId, b2bTier, rawInput, urlCands, r);
     }
 
     r.enterpriseEvidence = {
