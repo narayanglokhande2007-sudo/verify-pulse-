@@ -1,7 +1,8 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
 import { randomUUID } from 'node:crypto';
 import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
-import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
+import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders, getClientIp, validateB2bApiKey } from '../lib/security_controls.js';
+import { checkB2CQuota, checkB2BQuota } from '../lib/quota_manager.js';
 import { fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
 import { analyzeMessageForensics, canonicalizeUrl, extractUrlCandidates } from '../lib/url_forensics.js';
 import { analyzeIntentForensics } from '../lib/intent_forensics.js';
@@ -30,6 +31,52 @@ export default async function handler(req, res) {
       retryAfterSeconds: rateLimit.retryAfterSeconds,
     });
   }
+  // ==========================================
+  // B2C / B2B QUOTA & METERING GATEWAY
+  // ==========================================
+  let isB2B = false;
+  let b2bTier = 0;
+  let b2bTenantId = '';
+  
+  const authResult = validateB2bApiKey(req);
+  if (req.headers && (req.headers['x-api-key'] || req.headers.authorization)) {
+      if (authResult && authResult.allowed) {
+          isB2B = true;
+          b2bTenantId = authResult.identity?.tenantId || 'legacy';
+          b2bTier = 1; // Default to Tier 1 limit
+          
+          const quotaResult = checkB2BQuota(b2bTenantId, b2bTier);
+          res.setHeader('X-VerifyPulse-Quota-Limit', String(quotaResult.limit));
+          res.setHeader('X-VerifyPulse-Quota-Used', String(quotaResult.used));
+          
+          if (!quotaResult.allowed) {
+              return res.status(429).json({
+                  error: 'B2B_QUOTA_EXCEEDED',
+                  message: 'Your monthly AI limit has been exhausted. Please upgrade your Tier.'
+              });
+          }
+      } else {
+          return res.status(401).json({
+              error: 'UNAUTHORIZED',
+              message: 'Invalid B2B API Key.'
+          });
+      }
+  } else {
+      // B2C Anonymous User Flow
+      const clientIp = getClientIp(req);
+      const b2cQuota = checkB2CQuota(clientIp);
+      
+      res.setHeader('X-VerifyPulse-B2C-Quota-Limit', String(b2cQuota.limit));
+      res.setHeader('X-VerifyPulse-B2C-Quota-Used', String(b2cQuota.used));
+      
+      if (!b2cQuota.allowed) {
+          return res.status(429).json({
+              error: 'B2C_QUOTA_EXCEEDED',
+              message: 'You have reached your daily free limit of 50 scans. Please try again tomorrow.'
+          });
+      }
+  }
+  // ==========================================
 
   const { text, checkType, fileData, externalProcessingConsent = false } = req.body || {};
   const supportedCheckTypes = new Set(['chatbot', 'news', 'password', 'scam', 'phishing', 'gmail', 'url', 'unified', 'phone', 'upi']);
