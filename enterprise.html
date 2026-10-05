@@ -1,62 +1,93 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="VerifyPulse business page: evidence-based scam link and message risk intelligence for controlled pilots.">
-  <link rel="canonical" href="https://www.verify-pulse.com/enterprise.html">
-  <meta property="og:title" content="VerifyPulse Business | Scam-Risk Intelligence">
-  <meta property="og:description" content="Evidence-based scam link and message risk intelligence for controlled business pilots.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.verify-pulse.com/enterprise.html">
-  <title>VerifyPulse Business | Scam-Risk Intelligence</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="trust-center.css">
-  <style>
-    .enterprise-hero { padding: 92px 0 56px; background: radial-gradient(circle at 85% 15%, #dce9ff 0, transparent 32%), linear-gradient(180deg,#fff 0%,#f5f8fc 100%); }
-    .enterprise-hero h1 { max-width: 900px; margin: 16px 0 15px; font-size: clamp(38px, 6vw, 68px); line-height: 1.01; letter-spacing: -.06em; }
-    .enterprise-hero p { max-width: 800px; margin: 0; color: var(--vp-muted); font-size: clamp(17px, 2vw, 21px); }
-    .enterprise-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .enterprise-code { margin-top: 22px; border: 1px solid #23334c; border-radius: 14px; padding: 18px; overflow-x: auto; color: #dce8ff; background: #0f172a; font: 12px/1.6 "Fira Code", monospace; white-space: pre-wrap; }
-    .enterprise-flow { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-top: 22px; }
-    .enterprise-step { padding: 18px; border: 1px solid var(--vp-line); border-radius: 14px; background: #fff; }
-    .enterprise-step strong { display: block; color: var(--vp-blue); font-size: 12px; }
-    .enterprise-step span { display: block; margin-top: 7px; color: #43536a; font-size: 14px; }
-    @media(max-width:760px){.enterprise-flow{grid-template-columns:1fr 1fr}.enterprise-hero{padding:62px 0 42px}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifyPulse Enterprise | B2B Security</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; line-height: 1.6; }
+        
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 20px; color: #ffffff; }
+        .logo svg { color: #3b82f6; width: 32px; height: 32px; }
+        .nav-links a { color: #cbd5e1; text-decoration: none; margin-right: 20px; font-size: 14px; transition: 0.2s; }
+        .nav-links a:hover { color: #3b82f6; }
+        .btn-primary { background: #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: #2563eb; }
+        
+        .hero { text-align: center; padding: 100px 20px; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
+        .hero h1 span { color: #3b82f6; }
+        .hero p { font-size: 18px; color: #94a3b8; max-width: 600px; margin: 0 auto 40px; }
+        
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+        .price-card { background: #1e293b; padding: 40px 30px; border-radius: 16px; border: 1px solid #334155; }
+        .price-card.highlight { border: 2px solid #3b82f6; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); transform: translateY(-10px); }
+        .price-card h3 { font-size: 20px; color: #f8fafc; margin-bottom: 5px; }
+        .price-card .price { font-size: 36px; font-weight: bold; color: #3b82f6; margin-bottom: 5px; }
+        .price-card .price span { font-size: 14px; color: #94a3b8; font-weight: normal; }
+        .price-card .volume { font-size: 12px; color: #94a3b8; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+        .price-card ul { list-style: none; margin-bottom: 30px; }
+        .price-card ul li { color: #cbd5e1; font-size: 14px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .price-card ul li::before { content: "✓"; color: #10b981; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <header class="vp-nav"><div class="vp-shell vp-nav-row"><a class="vp-brand" href="/">Verify<span>Pulse</span></a><nav class="vp-nav-links" aria-label="Primary navigation"><a href="enterprise.html" aria-current="page">Business</a><a href="docs.html">API Docs</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></header>
+    <nav class="navbar">
+        <div class="logo">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M50 5 L10 20 V45 C10 70 30 90 50 95 C70 90 90 70 90 45 V20 L50 5 Z"/>
+                    <path d="M50 5 V30"/><path d="M30 40 L50 30 L70 40"/><path d="M30 40 V60 L50 75 L70 60 V40"/>
+                    <circle cx="30" cy="40" r="4" fill="currentColor"/><circle cx="70" cy="40" r="4" fill="currentColor"/><circle cx="50" cy="75" r="4" fill="currentColor"/>
+                </g>
+            </svg>
+            VerifyPulse Enterprise
+        </div>
+        <div class="nav-links">
+            <a href="index.html">← Back to B2C Scanner</a>
+            <button class="btn-primary">Contact Sales</button>
+        </div>
+    </nav>
 
-  <section class="enterprise-hero"><div class="vp-shell"><span class="vp-eyebrow">Controlled scam-risk decision support</span><h1>Explainable scam link and message risk intelligence for India-focused teams.</h1><p>VerifyPulse helps customer-safety, support, lending, payment, and merchant teams assess suspicious links and messages with available evidence and clear next steps. It is designed to support—not replace—a client’s final fraud, payment, or regulatory decision.</p><div class="enterprise-actions"><a class="vp-button" href="pilot.html">Explore a controlled pilot</a><a class="vp-button secondary" href="docs.html">Read current API documentation</a></div></div></section>
+    <header class="hero">
+        <h1>Pre-Crime Threat Intelligence & <br><span>Real-Time Transaction Firewall</span></h1>
+        <p>Engineered for enterprise scale. We cross-pollinate data vectors to neutralize Zero-Day Social Engineering and Mule Accounts before they execute.</p>
+    </header>
 
-  <main class="vp-shell vp-main">
-    <section class="vp-section"><h2>What is available today</h2><p class="vp-subcopy">The production scanner uses multiple evidence paths. Each result is service-aware: a lack of live AI analysis is not presented as proof that submitted content is safe.</p><div class="vp-grid three"><article class="vp-card"><div class="vp-icon">⌁</div><h3>URL and message forensics</h3><p>Checks can identify suspicious URL structure, brand-domain mismatch, credential/OTP pressure, payment pressure, and other scam signals.</p></article><article class="vp-card"><div class="vp-icon">◈</div><h3>Historical reputation evidence</h3><p>Known URL/domain evidence is checked against the maintained historical reputation index before live AI analysis is needed.</p></article><article class="vp-card"><div class="vp-icon">◎</div><h3>Explainable result contract</h3><p>Results can include risk level, confidence interpretation, evidence labels, recommended next steps, and an honest service-status boundary.</p></article></div></section>
-
-    <section class="vp-section"><h2>How a safer review flow works</h2><div class="enterprise-flow"><div class="enterprise-step"><strong>01 — Submit</strong><span>A user or support agent submits a suspicious URL or message.</span></div><div class="enterprise-step"><strong>02 — Check evidence</strong><span>Local forensics, historical reputation, and available enrichment are evaluated.</span></div><div class="enterprise-step"><strong>03 — Assist when available</strong><span>External AI analysis may assist with ambiguous content within the request budget.</span></div><div class="enterprise-step"><strong>04 — Explain and route</strong><span>The result gives evidence and safe next steps; the client keeps its own final decision process.</span></div></div></section>
-
-    <section class="vp-section"><h2>Current B2B URL-scan API</h2><p class="vp-subcopy">The maintained B2B route currently accepts credential-free HTTP(S) URLs. It uses API-key authentication, scope checks, correlation IDs, and basic rate-limit headers. Broader integration modes should be agreed during a controlled pilot.</p><div class="vp-grid two"><article class="vp-card"><h3>Request shape</h3><pre class="enterprise-code">POST https://www.verify-pulse.com/api/v1/scan
-X-API-Key: YOUR_API_KEY
-X-VerifyPulse-Key-Id: YOUR_KEY_ID
-Content-Type: application/json
-
-{
-  "url": "https://example.com/suspicious-link"
-}</pre></article><article class="vp-card"><h3>Response boundary</h3><pre class="enterprise-code">{
-  "correlation_id": "request-correlation-id",
-  "status": "SUSPICIOUS",
-  "threat_level": "MEDIUM",
-  "scam_type": "Unknown",
-  "confidence": 0,
-  "message": "Analysis complete.",
-  "action_steps": []
-}</pre></article></div><div class="vp-note warning"><strong>Important:</strong> The example fields show the supported B2B response shape, not a promised verdict for any particular URL. Do not use the result alone to automatically block a payment or account action.</div></section>
-
-    <section class="vp-section"><h2>Trust and pilot boundaries</h2><div class="vp-grid two"><article class="vp-card"><h3>Data and security discussion</h3><p>Review the <a href="trust.html">Trust Center</a> for current input safeguards, B2B metadata-only operational events, and limits that are deliberately not overstated.</p></article><article class="vp-card"><h3>Risk-management discussion</h3><p>Review <a href="risk-management.html">Risk Management</a> for degraded responses, evidence layers, and the boundary between VerifyPulse decision support and a client’s final controls.</p></article><article class="vp-card"><h3>Service transparency</h3><p>The <a href="status.html">Status page</a> shows exactly which public checks are visible and what each one does—not a hidden blanket uptime claim.</p></article><article class="vp-card"><h3>Start narrowly</h3><p>A first <a href="pilot.html">controlled pilot</a> should use one measurable scam-communication workflow and a pre-agreed limited capacity.</p></article></div></section>
-
-    <section class="vp-section"><h2>Business contact</h2><p class="vp-subcopy">For a controlled pilot or business API discussion, email <a href="mailto:Founder@Verify-pulse.com?subject=VerifyPulse%20business%20enquiry">Founder@Verify-pulse.com</a> with the intended use case and approximate request volume. Fit, data fields, safeguards, and capacity are reviewed before onboarding.</p></section>
-  </main>
-  <footer class="vp-footer"><div class="vp-shell vp-footer-inner"><span>© 2026 VerifyPulse. Risk information, not a guarantee or financial instruction.</span><nav aria-label="Footer navigation"><a href="/">Scanner</a><a href="trust.html">Trust</a><a href="risk-management.html">Risk management</a><a href="status.html">Status</a><a href="pilot.html">Pilot</a></nav></div></footer>
+    <div class="pricing-grid">
+        <div class="price-card">
+            <h3>Standard</h3>
+            <div class="price">₹25,000<span> / mo</span></div>
+            <div class="volume">250,000 Total API Scans</div>
+            <ul>
+                <li>Metered AI: 5,000 Live Scans</li>
+                <li>Core URL & Text Scanning</li>
+                <li>Dual-Engine Protection</li>
+            </ul>
+        </div>
+        <div class="price-card">
+            <h3>Professional</h3>
+            <div class="price">₹99,000<span> / mo</span></div>
+            <div class="volume">1,000,000 Total API Scans</div>
+            <ul>
+                <li>Metered AI: 25,000 Live Scans</li>
+                <li>Zero-Day Brand Monitoring</li>
+                <li>50 Auto-Takedown Legal Drafts</li>
+            </ul>
+        </div>
+        <div class="price-card highlight">
+            <h3>Enterprise Ultra</h3>
+            <div class="price">₹1,99,000<span> / mo</span></div>
+            <div class="volume">5,000,000 Total API Scans</div>
+            <ul>
+                <li>Metered AI: 50,000 Live Scans</li>
+                <li>Custom AI Model Fine-Tuning</li>
+                <li>Dedicated Cloud Instance</li>
+                <li style="color:#3b82f6; font-weight:bold;">NEW: PayGuard™ Firewall</li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
