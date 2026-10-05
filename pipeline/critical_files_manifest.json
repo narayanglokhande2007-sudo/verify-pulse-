@@ -1,6 +1,6 @@
 ﻿{
     "pipeline/check_threat_intelligence_freshness.py":  "70b630917f3ae2be1db39e4e8a9d4fd22753d216171f38ef7f22b0d79804eb9b",
-    "index.html":  "3a400dc0546672a39edf807f9bdc8e61ae2a63ba2fabc463e2f9ec7f8ff1ed04",
+    "index.html":  "b06a1e53a93a088290a81329fe7f1be7533ff0d5689cf45cdc47b1e0c41aef33",
     "vercel.json":  "b15a1f21e73150635bc152878f3e61dee24761bb84d22380930dc10a94a82a8d",
     "pipeline/scam_hunter.py":  "e807b5ec892cdc35172db056ce3b20737712cbbdfdb7b8421ddfa71a1dc13703",
     "lib/request_budget.js":  "c9169e84da116f19ec2156f208e7d132a99215f76b852a735fc6aec9f070154a",
