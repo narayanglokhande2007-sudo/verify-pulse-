@@ -2,8 +2,8 @@
   "schemaVersion": "vp-source-health-history-1",
   "sources": {
     "Active Phishing Daily": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -64,6 +64,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
@@ -71,11 +76,6 @@
       "consecutiveFailures": 0,
       "cooldownRunsRemaining": 0,
       "recentOutcomes": [
-        {
-          "at": "2026-09-22T03:34:33.058399+00:00",
-          "outcome": "usable",
-          "attempts": 1
-        },
         {
           "at": "2026-09-23T03:34:28.983747+00:00",
           "outcome": "usable",
@@ -138,6 +138,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -206,6 +211,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
@@ -270,6 +280,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -338,6 +353,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
@@ -402,6 +422,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -470,6 +495,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
@@ -534,6 +564,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -602,12 +637,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
     "DigitalSide OSINT": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -668,6 +708,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 3
         }
       ]
     },
@@ -732,6 +777,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -800,12 +850,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
     "GoodbyeAds Fraud & Malware": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -866,12 +921,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
     "Maltrail Malware Domains": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -932,12 +992,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
     "Maltrail Malware URLs": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -998,12 +1063,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
     "Maltrail Suspicious Domains": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1064,6 +1134,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
@@ -1072,11 +1147,6 @@
       "cooldownRunsRemaining": 0,
       "recentOutcomes": [
         {
-          "at": "2026-09-22T03:34:33.058399+00:00",
-          "outcome": "usable",
-          "attempts": 1
-        },
-        {
           "at": "2026-09-23T03:34:28.983747+00:00",
           "outcome": "usable",
           "attempts": 1
@@ -1140,12 +1210,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
     "PhishStats Global": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1206,6 +1281,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
@@ -1214,11 +1294,6 @@
       "cooldownRunsRemaining": 0,
       "recentOutcomes": [
         {
-          "at": "2026-09-22T03:34:33.058399+00:00",
-          "outcome": "usable",
-          "attempts": 1
-        },
-        {
           "at": "2026-09-23T03:34:28.983747+00:00",
           "outcome": "usable",
           "attempts": 1
@@ -1280,6 +1355,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -1290,11 +1370,6 @@
       "cooldownRunsRemaining": 0,
       "recentOutcomes": [
         {
-          "at": "2026-09-22T03:34:33.058399+00:00",
-          "outcome": "usable",
-          "attempts": 1
-        },
-        {
           "at": "2026-09-23T03:34:28.983747+00:00",
           "outcome": "usable",
           "attempts": 1
@@ -1358,12 +1433,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
     "Phishing.Database Historical": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1424,12 +1504,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 3
         }
       ]
     },
     "Phishing.Database NEW": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1490,6 +1575,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 3
         }
       ]
     },
@@ -1554,6 +1644,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -1622,12 +1717,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
     "Prigent Phishing": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1688,12 +1788,17 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
     "Shady Hosts": {
-      "consecutiveFailures": 7,
-      "cooldownRunsRemaining": 0,
+      "consecutiveFailures": 8,
+      "cooldownRunsRemaining": 1,
       "recentOutcomes": [
         {
           "at": "2026-09-24T03:24:59.359718+00:00",
@@ -1754,6 +1859,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "deferred",
           "attempts": 0
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "failed",
+          "attempts": 1
         }
       ]
     },
@@ -1820,6 +1930,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
@@ -1827,11 +1942,6 @@
       "consecutiveFailures": 0,
       "cooldownRunsRemaining": 0,
       "recentOutcomes": [
-        {
-          "at": "2026-09-22T03:34:33.058399+00:00",
-          "outcome": "usable",
-          "attempts": 1
-        },
         {
           "at": "2026-09-23T03:34:28.983747+00:00",
           "outcome": "usable",
@@ -1894,6 +2004,11 @@
         },
         {
           "at": "2026-10-05T04:21:09.719067+00:00",
+          "outcome": "usable",
+          "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
           "outcome": "usable",
           "attempts": 1
         }
@@ -1962,6 +2077,11 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     },
@@ -2028,9 +2148,14 @@
           "at": "2026-10-05T04:21:09.719067+00:00",
           "outcome": "usable",
           "attempts": 1
+        },
+        {
+          "at": "2026-10-06T05:08:49.141312+00:00",
+          "outcome": "usable",
+          "attempts": 1
         }
       ]
     }
   },
-  "updatedAt": "2026-10-05T04:21:09.719067+00:00"
+  "updatedAt": "2026-10-06T05:08:49.141312+00:00"
 }
