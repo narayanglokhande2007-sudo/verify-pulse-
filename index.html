@@ -37,7 +37,7 @@
         .app-container { width: 100%; max-width: 480px; background: #ffffff; min-height: 100vh; position: relative; padding-bottom: 80px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
         
         /* Custom Logo Classes */
-        .custom-logo { width: 32px; height: 32px; object-fit: contain; mix-blend-mode: multiply; background: transparent; }
+        .custom-logo { width: 32px; height: 32px; object-fit: contain; transform: translateY(-8px) !important; margin-right: 2px; }
         .custom-logo-small { width: 14px; height: 14px; vertical-align: middle; object-fit: contain; display: inline-block; }
         .custom-logo-nav { width: 22px; height: 22px; object-fit: contain; display: block; margin: 0 auto; filter: grayscale(100%) opacity(0.6); transition: 0.2s; }
         .nav-item.active .custom-logo-nav { filter: grayscale(0%) opacity(1); transform: translateY(-2px); }
@@ -150,7 +150,7 @@
             .app-container { width: 100%; max-width: 1440px; min-height: calc(100vh - 56px); margin: 0 auto; padding-bottom: 0; display: grid; grid-template-columns: 248px minmax(0, 1fr); background: #ffffff; border: 1px solid #dbe7f7; border-radius: 24px; box-shadow: 0 24px 60px rgba(30, 58, 138, 0.12); overflow: hidden; }
             .desktop-sidebar { display: flex; grid-column: 1; grid-row: 1 / span 2; flex-direction: column; gap: 8px; min-height: 100%; padding: 24px 16px; background: linear-gradient(180deg, #0f1f47 0%, #173c8a 100%); color: #ffffff; }
             .desktop-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.16); }
-            .desktop-brand img { width: 36px; height: 36px; object-fit: contain; mix-blend-mode: multiply; background: transparent; border-radius: 0; box-shadow: none; border: none; }
+            .desktop-brand img { width: 38px; height: 38px; object-fit: contain; transform: translateY(-4px) !important; }
             .desktop-brand strong { font-size: 19px; letter-spacing: 0.01em; }
             .desktop-brand span { display: block; margin-top: 3px; font-size: 11px; color: #bfdbfe; }
             .desktop-sidebar .nav-item { width: 100%; flex: none; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 12px 14px; border-radius: 12px; color: #bfdbfe; font-size: 13px; text-align: left; }
@@ -435,7 +435,7 @@
                 -webkit-backdrop-filter: blur(24px) saturate(150%);
             }
             .desktop-brand { border-bottom-color: rgba(198, 219, 239, 0.72); }
-            .desktop-brand img { width: 36px; height: 36px; object-fit: contain; mix-blend-mode: multiply; background: transparent; border-radius: 0; box-shadow: none; border: none; }
+            .desktop-brand img { width: 38px; height: 38px; object-fit: contain; transform: translateY(-4px) !important; }
             .desktop-brand strong { color: var(--vp-ink); letter-spacing: -0.02em; }
             .desktop-brand span { color: #73839d; }
             .desktop-sidebar .nav-item { color: #61718c; border: 1px solid transparent; border-radius: 15px; transition: transform 180ms var(--vp-ease), color 180ms var(--vp-ease), background 180ms var(--vp-ease), box-shadow 180ms var(--vp-ease); }
@@ -621,7 +621,7 @@
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
-    img[src="logo.jpg"] { mix-blend-mode: multiply; background: transparent; border-radius: 0; box-shadow: none; }
+    img[src="logo.jpg"] { mix-blend-mode: multiply !important; filter: contrast(1.8) brightness(1.1) grayscale(100%) !important; background: transparent !important; border: none !important; box-shadow: none !important; }
     </style>
 </head>
 <body>
@@ -754,7 +754,7 @@
                 .msg-bot ul, .msg-bot ol { margin-left: 20px; margin-bottom: 8px; }
                 .msg-bot strong { color: #0f172a; }
                 .msg-user { background: #f8fafc; color: #0f172a; padding: 12px 15px; border-radius: 8px; align-self: flex-end; max-width: 90%; word-wrap: break-word; font-size: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
-            img[src="logo.jpg"] { mix-blend-mode: multiply; background: transparent; border-radius: 0; box-shadow: none; }
+            img[src="logo.jpg"] { mix-blend-mode: multiply !important; filter: contrast(1.8) brightness(1.1) grayscale(100%) !important; background: transparent !important; border: none !important; box-shadow: none !important; }
     </style>
         </div>
     </div>
