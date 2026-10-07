@@ -54,7 +54,7 @@
         
         .features { display: flex; gap: 30px; max-width: 1100px; margin: 0 auto 80px; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
         
-        /* Glow Card Effect */
+        /* UPDATED GLOW EFFECT: Stronger Blur Blue */
         .glow-card {
             flex: 1; min-width: 300px; padding: 32px; background: #fff; border: 1px solid var(--border);
             border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
@@ -62,11 +62,14 @@
         }
         .glow-card::before {
             content: ""; position: absolute; top: var(--y, 0); left: var(--x, 0);
-            transform: translate(-50%, -50%); width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+            transform: translate(-50%, -50%); width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, rgba(37,99,235,0.05) 50%, transparent 70%);
+            filter: blur(15px);
             opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1;
         }
-        .glow-card.accent-glow::before { background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%); }
+        .glow-card.accent-glow::before {
+            background: radial-gradient(circle, rgba(37,99,235,0.4) 0%, rgba(37,99,235,0.1) 50%, transparent 70%);
+        }
         .glow-card:hover { transform: translateY(-5px); border-color: var(--gold); }
         .glow-card.accent-glow:hover { border-color: var(--accent); }
         .glow-card:hover::before { opacity: 1; }
@@ -217,7 +220,7 @@
 
         <div class="glow-card price-card popular accent-glow">
             <div class="card-content">
-                <div class="tier-name">SI Professional</div>
+                <div class="tier-name">Pro</div>
                 <div class="price">&#8377;45,000<span> / mo</span></div>
                 <div class="price-desc">Partner API for Payment Gateways &amp; System Integrators.</div>
                 <ul class="feature-list">
@@ -232,7 +235,7 @@
 
         <div class="glow-card price-card">
             <div class="card-content">
-                <div class="tier-name">Enterprise Ultra</div>
+                <div class="tier-name">Ultra</div>
                 <div class="price">&#8377;1.95L<span> / mo</span></div>
                 <div class="price-desc">For Big Banks, Telecoms &amp; Direct Government deployments.</div>
                 <ul class="feature-list">
