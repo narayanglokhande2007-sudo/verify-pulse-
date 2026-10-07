@@ -54,7 +54,6 @@
         
         .features { display: flex; gap: 30px; max-width: 1100px; margin: 0 auto 80px; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
         
-        /* UPDATED GLOW EFFECT: Stronger Blur Blue */
         .glow-card {
             flex: 1; min-width: 300px; padding: 32px; background: #fff; border: 1px solid var(--border);
             border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
@@ -101,10 +100,10 @@
         .price-card.popular .tier-name { color: var(--accent); }
         .price { font-size: 48px; font-weight: 800; margin-bottom: 16px; color: var(--text-main); letter-spacing: -2px; }
         .price span { font-size: 18px; color: var(--text-muted); font-weight: 500; letter-spacing: 0; }
-        .price-desc { color: var(--text-muted); font-size: 16px; margin-bottom: 30px; height: 48px; }
+        .price-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; min-height: 48px; line-height: 1.5; }
         
         .feature-list { list-style: none; padding: 0; margin: 0 0 40px; flex-grow: 1; }
-        .feature-list li { margin-bottom: 18px; display: flex; align-items: flex-start; gap: 12px; font-size: 15px; font-weight: 500; color: #334155; }
+        .feature-list li { margin-bottom: 18px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 500; color: #334155; line-height: 1.4; }
         .check { color: var(--gold); font-weight: 800; font-size: 18px; line-height: 1.1; }
         .price-card.popular .check { color: var(--accent); }
         
@@ -204,45 +203,50 @@
     <h2 class="pricing-title animate-fade-up">Transparent Licensing</h2>
     <div class="pricing-grid animate-fade-up delay-1">
         
+        <!-- TIER 1 -->
         <div class="glow-card price-card">
             <div class="card-content">
                 <div class="tier-name">Standard</div>
-                <div class="price">&#8377;15,000<span> / mo</span></div>
-                <div class="price-desc">For mid-size businesses and startups protecting core platforms.</div>
+                <div class="price">&#8377;25,000<span> / mo</span></div>
+                <div class="price-desc">For small companies and testing phase protecting core platforms.</div>
                 <ul class="feature-list">
-                    <li><span class="check">&#10003;</span> 250,000 API Scans</li>
+                    <li><span class="check">&#10003;</span> 2,50,000 API Scans</li>
                     <li><span class="check">&#10003;</span> 5,000 Live Deep-AI Scans</li>
-                    <li><span class="check">&#10003;</span> Heuristic Dual-Engine</li>
+                    <li><span class="check">&#10003;</span> Standard Heuristic Engine</li>
                 </ul>
                 <button onclick="openModal()" class="btn btn-outline w-full" style="width:100%">Join Controlled Pilot</button>
             </div>
         </div>
 
+        <!-- TIER 2 -->
         <div class="glow-card price-card popular accent-glow">
             <div class="card-content">
                 <div class="tier-name">Pro</div>
-                <div class="price">&#8377;45,000<span> / mo</span></div>
-                <div class="price-desc">Partner API for Payment Gateways &amp; System Integrators.</div>
+                <div class="price">&#8377;99,000<span> / mo</span></div>
+                <div class="price-desc">The sweet spot for Medium-to-Large Enterprises &amp; SIs.</div>
                 <ul class="feature-list">
-                    <li><span class="check">&#10003;</span> 1,000,000 API Scans</li>
+                    <li><span class="check">&#10003;</span> 10,00,000 API Scans</li>
+                    <li><span class="check">&#10003;</span> 25,000 Live Deep-AI Scans</li>
                     <li><span class="check">&#10003;</span> Zero-Day Brand Monitoring</li>
-                    <li><span class="check">&#10003;</span> White-label Audit Reports</li>
-                    <li><span class="check">&#10003;</span> Priority Partner Support</li>
+                    <li><span class="check">&#10003;</span> Scam Syndicate Graph &amp; Takedowns</li>
+                    <li><span class="check">&#10003;</span> App-Shield SDK &amp; Co-Pilot Dashboard</li>
                 </ul>
                 <button onclick="openModal()" class="btn btn-fill w-full" style="width:100%">Join Controlled Pilot</button>
             </div>
         </div>
 
+        <!-- TIER 3 -->
         <div class="glow-card price-card">
             <div class="card-content">
                 <div class="tier-name">Ultra</div>
-                <div class="price">&#8377;1.95L<span> / mo</span></div>
-                <div class="price-desc">For Big Banks, Telecoms &amp; Direct Government deployments.</div>
+                <div class="price">&#8377;1,99,000<span> / mo</span></div>
+                <div class="price-desc">For Massive Banks, Telecoms, Unicorns &amp; Govt Deployments.</div>
                 <ul class="feature-list">
-                    <li><span class="check">&#10003;</span> 5,000,000 API Scans</li>
+                    <li><span class="check">&#10003;</span> 50,00,000 API Scans</li>
                     <li><span class="check">&#10003;</span> Custom AI Fine-Tuning</li>
-                    <li><span class="check">&#10003;</span> Real-Time PayGuard&trade;</li>
+                    <li><span class="check">&#10003;</span> Unlimited Brand Monitoring</li>
                     <li><span class="check">&#10003;</span> Dedicated Cloud Instance</li>
+                    <li><span class="check">&#10003;</span> 24/7 VVIP Support (Slack/WhatsApp)</li>
                 </ul>
                 <button onclick="openModal()" class="btn btn-outline w-full" style="width:100%">Join Controlled Pilot</button>
             </div>
