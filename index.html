@@ -44,7 +44,7 @@
         /* Header */
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #ffffff; position: sticky; top: 0; z-index: 50; }
         .logo-icon { margin-right: 12px; display: flex; align-items: center; }
-        .header-titles h1 { font-size: 20px; color: #1e3a8a; font-weight: 700; line-height: 1.2; }
+        .header-titles h1 { font-size: 20px; color: #0f172a; font-weight: 600; line-height: 1.2; }
         .header-titles p { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
         
         .lang-btn { font-size: 11px; font-weight: bold; cursor: pointer; padding: 6px 12px; border-radius: 20px; background: #f1f5f9; color: #475569; transition: 0.2s; border: 1px solid #e2e8f0; }
@@ -628,7 +628,7 @@
     <aside class="desktop-sidebar" aria-label="VerifyPulse desktop navigation">
         <div class="desktop-brand">
             <img src="logo.jpg" alt="VerifyPulse logo">
-            <div><strong>VerifyPulse</strong><span>Scam-risk workspace</span></div>
+            <div><strong style="font-weight: 600; color: #0f172a;">Verify<span style="color: #2563eb;">Pulse</span></strong><span>Scam-risk workspace</span></div>
         </div>
         <div class="nav-item active" onclick="switchMainTab('scan', this)"><span class="nav-icon"><img src="logo.jpg" alt="" class="custom-logo-nav"></span><span>Scan workspace</span></div>
         <div class="nav-item" onclick="switchMainTab('pulsecore', this)"><span class="nav-icon">💬</span><span>PulseCore AI</span></div>
@@ -643,12 +643,12 @@
         <div class="header-identity" style="display:flex; align-items:center;">
             <div class="logo-icon"><img src="logo.jpg" alt="Logo" class="custom-logo"></div>
             <div class="header-titles">
-                <h1>VerifyPulse</h1>
+                <h1 style="font-weight: 600; color: #0f172a;">Verify<span style="color: #2563eb;">Pulse</span></h1>
                 <p><img src="logo.jpg" alt="Logo" class="custom-logo-small"> <span id="tagline">AI scam detector</span></p>
             </div>
         </div>
         <div class="desktop-brand-stage" id="desktopBrandStage" aria-label="VerifyPulse security workspace">
-            <h1>VerifyPulse</h1>
+            <h1 style="font-weight: 600; color: #0f172a;">Verify<span style="color: #2563eb;">Pulse</span></h1>
             <div class="desktop-brand-emblem" aria-hidden="true"><span class="desktop-brand-orbit"></span><span class="desktop-brand-shield-ghost"></span><span class="desktop-brand-shield-wave"></span><span class="desktop-brand-shield-wave wave-two"></span><span class="desktop-brand-scanline"></span><img class="desktop-scan-shield" src="desktop-verify-pulse-shield.webp" alt=""></div>
         </div>
         <div style="display:flex; gap: 8px;">
@@ -934,7 +934,7 @@
 <div class="mobile-more-layer" id="mobileMoreMenu" aria-hidden="true" onclick="if (event.target === this) closeMobileMoreMenu()">
     <section class="mobile-more-sheet" role="dialog" aria-modal="true" aria-labelledby="mobileMoreTitle">
         <div class="mobile-more-head">
-            <div><h2 id="mobileMoreTitle">VerifyPulse</h2><p>Your scam-risk workspace and trusted resources.</p></div>
+            <div><h2 id="mobileMoreTitle" style="font-weight: 600; color: #0f172a;">Verify<span style="color: #2563eb;">Pulse</span></h2><p>Your scam-risk workspace and trusted resources.</p></div>
             <button type="button" class="mobile-more-close" aria-label="Close menu" onclick="closeMobileMoreMenu()">×</button>
         </div>
         <p class="mobile-more-section-label">WORKSPACE</p>
@@ -960,7 +960,7 @@
 <div class="desktop-menu-layer" id="desktopMenu" aria-hidden="true" onclick="if (event.target === this) closeDesktopMenu()">
     <section class="desktop-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="desktopMenuTitle">
         <div class="desktop-menu-head">
-            <div><h2 id="desktopMenuTitle">VerifyPulse</h2><p>Open a workspace or trusted resource without keeping navigation on screen.</p></div>
+            <div><h2 id="desktopMenuTitle" style="font-weight: 600; color: #0f172a;">Verify<span style="color: #2563eb;">Pulse</span></h2><p>Open a workspace or trusted resource without keeping navigation on screen.</p></div>
             <button type="button" class="desktop-menu-close" aria-label="Close workspace navigation" onclick="closeDesktopMenu()">×</button>
         </div>
         <p class="desktop-menu-section-label">WORKSPACE</p>
