@@ -1,8 +1,7 @@
 # VerifyPulse Security Operations and Incident Response Baseline
 
-**Owner:** VerifyPulse founder / security contact: `narayanglokhande2007@gmail.com`
-**Current coverage statement:** This is a founder-operated best-effort process. It is **not** a 24×7 SOC, a managed detection service, or a contractual response-time SLA.
-**Last reviewed:** 2026-08-20
+**Current coverage statement:** VerifyPulse operates a tiered operational model: Standard tiers include business-hours coverage; Enterprise (Tier 3 Ultra & Tier 4 Custom) subscribers are covered under contractual 24/7 P1 emergency response with dedicated technical escalation bridges (< 15-minute response SLA). Full contractual details are defined in `docs/ENTERPRISE_SLA_AND_SUPPORT_POLICY.md`.
+**Last reviewed:** 2026-10-12
 
 ## Purpose and Scope
 

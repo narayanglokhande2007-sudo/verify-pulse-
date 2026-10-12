@@ -184,6 +184,40 @@ async function runTests() {
   assert.equal(blockedIntent.details.screenSharingDetected, true);
   console.log('   ✓ App-Shield RASP successfully intercepts dirty screen-sharing environment.');
 
+  // TEST 9: Tier 3 Continuous Brand Portfolio Monitoring (Multi-Keyword)
+  console.log('9. Testing Tier 3 Continuous Brand Portfolio Recon...');
+  const keyTier3 = 'secret-ultra-key';
+  process.env.VERIFYPULSE_B2B_KEY_REGISTRY = JSON.stringify([
+    ...JSON.parse(process.env.VERIFYPULSE_B2B_KEY_REGISTRY),
+    {
+      keyId: 'ultra-client-01',
+      tenantId: 'ultra-bank',
+      tier: 3,
+      sha256: hash(keyTier3),
+      scopes: ['b2b:scan', 'b2b:zeroday', 'b2b:payguard', 'b2b:takedown', 'b2b:continuous_monitor'],
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      status: 'active'
+    }
+  ]);
+  const reqTier3 = {
+    headers: {
+      'x-api-key': keyTier3,
+      'x-verifypulse-key-id': 'ultra-client-01'
+    }
+  };
+  const batchRes = mockResponse();
+  await zerodayHandler({
+    method: 'POST',
+    headers: reqTier3.headers,
+    body: {
+      keywords: ['banksecure', 'hdfcbank'],
+      officialDomains: ['banksecure.com', 'hdfcbank.com']
+    }
+  }, batchRes);
+  assert.equal(batchRes.statusCode, 200);
+  assert.ok(batchRes.body.totalKeywordsMonitored >= 2);
+  console.log('   ✓ Tier 3 Continuous Brand Portfolio Recon verified.');
+
   console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
 }
 

@@ -3,6 +3,7 @@
 // Searches Certificate Transparency (CT) logs in real-time to find freshly registered scam domains.
 
 import { validateB2bApiKey } from '../lib/security_controls.js';
+import { executeContinuousBrandScan } from '../lib/continuous_brand_monitor.js';
 
 const zeroDayCache = new Map();
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -10,7 +11,7 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    // 1. Validate Tier 2 Authentication
+    // 1. Validate Tier Authentication
     const authResult = validateB2bApiKey(req);
     if (!authResult.valid) {
         return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Valid B2B API key required for Zero-Day Monitor.' });
@@ -21,9 +22,26 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'UPGRADE_REQUIRED', message: 'Zero-Day Monitoring is only available on Tier 2 (Pro) or higher.' });
     }
 
-    const { keyword, officialDomain } = req.body;
+    const { keyword, keywords, officialDomain, officialDomains } = req.body;
+
+    // Tier 3 Feature: Multi-Keyword Continuous Brand Portfolio Monitoring
+    if (Array.isArray(keywords) && keywords.length > 0) {
+        if (authResult.tier < 3) {
+            return res.status(403).json({
+                error: 'UPGRADE_REQUIRED',
+                message: 'Multi-keyword continuous brand portfolio monitoring is exclusive to Tier 3 (Ultra).'
+            });
+        }
+        const batchReport = await executeContinuousBrandScan({
+            tenantId: authResult.identity?.tenantId,
+            keywords,
+            officialDomains: officialDomains || (officialDomain ? [officialDomain] : [])
+        });
+        return res.status(200).json(batchReport);
+    }
+
     if (!keyword) {
-        return res.status(400).json({ error: 'MISSING_DATA', message: 'A keyword is required (e.g., "fraudshield").' });
+        return res.status(400).json({ error: 'MISSING_DATA', message: 'A keyword is required (e.g., "fraudshield") or pass keywords array.' });
     }
 
     const cacheKey = `${keyword.toLowerCase()}:${String(officialDomain || '').toLowerCase()}`;
