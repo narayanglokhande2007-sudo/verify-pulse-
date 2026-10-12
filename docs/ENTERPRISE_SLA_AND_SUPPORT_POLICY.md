@@ -3,11 +3,13 @@
 **Effective Date:** October 2026  
 **Applicability:** VerifyPulse Commercial API (Tier 1: Standard, Tier 2: Pro, Tier 3: Ultra, Tier 4: Enterprise Custom)
 
+> **Status:** This file is a proposed commercial policy template. The commitments below are not active guarantees unless they are accepted in a signed customer contract and the required infrastructure, monitoring, support rota, escalation channels, and service-credit process are operationally verified.
+
 ---
 
 ## 1. Uptime Commitment
 
-VerifyPulse guarantees high availability for core verification and transaction security APIs:
+The following are proposed availability targets for core verification and transaction security APIs. Actual commitments require a signed contract and measured production evidence:
 
 | Tier | Monthly Uptime Commitment | Scheduled Maintenance Window | Service Credit Eligibility |
 |---|---|---|---|

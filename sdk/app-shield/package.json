@@ -1,0 +1,19 @@
+{
+  "name": "@verifypulse/app-shield",
+  "version": "0.1.0",
+  "description": "VerifyPulse client-side transaction posture interceptor for screen-sharing and accessibility-risk signals.",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "android/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
