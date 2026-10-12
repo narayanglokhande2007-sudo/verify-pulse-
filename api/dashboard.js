@@ -2,7 +2,7 @@
 // Enterprise B2B Co-Pilot Dashboard API
 import { validateB2bApiKey, enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 import { checkB2BQuota } from '../lib/quota_manager.js';
-import { getTenantAuditTelemetry } from '../lib/audit_events.js';
+import { getTenantAuditTelemetryPersistent } from '../lib/audit_events.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     
     // Fetch live usage & telemetry (peek mode: does not increment quota)
     const quota = await checkB2BQuota(tenantId, tier, { peek: true });
-    const telemetry = getTenantAuditTelemetry(tenantId);
+    const telemetry = await getTenantAuditTelemetryPersistent(tenantId);
 
     // Calculate "Value Saved" from real audit stream if available, with statistical baseline fallback
     const fraudsBlocked = telemetry.fraudsBlocked > 0 
