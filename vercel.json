@@ -82,8 +82,8 @@
   ],
   "crons": [
     {
-      "path": "/api/zeroday?cron=continuous_brand_scan",
-      "schedule": "0 */4 * * *"
+      "path": "/api/zeroday",
+      "schedule": "0 5 * * *"
     }
   ]
 }
