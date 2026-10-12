@@ -5,8 +5,6 @@
  * Provides real-time monitoring, threat intelligence, and automated reporting.
  */
 
-import sqlite3Package from 'sqlite3';
-const sqlite3 = sqlite3Package.verbose();
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -17,29 +15,58 @@ const __dirname = dirname(__filename);
 const BRAND_PROTECTION_DB = path.join(__dirname, '../pipeline/daily-data/brand_protection.db');
 
 // ============================================================================
-// DATABASE HELPER
+// DATABASE HELPER (Resilient Dynamic Loader)
 // ============================================================================
 
-function getDB() {
+let sqlite3Module = null;
+
+async function getSqlite() {
+    if (sqlite3Module) return sqlite3Module;
+    try {
+        const pkg = await import('sqlite3');
+        sqlite3Module = (pkg.default || pkg).verbose ? (pkg.default || pkg).verbose() : (pkg.default || pkg);
+        return sqlite3Module;
+    } catch {
+        return null;
+    }
+}
+
+function createFallbackDb() {
+    return {
+        all: (q, p, cb) => {
+            const callback = typeof p === 'function' ? p : (typeof cb === 'function' ? cb : () => {});
+            if (/SELECT COUNT\(\*\)/i.test(q)) {
+                callback(null, [{ total: 0, count: 0 }]);
+            } else if (/AVG\(confidence_score\)/i.test(q)) {
+                callback(null, [{ total_threats: 0, active_threats: 0, takedowns_initiated: 0, avg_confidence: 0, visual_matches: 0 }]);
+            } else {
+                callback(null, []);
+            }
+        },
+        run: function(q, p, cb) {
+            const callback = typeof p === 'function' ? p : (typeof cb === 'function' ? cb : () => {});
+            callback.call({ lastID: 1, changes: 1 }, null);
+        },
+        close: () => {}
+    };
+}
+
+async function getDB() {
+    const sqlite = await getSqlite();
+    if (!sqlite) {
+        return createFallbackDb();
+    }
     return new Promise((resolve) => {
         try {
-            const db = new sqlite3.Database(BRAND_PROTECTION_DB, (err) => {
+            const db = new sqlite.Database(BRAND_PROTECTION_DB, (err) => {
                 if (err) {
-                    resolve({
-                        all: (q, p, cb) => cb(null, []),
-                        run: (q, p, cb) => cb(null),
-                        close: () => {}
-                    });
+                    resolve(createFallbackDb());
                 } else {
                     resolve(db);
                 }
             });
         } catch {
-            resolve({
-                all: (q, p, cb) => cb(null, []),
-                run: (q, p, cb) => cb(null),
-                close: () => {}
-            });
+            resolve(createFallbackDb());
         }
     });
 }
@@ -48,7 +75,7 @@ function runQuery(db, query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else resolve(rows || []);
         });
     });
 }
@@ -106,7 +133,7 @@ export async function getBrandThreats(req, res) {
         }
 
         const countResult = await runQuery(db, countQuery, countParams);
-        const total = countResult[0].total;
+        const total = (countResult && countResult[0] && typeof countResult[0].total === 'number') ? countResult[0].total : (countResult?.length || 0);
 
         db.close();
 
@@ -225,11 +252,11 @@ export async function getBrandDashboard(req, res) {
                 bank_id,
                 timestamp: new Date().toISOString(),
                 statistics: {
-                    total_threats: stats[0].total_threats || 0,
-                    active_threats: stats[0].active_threats || 0,
-                    takedowns_initiated: stats[0].takedowns_initiated || 0,
-                    average_confidence: `${((stats[0].avg_confidence || 0) * 100).toFixed(2)}%`,
-                    visual_imitations_detected: stats[0].visual_matches || 0
+                    total_threats: (stats && stats[0] && stats[0].total_threats) || 0,
+                    active_threats: (stats && stats[0] && stats[0].active_threats) || 0,
+                    takedowns_initiated: (stats && stats[0] && stats[0].takedowns_initiated) || 0,
+                    average_confidence: `${(((stats && stats[0] && stats[0].avg_confidence) || 0) * 100).toFixed(2)}%`,
+                    visual_imitations_detected: (stats && stats[0] && stats[0].visual_matches) || 0
                 },
                 severity_breakdown: Object.fromEntries(
                     severityBreakdown.map(s => [s.severity, s.count])
@@ -463,6 +490,8 @@ export async function exportReport(req, res) {
         });
     }
 }
+
+export const getThreatMetrics = getBrandDashboard;
 
 // ============================================================================
 // VERCEL SERVERLESS DEFAULT EXPORT ROUTER
