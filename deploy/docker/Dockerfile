@@ -12,7 +12,6 @@ RUN npm ci --omit=dev
 COPY api ./api
 COPY lib ./lib
 COPY pipeline ./pipeline
-COPY public ./public
 COPY index.html ./
 COPY enterprise.html ./
 COPY vercel.json ./
@@ -26,8 +25,4 @@ ENV VERIFYPULSE_TIER_3_TOTAL_LIMIT=5000000
 
 EXPOSE 3000
 
-# Health check endpoint
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/status || exit 1
-
-CMD ["npm", "start"]
+CMD ["node", "api/status.js"]
