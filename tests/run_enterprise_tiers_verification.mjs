@@ -7,6 +7,7 @@ import { checkB2BQuota } from '../lib/quota_manager.js';
 import { validateB2bApiKey } from '../lib/security_controls.js';
 import { querySyndicateGraph } from '../lib/syndicate_graph.js';
 import { applyTenantCustomRules } from '../lib/tenant_custom_rules.js';
+import { recordTenantScanTelemetry } from '../lib/audit_events.js';
 import { AppShield } from '../sdk/app-shield/index.js';
 import dashboardHandler from '../api/dashboard.js';
 import payguardHandler from '../api/payguard.js';
@@ -82,15 +83,17 @@ async function runTests() {
   console.log('   ✓ B2B auth contract returns both allowed, valid, and correct tier.');
 
   // TEST 3: Dashboard API Dynamic Tier & Real Metrics
-  console.log('3. Testing Co-Pilot Dashboard API...');
+  console.log('3. Testing Co-Pilot Dashboard API with Real Telemetry...');
+  recordTenantScanTelemetry('pro-corp', { isThreat: true, valueSaved: 20000 });
   const dashRes = mockResponse();
   await dashboardHandler({ method: 'GET', headers: reqTier2.headers }, dashRes);
   assert.equal(dashRes.statusCode, 200);
   assert.equal(dashRes.body.tier, 2, 'Dashboard must dynamically report tenant tier');
   assert.equal(dashRes.body.usage.total_scans_limit, 1000000);
   assert.equal(dashRes.body.usage.ai_scans_limit, 25000);
-  assert.ok(dashRes.body.metrics.estimated_financial_value_saved_inr > 0);
-  console.log('   ✓ Dashboard reports dynamic Tier 2 and real quota usage.');
+  assert.ok(dashRes.body.metrics.estimated_financial_value_saved_inr >= 20000);
+  assert.equal(dashRes.body.metrics.telemetry_source, 'LIVE_AUDIT_STREAM');
+  console.log('   ✓ Dashboard reports dynamic Tier 2 and real live audit telemetry.');
 
   // TEST 4: Scam Syndicate Graph Engine & PayGuard
   console.log('4. Testing Scam Syndicate Graph & PayGuard...');
@@ -116,8 +119,8 @@ async function runTests() {
   assert.equal(payguardRes.body.syndicate.clusterId, 'syn-dl-arrest-01');
   console.log('   ✓ Scam Syndicate Graph successfully blocks clustered mule UPI.');
 
-  // TEST 5: Automated Takedowns Engine
-  console.log('5. Testing Automated Takedowns API...');
+  // TEST 5: Automated Takedowns Engine with Cryptographic Evidence Dossier
+  console.log('5. Testing Automated Takedowns API & Evidence Dossier...');
   const takedownRes = mockResponse();
   await takedownHandler({
     method: 'POST',
@@ -133,7 +136,10 @@ async function runTests() {
   assert.equal(takedownRes.body.autoDispatched, true);
   assert.equal(takedownRes.body.status, 'DISPATCHED_TO_ABUSE_DESK');
   assert.ok(takedownRes.body.trackingId.startsWith('tkd-'));
-  console.log('   ✓ Automated Takedowns API dispatches and returns tracking reference.');
+  assert.ok(takedownRes.body.evidenceDossier);
+  assert.ok(takedownRes.body.evidenceDossier.evidenceDigestSha256);
+  assert.equal(takedownRes.body.evidenceDossier.protocolStandard, 'RFC 2142 Abuse Mailbox Protocol');
+  console.log('   ✓ Automated Takedowns API dispatches with cryptographic evidence dossier.');
 
   // TEST 6: Zero-Day Monitoring Endpoint
   console.log('6. Testing Zero-Day Monitoring API...');

@@ -2,6 +2,7 @@
 // Enterprise B2B Co-Pilot Dashboard API
 import { validateB2bApiKey, enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 import { checkB2BQuota } from '../lib/quota_manager.js';
+import { getTenantAuditTelemetry } from '../lib/audit_events.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -20,12 +21,17 @@ export default async function handler(req, res) {
     const tenantId = authResult.identity.tenantId;
     const tier = authResult.tier || authResult.identity?.tier || 1;
     
-    // Fetch live usage
+    // Fetch live usage & telemetry
     const quota = await checkB2BQuota(tenantId, tier);
+    const telemetry = getTenantAuditTelemetry(tenantId);
 
-    // Calculate "Value Saved"
-    const estimatedFraudsBlocked = Math.max(1, Math.floor(quota.used * 0.025));
-    const valueSavedINR = estimatedFraudsBlocked * 10000;
+    // Calculate "Value Saved" from real audit stream if available, with statistical baseline fallback
+    const fraudsBlocked = telemetry.fraudsBlocked > 0 
+        ? telemetry.fraudsBlocked 
+        : Math.max(1, Math.floor(quota.used * 0.025));
+    const valueSavedINR = telemetry.totalValueSaved > 0 
+        ? telemetry.totalValueSaved 
+        : fraudsBlocked * 15000;
 
     const tierNames = { 1: 'Standard (Tier 1)', 2: 'Pro (Tier 2)', 3: 'Ultra (Tier 3)' };
 
@@ -43,8 +49,9 @@ export default async function handler(req, res) {
             percentage_exhausted: ((quota.used / quota.limit) * 100).toFixed(2) + '%'
         },
         metrics: {
-            frauds_prevented: estimatedFraudsBlocked,
-            estimated_financial_value_saved_inr: valueSavedINR
+            frauds_prevented: fraudsBlocked,
+            estimated_financial_value_saved_inr: valueSavedINR,
+            telemetry_source: telemetry.fraudsBlocked > 0 ? 'LIVE_AUDIT_STREAM' : 'STATISTICAL_BASELINE'
         },
         status: quota.allowed ? 'ACTIVE' : 'EXHAUSTED'
     });

@@ -66,11 +66,34 @@ export default async function handler(req, res) {
         }
 
         const discoveriesArray = Array.from(suspiciousDomains).slice(0, 50);
+
+        // Active DNS Resolution for top discoveries using Google DoH
+        let verifiedPostures = [];
+        try {
+            const sample = discoveriesArray.slice(0, 5);
+            verifiedPostures = await Promise.all(sample.map(async (domain) => {
+                try {
+                    const dohRes = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`);
+                    const dohData = await dohRes.json();
+                    const aRecord = dohData?.Answer?.find(a => a.type === 1);
+                    return {
+                        domain,
+                        live: Boolean(aRecord?.data),
+                        ip: aRecord?.data || null,
+                        posture: aRecord?.data ? 'ACTIVE_RESOLVING_THREAT' : 'REGISTERED_PENDING_DNS'
+                    };
+                } catch {
+                    return { domain, live: false, ip: null, posture: 'UNRESOLVED' };
+                }
+            }));
+        } catch {}
+
         const result = {
             keywordMonitor: keyword,
             scanWindow: 'Last 72 Hours',
             totalNewThreatsFound: suspiciousDomains.size,
             suspiciousDomains: discoveriesArray,
+            activeThreatVerification: verifiedPostures,
             status: 'ACTIVE_ZERO_DAY_MONITORING',
             monitoredAt: new Date().toISOString()
         };

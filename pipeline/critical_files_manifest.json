@@ -26,7 +26,7 @@
     "pipeline/check_historical_reputation_index.py":  "83a12b7d08c4668982c0a338df918ee8d58798b418630927904cc4da63002418",
     "lib/shadow_evaluation.js":  "1baab9c8b4011910dce85556db7ab7f1894be474d5b4c506a4accb17ca89ffef",
     "pipeline/threat_intelligence_report.py":  "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b",
-    "lib/audit_events.js":  "6b3af73e1128e6cf130832911236e9fbfb3115368f8e05e5a480ad89aa09978c",
+    "lib/audit_events.js":  "822e50d4a11b660ce26c4375e45fc648f20fafe5a5dc2a84deb4790953fa5f2b",
     "lib/privacy_guard.js":  "3685d97581f6daa17781428cda125ec2235846b6fd16181372ca5e1840496fd3",
     "lib/indexed_direct_lookup.js":  "0127777851d8f741dd6be3411894d3640e4b962f6eae6db9af6759ebc7f9cfbc",
     "pipeline/pulse_agent_war_games.py":  "a0ace078eb779049a08415886d63034fdf71ce86d3cc6af1def292f73f9cf6a1",
