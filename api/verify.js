@@ -101,6 +101,22 @@ export default async function handler(req, res) {
   }
 
   function safeResult(r) {
+    // Apply Tier 3 Tenant Custom Rules FIRST so verdict, explainability, calibration and evidence stay consistent
+    if (b2bTenantId && b2bTier >= 3) {
+      try {
+        const detectedUrls = extractUrlCandidates(text).map(canonicalizeUrl).filter(Boolean).map(u => u.href || String(u));
+        const customized = applyTenantCustomRules(b2bTenantId, b2bTier, text, detectedUrls, r);
+        if (customized) {
+          if (customized.verdict) r.verdict = customized.verdict;
+          if (customized.scamType) r.scamType = customized.scamType;
+          if (customized.confidence !== undefined) r.confidence = customized.confidence;
+          if (customized.findings) r.findings = customized.findings;
+          if (customized.evidenceSources) r.evidenceSources = customized.evidenceSources;
+          r.tenantCustomRulesApplied = true;
+        }
+      } catch (err) {}
+    }
+
     r.verdict = normalizeVerdict(r.verdict);
     if (typeof r.findings === 'string') r.findings = [r.findings];
     if (!Array.isArray(r.findings)) r.findings = [];
@@ -140,21 +156,6 @@ export default async function handler(req, res) {
       elapsedMs: requestBudget.elapsedMs(),
       remainingBudgetMs: requestBudget.remainingMs()
     };
-
-    // Apply Tier 3 Tenant Custom Rules (whitelists, strictness overrides)
-    if (b2bTenantId && b2bTier >= 3) {
-      try {
-        const detectedUrls = extractUrlCandidates(text).map(canonicalizeUrl).filter(Boolean);
-        const customized = applyTenantCustomRules(b2bTenantId, b2bTier, text, detectedUrls, r);
-        if (customized && customized !== r) {
-          r.verdict = normalizeVerdict(customized.verdict);
-          if (customized.scamType) r.scamType = customized.scamType;
-          if (customized.confidence !== undefined) r.confidence = customized.confidence;
-          if (customized.findings) r.findings = customized.findings;
-          r.tenantCustomRulesApplied = true;
-        }
-      } catch (err) {}
-    }
 
     return r;
   }
