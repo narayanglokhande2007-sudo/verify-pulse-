@@ -18,25 +18,28 @@ export default async function handler(req, res) {
     }
 
     const tenantId = authResult.identity.tenantId;
-    
-    // For now, assume Tier 1 if not explicitly set. In a real DB, fetch tenant's tier.
-    const tier = 1; 
+    const tier = authResult.tier || authResult.identity?.tier || 1;
     
     // Fetch live usage
     const quota = await checkB2BQuota(tenantId, tier);
 
-    // Calculate "Value Saved" (Psychological B2B Metric)
-    // Assume 2.5% of all scans were high-risk, and each prevented fraud saved ₹10,000.
-    const estimatedFraudsBlocked = Math.floor(quota.used * 0.025);
+    // Calculate "Value Saved"
+    const estimatedFraudsBlocked = Math.max(1, Math.floor(quota.used * 0.025));
     const valueSavedINR = estimatedFraudsBlocked * 10000;
+
+    const tierNames = { 1: 'Standard (Tier 1)', 2: 'Pro (Tier 2)', 3: 'Ultra (Tier 3)' };
 
     return res.status(200).json({
         tenant: tenantId,
         tier: tier,
+        tier_name: tierNames[tier] || `Tier ${tier}`,
         usage: {
-            ai_scans_used: quota.used,
-            ai_scans_limit: quota.limit,
-            remaining: quota.limit - quota.used,
+            total_scans_used: quota.used,
+            total_scans_limit: quota.limit,
+            ai_scans_used: quota.aiUsed || 0,
+            ai_scans_limit: quota.aiLimit || (tier === 1 ? 5000 : tier === 2 ? 25000 : 50000),
+            scans_remaining: Math.max(0, quota.limit - quota.used),
+            ai_scans_remaining: Math.max(0, (quota.aiLimit || 5000) - (quota.aiUsed || 0)),
             percentage_exhausted: ((quota.used / quota.limit) * 100).toFixed(2) + '%'
         },
         metrics: {

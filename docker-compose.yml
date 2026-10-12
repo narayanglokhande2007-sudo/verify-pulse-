@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  verifypulse-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: verifypulse-enterprise
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - UPSTASH_REDIS_REST_URL=http://verifypulse-redis:6379
+      - VERIFYPULSE_TIER_1_TOTAL_LIMIT=250000
+      - VERIFYPULSE_TIER_2_TOTAL_LIMIT=1000000
+      - VERIFYPULSE_TIER_3_TOTAL_LIMIT=5000000
+    depends_on:
+      - verifypulse-redis
+    networks:
+      - verifypulse-net
+
+  verifypulse-redis:
+    image: redis:7-alpine
+    container_name: verifypulse-redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - verifypulse-net
+
+networks:
+  verifypulse-net:
+    driver: bridge
+
+volumes:
+  redis_data:

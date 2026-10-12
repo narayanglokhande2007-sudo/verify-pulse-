@@ -1,0 +1,187 @@
+// tests/run_enterprise_tiers_verification.mjs
+// Comprehensive verification test suite for VerifyPulse Enterprise Tiers 1, 2, and 3.
+
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import { checkB2BQuota } from '../lib/quota_manager.js';
+import { validateB2bApiKey } from '../lib/security_controls.js';
+import { querySyndicateGraph } from '../lib/syndicate_graph.js';
+import { applyTenantCustomRules } from '../lib/tenant_custom_rules.js';
+import { AppShield } from '../sdk/app-shield/index.js';
+import dashboardHandler from '../api/dashboard.js';
+import payguardHandler from '../api/payguard.js';
+import takedownHandler from '../api/takedown.js';
+import zerodayHandler from '../api/zeroday.js';
+
+function hash(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function mockResponse() {
+  return {
+    statusCode: null,
+    body: null,
+    headers: {},
+    setHeader(name, value) { this.headers[name] = value; },
+    status(code) { this.statusCode = code; return this; },
+    json(body) { this.body = body; return body; }
+  };
+}
+
+async function runTests() {
+  console.log('--- Starting VerifyPulse Enterprise Tiers Verification ---');
+
+  // TEST 1: Tier 1, 2, 3 Quota Capacities & Dual Metering
+  console.log('1. Testing Quota Manager Capacities...');
+  const t1 = await checkB2BQuota('test-t1', 1);
+  assert.equal(t1.limit, 250000, 'Tier 1 total limit must be 250,000 as advertised');
+  assert.equal(t1.aiLimit, 5000, 'Tier 1 AI limit must be 5,000 as advertised');
+  assert.equal(t1.allowed, true);
+
+  const t2 = await checkB2BQuota('test-t2', 2);
+  assert.equal(t2.limit, 1000000, 'Tier 2 total limit must be 1,000,000 as advertised');
+  assert.equal(t2.aiLimit, 25000, 'Tier 2 AI limit must be 25,000 as advertised');
+  assert.equal(t2.allowed, true);
+
+  const t3 = await checkB2BQuota('test-t3', 3);
+  assert.equal(t3.limit, 5000000, 'Tier 3 total limit must be 5,000,000 as advertised');
+  assert.equal(t3.aiLimit, 50000, 'Tier 3 AI limit must be 50,000 as advertised');
+  assert.equal(t3.allowed, true);
+
+  // Dual Metering AI scan check
+  const t1Ai = await checkB2BQuota('test-t1-ai', 1, { isAiScan: true });
+  assert.equal(t1Ai.aiUsed, 1);
+  console.log('   ✓ Quota capacities verified (2.5L, 10L, 50L) with dual metering.');
+
+  // TEST 2: B2B Auth Contract Harmonization
+  console.log('2. Testing B2B Auth Contract Harmonization...');
+  const keyTier2 = 'secret-pro-key';
+  process.env.VERIFYPULSE_B2B_KEY_REGISTRY = JSON.stringify([
+    {
+      keyId: 'pro-client-01',
+      tenantId: 'pro-corp',
+      tier: 2,
+      sha256: hash(keyTier2),
+      scopes: ['b2b:scan', 'b2b:zeroday', 'b2b:payguard', 'b2b:takedown'],
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      status: 'active'
+    }
+  ]);
+
+  const reqTier2 = {
+    headers: {
+      'x-api-key': keyTier2,
+      'x-verifypulse-key-id': 'pro-client-01'
+    }
+  };
+
+  const authTier2 = validateB2bApiKey(reqTier2);
+  assert.equal(authTier2.allowed, true);
+  assert.equal(authTier2.valid, true, 'authResult.valid must match allowed for backwards compatibility');
+  assert.equal(authTier2.tier, 2, 'authResult.tier must correctly report 2');
+  console.log('   ✓ B2B auth contract returns both allowed, valid, and correct tier.');
+
+  // TEST 3: Dashboard API Dynamic Tier & Real Metrics
+  console.log('3. Testing Co-Pilot Dashboard API...');
+  const dashRes = mockResponse();
+  await dashboardHandler({ method: 'GET', headers: reqTier2.headers }, dashRes);
+  assert.equal(dashRes.statusCode, 200);
+  assert.equal(dashRes.body.tier, 2, 'Dashboard must dynamically report tenant tier');
+  assert.equal(dashRes.body.usage.total_scans_limit, 1000000);
+  assert.equal(dashRes.body.usage.ai_scans_limit, 25000);
+  assert.ok(dashRes.body.metrics.estimated_financial_value_saved_inr > 0);
+  console.log('   ✓ Dashboard reports dynamic Tier 2 and real quota usage.');
+
+  // TEST 4: Scam Syndicate Graph Engine & PayGuard
+  console.log('4. Testing Scam Syndicate Graph & PayGuard...');
+  const graphQuery = await querySyndicateGraph({ upi: 'cbi.cybercell.verify@ybl' });
+  assert.equal(graphQuery.found, true);
+  assert.equal(graphQuery.clusterId, 'syn-dl-arrest-01');
+  assert.ok(graphQuery.connectedNodes.length > 0);
+
+  const payguardRes = mockResponse();
+  await payguardHandler({
+    method: 'POST',
+    headers: reqTier2.headers,
+    body: {
+      transactionId: 'txn-99128',
+      amount: 49999,
+      receiverUpi: 'cbi.cybercell.verify@ybl'
+    }
+  }, payguardRes);
+
+  assert.equal(payguardRes.statusCode, 200);
+  assert.equal(payguardRes.body.action, 'BLOCK', 'PayGuard must block known syndicate mule accounts');
+  assert.ok(payguardRes.body.flags.includes('SCAM_SYNDICATE_GRAPH_MATCH'));
+  assert.equal(payguardRes.body.syndicate.clusterId, 'syn-dl-arrest-01');
+  console.log('   ✓ Scam Syndicate Graph successfully blocks clustered mule UPI.');
+
+  // TEST 5: Automated Takedowns Engine
+  console.log('5. Testing Automated Takedowns API...');
+  const takedownRes = mockResponse();
+  await takedownHandler({
+    method: 'POST',
+    headers: reqTier2.headers,
+    body: {
+      url: 'https://fake-hdfc-kyc-update.com/login',
+      brandName: 'HDFC Bank',
+      autoDispatch: true
+    }
+  }, takedownRes);
+
+  assert.equal(takedownRes.statusCode, 200);
+  assert.equal(takedownRes.body.autoDispatched, true);
+  assert.equal(takedownRes.body.status, 'DISPATCHED_TO_ABUSE_DESK');
+  assert.ok(takedownRes.body.trackingId.startsWith('tkd-'));
+  console.log('   ✓ Automated Takedowns API dispatches and returns tracking reference.');
+
+  // TEST 6: Zero-Day Monitoring Endpoint
+  console.log('6. Testing Zero-Day Monitoring API...');
+  const zeroDayRes = mockResponse();
+  await zerodayHandler({
+    method: 'POST',
+    headers: reqTier2.headers,
+    body: {
+      keyword: 'hdfcbank',
+      officialDomain: 'hdfcbank.com'
+    }
+  }, zeroDayRes);
+
+  assert.equal(zeroDayRes.statusCode, 200);
+  assert.equal(zeroDayRes.body.keywordMonitor, 'hdfcbank');
+  assert.ok(['ACTIVE_ZERO_DAY_MONITORING', 'STANDBY_NEXT_CYCLE'].includes(zeroDayRes.body.status));
+  console.log('   ✓ Zero-Day Monitor endpoint responds cleanly without 500 error.');
+
+  // TEST 7: Tenant Custom Rules Engine (Tier 3)
+  console.log('7. Testing Tenant Custom Rules Engine...');
+  const baseVerdict = { verdict: 'SUSPICIOUS', scamType: 'Unknown', confidence: 60, findings: [] };
+  const customVerdict = applyTenantCustomRules(
+    'fraudshield',
+    3,
+    'Visit https://fraudshield-demo.com/verify',
+    ['https://fraudshield-demo.com/verify'],
+    baseVerdict
+  );
+  assert.equal(customVerdict.verdict, 'SAFE', 'Tenant whitelist must override false positive');
+  assert.equal(customVerdict.scamType, 'Tenant Custom Whitelist');
+  console.log('   ✓ Tier 3 Custom Rules properly applied.');
+
+  // TEST 8: App-Shield Client SDK
+  console.log('8. Testing App-Shield Client SDK RASP Interceptor...');
+  const shield = new AppShield();
+  const safeIntent = await shield.interceptPaymentIntent({ amount: 500 }, { isMediaProjectionActive: false });
+  assert.equal(safeIntent.allowed, true);
+
+  const blockedIntent = await shield.interceptPaymentIntent({ amount: 500 }, { isMediaProjectionActive: true });
+  assert.equal(blockedIntent.allowed, false);
+  assert.equal(blockedIntent.reason, 'UNSAFE_ENVIRONMENT');
+  assert.equal(blockedIntent.details.screenSharingDetected, true);
+  console.log('   ✓ App-Shield RASP successfully intercepts dirty screen-sharing environment.');
+
+  console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
+}
+
+runTests().catch((err) => {
+  console.error('FAILED Verification:', err);
+  process.exit(1);
+});

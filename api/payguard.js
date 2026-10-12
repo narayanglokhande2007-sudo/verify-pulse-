@@ -3,22 +3,23 @@
 // Deep Integration API for NBFCs and Payment Gateways to intercept payments to scammers.
 
 import { validateB2bApiKey } from '../lib/security_controls.js';
+import { querySyndicateGraph } from '../lib/syndicate_graph.js';
 import crypto from 'node:crypto';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    // 1. Validate Tier 3 Authentication
+    // 1. Validate Tier Authentication (Tier 2 Pro & Tier 3 Ultra feature)
     const authResult = validateB2bApiKey(req);
     if (!authResult.valid) {
         return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Valid B2B API key required.' });
     }
     
-    // Tier 3 Lock: The Devil Tier Exclusive
-    if (authResult.tier < 3) {
+    // Tier check: Available to Pro (Tier 2) and Ultra (Tier 3)
+    if (authResult.tier < 2) {
         return res.status(403).json({ 
             error: 'UPGRADE_REQUIRED', 
-            message: 'VerifyPulse PayGuard (Transaction Firewall) is an exclusive Tier 3 (Ultra) feature.' 
+            message: 'VerifyPulse PayGuard & Scam Syndicate Graph is available on Tier 2 (Pro) or higher.' 
         });
     }
 
@@ -31,19 +32,18 @@ export default async function handler(req, res) {
         });
     }
 
-    // 2. Deep Analysis: Real-Time Risk Scoring Engine
+    // 2. Real-Time Risk Scoring Engine
     let riskScore = 0;
     let flags = [];
+    let syndicateDetails = null;
     
     // A. UPI Handle Heuristics
     if (receiverUpi) {
         const upi = receiverUpi.toLowerCase();
-        // Known high-risk generic handles often used by mules or fake customer support
         if (upi.includes('kyc') || upi.includes('update') || upi.includes('refund') || upi.includes('cashback') || upi.includes('support')) {
             riskScore += 70;
             flags.push('SUSPICIOUS_MULE_UPI_PATTERN');
         }
-        // Algorithmic/Burner UPIs: Scammers often use random alphanumeric strings
         if (/[a-z]{2,4}\d{5,8}@[a-z]+/.test(upi)) {
             riskScore += 30;
             flags.push('ALGORITHMIC_GENERATED_UPI');
@@ -52,7 +52,6 @@ export default async function handler(req, res) {
 
     // B. Phone Number Telecom Heuristics (SIM Check Simulation)
     if (receiverPhone) {
-        // Scammers frequently use specific block VoIP/virtual numbers or newly issued prepaid chunks
         if (receiverPhone.startsWith('+9170') || receiverPhone.startsWith('+9160')) {
             riskScore += 15;
             flags.push('NEW_SIM_BLOCK_DETECTED');
@@ -62,16 +61,30 @@ export default async function handler(req, res) {
     // C. Psychological Fraud Amount Velocity
     if (amount) {
         const numAmount = Number(amount);
-        // Scammers often request specific psychological threshold amounts (e.g. processing fees)
         if (numAmount === 9999 || numAmount === 19999 || numAmount === 4999 || numAmount === 999) {
             riskScore += 25;
             flags.push('PSYCHOLOGICAL_SCAM_AMOUNT');
         }
     }
 
-    // D. Cross-Reference with Tier 2 Scam Syndicate Graph (Threat Intelligence)
-    // Note: In a fully live state, this directly queries the Redis graph database
-    // await redisCommand('GET', `threat:upi:${receiverUpi}`)
+    // D. Cross-Reference with Scam Syndicate Graph (Threat Intelligence)
+    const graphMatch = await querySyndicateGraph({
+        upi: receiverUpi,
+        phone: receiverPhone,
+        ifsc: receiverIfsc
+    });
+
+    if (graphMatch.found) {
+        riskScore = Math.max(riskScore, 95);
+        flags.push('SCAM_SYNDICATE_GRAPH_MATCH');
+        syndicateDetails = {
+            clusterId: graphMatch.clusterId,
+            category: graphMatch.category,
+            matchedNode: graphMatch.matchedNode,
+            connectedNodes: graphMatch.connectedNodes,
+            confidence: graphMatch.confidence
+        };
+    }
 
     // 3. Verdict Calculation
     riskScore = Math.min(riskScore, 100);
@@ -80,7 +93,7 @@ export default async function handler(req, res) {
     if (riskScore >= 75) {
         action = 'BLOCK';
     } else if (riskScore >= 45) {
-        action = 'REVIEW'; // Send for manual review or trigger Step-Up Auth (OTP/FaceID)
+        action = 'REVIEW';
     }
 
     // 4. Respond in milliseconds to the NBFC Payment Gateway
@@ -90,6 +103,7 @@ export default async function handler(req, res) {
         riskScore,
         action,
         flags,
+        syndicate: syndicateDetails,
         recommendation: action === 'BLOCK' ? 'Halt transaction immediately. High probability of mule account routing.' : 
                         action === 'REVIEW' ? 'Introduce friction. Require biometric or voice confirmation from sender.' : 
                         'Proceed with standard gateway fraud checks.'
