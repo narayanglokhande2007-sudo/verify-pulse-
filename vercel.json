@@ -61,5 +61,29 @@
       "destination": "https://www.verify-pulse.com/$1",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/brand-protection/dashboard",
+      "destination": "/api/brand_protection_api?action=threats"
+    },
+    {
+      "source": "/api/brand-protection/threats",
+      "destination": "/api/brand_protection_api?action=threats"
+    },
+    {
+      "source": "/api/brand-protection/request-takedown",
+      "destination": "/api/brand_protection_api?action=request-takedown"
+    },
+    {
+      "source": "/api/brand-protection/export-report",
+      "destination": "/api/brand_protection_api?action=export-report"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/zeroday?cron=continuous_brand_scan",
+      "schedule": "0 */4 * * *"
+    }
   ]
 }

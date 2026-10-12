@@ -21,8 +21,8 @@ export default async function handler(req, res) {
     const tenantId = authResult.identity.tenantId;
     const tier = authResult.tier || authResult.identity?.tier || 1;
     
-    // Fetch live usage & telemetry
-    const quota = await checkB2BQuota(tenantId, tier);
+    // Fetch live usage & telemetry (peek mode: does not increment quota)
+    const quota = await checkB2BQuota(tenantId, tier, { peek: true });
     const telemetry = getTenantAuditTelemetry(tenantId);
 
     // Calculate "Value Saved" from real audit stream if available, with statistical baseline fallback
@@ -51,6 +51,7 @@ export default async function handler(req, res) {
         metrics: {
             frauds_prevented: fraudsBlocked,
             estimated_financial_value_saved_inr: valueSavedINR,
+            calculation_basis: telemetry.fraudsBlocked > 0 ? 'LIVE_MEASURED_FRAUD_EVENTS' : 'MODEL_BASED_STATISTICAL_ESTIMATE',
             telemetry_source: telemetry.fraudsBlocked > 0 ? 'LIVE_AUDIT_STREAM' : 'STATISTICAL_BASELINE'
         },
         status: quota.allowed ? 'ACTIVE' : 'EXHAUSTED'

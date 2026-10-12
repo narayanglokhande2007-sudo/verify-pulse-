@@ -1,8 +1,7 @@
 // api/verify.js - VerifyPulse Backend with 200+ trusted domains whitelist
 import { randomUUID } from 'node:crypto';
 import { hasCredentialLikeData, sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
-import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders, getClientIp, validateB2bApiKey } from '../lib/security_controls.js';
-import { checkB2CQuota, checkB2BQuota } from '../lib/quota_manager.js';
+import { enforceRateLimit, getConfiguredLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 import { fetchJsonWithTimeout, logScanReliabilityEvent, runProviderAttempt } from '../lib/scan_reliability.js';
 import { analyzeMessageForensics, canonicalizeUrl, extractUrlCandidates } from '../lib/url_forensics.js';
 import { analyzeIntentForensics } from '../lib/intent_forensics.js';
@@ -13,7 +12,8 @@ import { lookupHistoricalReputation } from '../lib/historical_reputation.js';
 import { createRequestBudget } from '../lib/request_budget.js';
 import { getPulseCoreLocalGuidance } from '../lib/pulsecore_local_guidance.js';
 import { directLocalLookup } from '../lib/indexed_direct_lookup.js';
-import { analyzeFinancialThreats } from '../lib/financial_forensics.js';
+import { validateB2bApiKey } from '../lib/security_controls.js';
+import { checkB2BQuota } from '../lib/quota_manager.js';
 import { applyTenantCustomRules } from '../lib/tenant_custom_rules.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
@@ -33,52 +33,6 @@ export default async function handler(req, res) {
       retryAfterSeconds: rateLimit.retryAfterSeconds,
     });
   }
-  // ==========================================
-  // B2C / B2B QUOTA & METERING GATEWAY
-  // ==========================================
-  let isB2B = false;
-  let b2bTier = 0;
-  let b2bTenantId = '';
-  
-  const authResult = validateB2bApiKey(req);
-  if (req.headers && (req.headers['x-api-key'] || req.headers.authorization)) {
-      if (authResult && authResult.allowed) {
-          isB2B = true;
-          b2bTenantId = authResult.identity?.tenantId || 'legacy';
-          b2bTier = 1; // Default to Tier 1 limit
-          
-          const quotaResult = await checkB2BQuota(b2bTenantId, b2bTier);
-          res.setHeader('X-VerifyPulse-Quota-Limit', String(quotaResult.limit));
-          res.setHeader('X-VerifyPulse-Quota-Used', String(quotaResult.used));
-          
-          if (!quotaResult.allowed) {
-              return res.status(429).json({
-                  error: 'B2B_QUOTA_EXCEEDED',
-                  message: 'Your monthly AI limit has been exhausted. Please upgrade your Tier.'
-              });
-          }
-      } else {
-          return res.status(401).json({
-              error: 'UNAUTHORIZED',
-              message: 'Invalid B2B API Key.'
-          });
-      }
-  } else {
-      // B2C Anonymous User Flow
-      const clientIp = getClientIp(req);
-      const b2cQuota = await checkB2CQuota(clientIp);
-      
-      res.setHeader('X-VerifyPulse-B2C-Quota-Limit', String(b2cQuota.limit));
-      res.setHeader('X-VerifyPulse-B2C-Quota-Used', String(b2cQuota.used));
-      
-      if (!b2cQuota.allowed) {
-          return res.status(429).json({
-              error: 'B2C_QUOTA_EXCEEDED',
-              message: 'You have reached your daily free limit of 50 scans. Please try again tomorrow.'
-          });
-      }
-  }
-  // ==========================================
 
   const { text, checkType, fileData, externalProcessingConsent = false } = req.body || {};
   const supportedCheckTypes = new Set(['chatbot', 'news', 'password', 'scam', 'phishing', 'gmail', 'url', 'unified', 'phone', 'upi']);
@@ -108,6 +62,28 @@ export default async function handler(req, res) {
   const evidenceSources = [];
   let shadowIntentForensics = null;
   let shadowUrlForensics = null;
+
+  // Resolve B2B Tenant Identity & Tier (Forwarded from /api/v1/scan or direct B2B header)
+  let b2bTenantId = req.headers?.['x-verifypulse-tenant-id'] || req.body?.b2bContext?.tenantId || null;
+  let b2bTier = Number(req.headers?.['x-verifypulse-tier'] || req.body?.b2bContext?.tier || 0);
+
+  if (!b2bTenantId && (req.headers?.['x-api-key'] || req.headers?.authorization)) {
+    try {
+      const directAuth = validateB2bApiKey(req);
+      if (directAuth && directAuth.allowed) {
+        b2bTenantId = directAuth.identity?.tenantId || null;
+        b2bTier = directAuth.tier || directAuth.identity?.tier || 1;
+      }
+    } catch {}
+  }
+
+  function meterAiScanUsage(provider) {
+    evidenceSources.push(`AI Provider: ${provider}`);
+    if (b2bTenantId) {
+      checkB2BQuota(b2bTenantId, b2bTier, { isAiScan: true, isAiOnly: true }).catch(() => {});
+    }
+  }
+
   function getShadowSignals() {
     if (!shadowIntentForensics) shadowIntentForensics = analyzeIntentForensics(externalAnalysisText);
     if (!shadowUrlForensics) shadowUrlForensics = analyzeMessageForensics(externalAnalysisText);
@@ -147,28 +123,6 @@ export default async function handler(req, res) {
       evidenceSources: r.evidenceSources,
       ...getShadowSignals()
     });
-
-    // Tier 2: Deep Financial & Telecom Threat Analysis
-    const rawInput = String(req.body.text || req.body.url || req.body.message || '');
-    const urlCands = extractUrlCandidates(rawInput);
-    r.financialForensics = analyzeFinancialThreats(rawInput, urlCands);
-    if (r.financialForensics && r.financialForensics.warnings && r.financialForensics.warnings.length > 0) {
-      r.findings = [...r.findings, ...r.financialForensics.warnings];
-      
-      // Zero-Day Auto-Escalation: Override safe verdicts if APK or extreme financial threat is detected
-      if (r.verdict === 'SAFE' && r.financialForensics.riskScore >= 80) {
-        r.verdict = 'SUSPICIOUS';
-        r.scamType = 'High-Risk Financial Indicator Detected (APK / Mule Route)';
-        r.confidence = Math.max(r.confidence, 85);
-        r.evidenceSources.push('financial_forensics');
-      }
-    }
-
-    // Tier 3: Custom Tenant AI Fine-Tuning & Rule Overrides
-    if (typeof b2bTier !== 'undefined' && typeof b2bTenantId !== 'undefined') {
-        r = applyTenantCustomRules(b2bTenantId, b2bTier, rawInput, urlCands, r);
-    }
-
     r.enterpriseEvidence = {
       schemaVersion: 'vp-enterprise-evidence-1',
       correlationId: requestId,
@@ -186,6 +140,22 @@ export default async function handler(req, res) {
       elapsedMs: requestBudget.elapsedMs(),
       remainingBudgetMs: requestBudget.remainingMs()
     };
+
+    // Apply Tier 3 Tenant Custom Rules (whitelists, strictness overrides)
+    if (b2bTenantId && b2bTier >= 3) {
+      try {
+        const detectedUrls = extractUrlCandidates(text).map(canonicalizeUrl).filter(Boolean);
+        const customized = applyTenantCustomRules(b2bTenantId, b2bTier, text, detectedUrls, r);
+        if (customized && customized !== r) {
+          r.verdict = normalizeVerdict(customized.verdict);
+          if (customized.scamType) r.scamType = customized.scamType;
+          if (customized.confidence !== undefined) r.confidence = customized.confidence;
+          if (customized.findings) r.findings = customized.findings;
+          r.tenantCustomRulesApplied = true;
+        }
+      } catch (err) {}
+    }
+
     return r;
   }
   // ----- 200+ trusted domains list (all official brands) -----
@@ -648,43 +618,6 @@ CRITICAL GUARDRAILS:
       }));
     }
 
-        // --- HEURISTIC INTERCEPTION (WHITELIST & SPOOFING) ---
-    try {
-        const urlMatch = text.match(/https?:\/\/[^\s]+/i);
-        if (urlMatch) {
-            const parsed = new URL(urlMatch[0].toLowerCase().trim());
-            let hostname = parsed.hostname;
-            if (hostname.startsWith('www.')) hostname = hostname.slice(4);
-
-            const INDIAN_BANKS_WHITELIST = new Set([
-                'hdfcbank.com', 'onlinesbi.sbi', 'sbi.co.in', 'icicibank.com', 'axisbank.com',
-                'kotak.com', 'pnbindia.in', 'bankofbaroda.in', 'unionbankofindia.co.in',
-                'canarabank.com', 'yesbank.in', 'idfcfirstbank.com', 'indusind.com',
-                'indianbank.in', 'centralbankofindia.co.in', 'rbi.org.in', 'npci.org.in',
-                'fraudshield.ltd'
-            ]);
-            const BANK_KEYWORDS = ['hdfc', 'sbi', 'icici', 'axis', 'kotak', 'pnb', 'bob', 'yesbank', 'idfc', 'indusind', 'pancard', 'kyc'];
-            const CHEAP_TLDS = ['.xyz', '.tk', '.ml', '.ga', '.cf', '.top', '.vip', '.info', '.ltd', '.in.net', '.online', '.site', '.club'];
-
-            
-
-            const hasBankKeyword = BANK_KEYWORDS.some(kw => hostname.includes(kw));
-            const hasCheapTLD = CHEAP_TLDS.some(tld => hostname.endsWith(tld));
-
-            if (hasBankKeyword && hasCheapTLD) {
-                return res.status(200).json(safeResult({
-                    verdict: 'DANGEROUS',
-                    confidence: 99,
-                    scamType: 'Bank Spoofing / Typosquatting',
-                    analysis: 'This URL uses a cheap TLD combined with an Indian banking keyword, strongly indicating a phishing or typosquatting scam.',
-                    findings: ['Contains official bank keyword.', 'Ends with a high-risk/cheap TLD.', 'Bypassed Fast-Path Whitelist.'],
-                    whatToDo: ['Do not click or enter credentials.', 'Report to the bank immediately.'],
-                    evidenceSources: ['Bank-Spoofing Heuristic Engine']
-                }));
-            }
-        }
-    } catch(e) {}
-
     // Run fresh and retained-history reputation checks together.
     // ZERO-DOWNTIME B2B LOGIC: Try Direct Indexed Volume first.
     let historicalReputation = await directLocalLookup(text);
@@ -892,6 +825,7 @@ CRITICAL GUARDRAILS:
             geminiResult = liveSearchResult;
           }
         }
+        meterAiScanUsage('gemini');
         return res.status(200).json(safeResult(geminiResult));
       }
     } else {
@@ -904,7 +838,10 @@ CRITICAL GUARDRAILS:
         capMs: 2200,
         operation: (timeoutMs) => callGroq(GROQ_KEY, externalAnalysisText, checkType, GROQ_MODEL, knowledgeLine, timeoutMs)
       });
-      if (groqResult) return res.status(200).json(safeResult(groqResult));
+      if (groqResult) {
+        meterAiScanUsage('groq');
+        return res.status(200).json(safeResult(groqResult));
+      }
     } else {
       failedProviders.push({ provider: 'groq', errorCode: 'provider_not_configured' });
     }
@@ -915,7 +852,10 @@ CRITICAL GUARDRAILS:
         capMs: 2200,
         operation: (timeoutMs) => callAnthropic(ANTHROPIC_KEY, externalAnalysisText, checkType, ANTHROPIC_MODEL, knowledgeLine, timeoutMs)
       });
-      if (anthropicResult) return res.status(200).json(safeResult(anthropicResult));
+      if (anthropicResult) {
+        meterAiScanUsage('anthropic');
+        return res.status(200).json(safeResult(anthropicResult));
+      }
     } else {
       failedProviders.push({ provider: 'anthropic', errorCode: 'provider_not_configured' });
     }
@@ -926,7 +866,10 @@ CRITICAL GUARDRAILS:
         capMs: 1400,
         operation: (timeoutMs) => callOpenRouter(OPENROUTER_KEY, externalAnalysisText, checkType, knowledgeLine, timeoutMs)
       });
-      if (openRouterResult) return res.status(200).json(safeResult(openRouterResult));
+      if (openRouterResult) {
+        meterAiScanUsage('openrouter');
+        return res.status(200).json(safeResult(openRouterResult));
+      }
     } else {
       failedProviders.push({ provider: 'openrouter', errorCode: 'provider_not_configured' });
     }

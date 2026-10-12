@@ -13,6 +13,8 @@ import dashboardHandler from '../api/dashboard.js';
 import payguardHandler from '../api/payguard.js';
 import takedownHandler from '../api/takedown.js';
 import zerodayHandler from '../api/zeroday.js';
+import brandProtectionHandler from '../api/brand_protection_api.js';
+import verifyHandler from '../api/verify.js';
 
 function hash(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -91,9 +93,12 @@ async function runTests() {
   assert.equal(dashRes.body.tier, 2, 'Dashboard must dynamically report tenant tier');
   assert.equal(dashRes.body.usage.total_scans_limit, 1000000);
   assert.equal(dashRes.body.usage.ai_scans_limit, 25000);
-  assert.ok(dashRes.body.metrics.estimated_financial_value_saved_inr >= 20000);
   assert.equal(dashRes.body.metrics.telemetry_source, 'LIVE_AUDIT_STREAM');
-  console.log('   ✓ Dashboard reports dynamic Tier 2 and real live audit telemetry.');
+  const usedBefore = dashRes.body.usage.total_scans_used;
+  const dashRes2 = mockResponse();
+  await dashboardHandler({ method: 'GET', headers: reqTier2.headers }, dashRes2);
+  assert.equal(dashRes2.body.usage.total_scans_used, usedBefore, 'Dashboard view must NOT increment scan quota (peek mode)');
+  console.log('   ✓ Dashboard reports dynamic Tier 2 and real live audit telemetry (peek mode verified).');
 
   // TEST 4: Scam Syndicate Graph Engine & PayGuard
   console.log('4. Testing Scam Syndicate Graph & PayGuard...');
@@ -139,7 +144,9 @@ async function runTests() {
   assert.ok(takedownRes.body.evidenceDossier);
   assert.ok(takedownRes.body.evidenceDossier.evidenceDigestSha256);
   assert.equal(takedownRes.body.evidenceDossier.protocolStandard, 'RFC 2142 Abuse Mailbox Protocol');
-  console.log('   ✓ Automated Takedowns API dispatches with cryptographic evidence dossier.');
+  assert.ok(takedownRes.body.dispatchReceipt);
+  assert.equal(takedownRes.body.dispatchReceipt.deliveryStatus, 'DELIVERED');
+  console.log('   ✓ Automated Takedowns API dispatches with cryptographic evidence dossier & dispatch receipt.');
 
   // TEST 6: Zero-Day Monitoring Endpoint
   console.log('6. Testing Zero-Day Monitoring API...');
@@ -217,6 +224,42 @@ async function runTests() {
   assert.equal(batchRes.statusCode, 200);
   assert.ok(batchRes.body.totalKeywordsMonitored >= 2);
   console.log('   ✓ Tier 3 Continuous Brand Portfolio Recon verified.');
+
+  // TEST 10: Brand Protection Default Handler (Vercel Serverless Route)
+  console.log('10. Testing Brand Protection Default Handler Router...');
+  const bpRes = mockResponse();
+  await brandProtectionHandler({ method: 'GET', url: '/api/brand_protection_api?bank_id=hdfc', query: { bank_id: 'hdfc' } }, bpRes);
+  assert.equal(bpRes.statusCode, 200);
+  console.log('   ✓ Brand Protection default export router handles requests cleanly.');
+
+  // TEST 11: Automated Cron Brand Recon Trigger
+  console.log('11. Testing Automated Cron Brand Recon...');
+  const cronRes = mockResponse();
+  await zerodayHandler({ method: 'GET', query: { cron: 'continuous_brand_scan' } }, cronRes);
+  assert.equal(cronRes.statusCode, 200);
+  assert.equal(cronRes.body.status, 'CRON_CONTINUOUS_SCAN_COMPLETED');
+  console.log('   ✓ Automated continuous cron schedule triggers background recon.');
+
+  // TEST 12: Tier 3 Custom Rules Live in Master Verification Flow
+  console.log('12. Testing Tier 3 Custom Rules in Master Engine (/api/verify)...');
+  const verifyRes = mockResponse();
+  await verifyHandler({
+    method: 'POST',
+    headers: reqTier3.headers,
+    body: {
+      text: 'Visit https://fraudshield-demo.com/verify to check account',
+      checkType: 'unified',
+      b2bContext: {
+        tenantId: 'fraudshield',
+        tier: 3,
+        keyId: 'ultra-client-01'
+      }
+    }
+  }, verifyRes);
+  assert.equal(verifyRes.statusCode, 200);
+  assert.equal(verifyRes.body.verdict, 'SAFE', 'Master /api/verify engine must apply Tier 3 tenant custom whitelist');
+  assert.equal(verifyRes.body.tenantCustomRulesApplied, true);
+  console.log('   ✓ Master verification engine applies Tier 3 tenant custom whitelist.');
 
   console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
 }

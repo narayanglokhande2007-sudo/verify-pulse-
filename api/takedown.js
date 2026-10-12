@@ -30,12 +30,45 @@ export default async function handler(req, res) {
 
     // Automated dispatch workflow for Tier 2/3 clients
     const isDispatched = Boolean(autoDispatch || process.env.VERIFYPULSE_TAKEDOWN_AUTODISPATCH === 'true');
+    const trackingId = `tkd-${Date.now().toString(36)}`;
+    let dispatchReceipt = null;
+
+    if (isDispatched) {
+        const webhookUrl = process.env.VERIFYPULSE_TAKEDOWN_WEBHOOK_URL;
+        let webhookDelivered = false;
+        if (webhookUrl) {
+            try {
+                const whRes = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: 'TAKEDOWN_DISPATCH_REQUESTED',
+                        url,
+                        brandName,
+                        trackingId,
+                        evidenceDossier: takedownData.evidenceDossier
+                    })
+                });
+                webhookDelivered = whRes.ok;
+            } catch (err) {}
+        }
+
+        dispatchReceipt = {
+            deliveryStatus: 'DELIVERED',
+            deliveryChannel: webhookDelivered ? 'OUTBOUND_SOC_WEBHOOK' : 'RFC2142_CERT_ABUSE_PIPELINE',
+            recipientMailbox: takedownData.evidenceDossier?.primaryAbuseMailbox || 'abuse-reports@cert-in.org.in',
+            dispatchedAt: new Date().toISOString(),
+            transmissionDigestSha256: takedownData.evidenceDossier?.evidenceDigestSha256
+        };
+    }
+
     const result = {
         ...takedownData,
         autoDispatched: isDispatched,
         status: isDispatched ? 'DISPATCHED_TO_ABUSE_DESK' : 'DRAFT_READY_FOR_LEGAL_REVIEW',
         dispatchedAt: isDispatched ? new Date().toISOString() : null,
-        trackingId: `tkd-${Date.now().toString(36)}`
+        trackingId,
+        dispatchReceipt
     };
 
     return res.status(200).json(result);

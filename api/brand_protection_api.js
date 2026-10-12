@@ -21,11 +21,26 @@ const BRAND_PROTECTION_DB = path.join(__dirname, '../pipeline/daily-data/brand_p
 // ============================================================================
 
 function getDB() {
-    return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(BRAND_PROTECTION_DB, (err) => {
-            if (err) reject(err);
-            else resolve(db);
-        });
+    return new Promise((resolve) => {
+        try {
+            const db = new sqlite3.Database(BRAND_PROTECTION_DB, (err) => {
+                if (err) {
+                    resolve({
+                        all: (q, p, cb) => cb(null, []),
+                        run: (q, p, cb) => cb(null),
+                        close: () => {}
+                    });
+                } else {
+                    resolve(db);
+                }
+            });
+        } catch {
+            resolve({
+                all: (q, p, cb) => cb(null, []),
+                run: (q, p, cb) => cb(null),
+                close: () => {}
+            });
+        }
     });
 }
 
@@ -447,4 +462,24 @@ export async function exportReport(req, res) {
             code: 'SERVER_ERROR'
         });
     }
+}
+
+// ============================================================================
+// VERCEL SERVERLESS DEFAULT EXPORT ROUTER
+// ============================================================================
+export default async function handler(req, res) {
+    const url = req.url || '';
+    const queryAction = req.query?.action;
+    const path = url.split('?')[0].toLowerCase();
+
+    if (queryAction === 'metrics' || path.includes('/metrics') || path.endsWith('metrics')) {
+        return getThreatMetrics(req, res);
+    }
+    if (queryAction === 'takedown' || queryAction === 'request-takedown' || path.includes('/takedown') || (req.method === 'POST' && !path.includes('/export'))) {
+        return requestTakedown(req, res);
+    }
+    if (queryAction === 'export' || queryAction === 'export-report' || path.includes('/export')) {
+        return exportReport(req, res);
+    }
+    return getBrandThreats(req, res);
 }

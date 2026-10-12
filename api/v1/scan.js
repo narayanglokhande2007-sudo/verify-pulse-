@@ -7,6 +7,7 @@ import {
   validateB2bApiKey,
 } from '../../lib/security_controls.js';
 import { emitB2bAuditEvent } from '../../lib/audit_events.js';
+import { checkB2BQuota } from '../../lib/quota_manager.js';
 
 function setApiSecurityHeaders(res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -86,12 +87,26 @@ export default async function handler(req, res) {
   }
 
   const identity = auth.identity;
+  const tier = auth.tier || identity.tier || 1;
   emitB2bAuditEvent({ type: 'b2b_authentication', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'allowed', statusCode: 200 });
   if (!authorizeB2bScope(auth, 'b2b:scan')) {
     emitB2bAuditEvent({ type: 'b2b_authorization', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'denied', statusCode: 403, scope: 'b2b:scan', errorCode: 'B2B_SCOPE_DENIED' });
     return res.status(403).json({ error: 'B2B_SCOPE_DENIED', message: 'This B2B API key is not authorised for scanning.' });
   }
   emitB2bAuditEvent({ type: 'b2b_authorization', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'allowed', statusCode: 200, scope: 'b2b:scan' });
+
+  // Enforce Monthly Scan Quota
+  const quota = await checkB2BQuota(identity.tenantId, tier);
+  if (!quota.allowed) {
+    emitB2bAuditEvent({ type: 'b2b_quota_exceeded', correlationId, tenantId: identity.tenantId, keyId: identity.keyId, outcome: 'denied', statusCode: 429, errorCode: 'QUOTA_EXCEEDED' });
+    return res.status(429).json({
+      error: 'QUOTA_EXCEEDED',
+      message: `Monthly API scan quota of ${quota.limit.toLocaleString()} exceeded for Tier ${tier}. Please upgrade your subscription.`,
+      tier,
+      used: quota.used,
+      limit: quota.limit
+    });
+  }
 
   try {
     const normalizedUrl = parsePublicHttpUrl(req.body?.url);
@@ -102,8 +117,23 @@ export default async function handler(req, res) {
     const masterEngineUrl = `${protocol}://${host}/api/verify`;
     const response = await fetch(masterEngineUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-VerifyPulse-Correlation-Id': correlationId },
-      body: JSON.stringify({ text: normalizedUrl, checkType: 'unified' }),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-VerifyPulse-Correlation-Id': correlationId,
+        'x-api-key': req.headers?.['x-api-key'] || req.headers?.authorization || '',
+        'x-verifypulse-tier': String(tier),
+        'x-verifypulse-tenant-id': String(identity.tenantId),
+        'x-verifypulse-key-id': String(identity.keyId || '')
+      },
+      body: JSON.stringify({
+        text: normalizedUrl,
+        checkType: 'unified',
+        b2bContext: {
+          tenantId: identity.tenantId,
+          tier,
+          keyId: identity.keyId
+        }
+      }),
     });
 
     if (!response.ok) {
@@ -121,6 +151,8 @@ export default async function handler(req, res) {
       confidence: masterResult.confidence || 0,
       message: masterResult.analysis || 'Analysis complete.',
       action_steps: masterResult.whatToDo || [],
+      tier,
+      quota_remaining: Math.max(0, quota.limit - quota.used)
     });
   } catch (error) {
     const isClientError = /required|HTTP\(S\)|credential-free|2,048/i.test(error.message);

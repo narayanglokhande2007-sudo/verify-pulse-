@@ -9,6 +9,21 @@ const zeroDayCache = new Map();
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 export default async function handler(req, res) {
+    // 0. Handle Automated Continuous Cron Schedule Trigger (Vercel Cron / CI Scheduler)
+    const isCron = req.headers?.['x-vercel-cron'] || req.query?.cron === 'continuous_brand_scan';
+    if (isCron) {
+        const cronReport = await executeContinuousBrandScan({
+            tenantId: 'automated_cron_system',
+            keywords: ['hdfcbank', 'fraudshield', 'sbi', 'icicibank'],
+            officialDomains: ['hdfcbank.com', 'fraudshield.com', 'sbi.co.in', 'icicibank.com']
+        });
+        return res.status(200).json({
+            status: 'CRON_CONTINUOUS_SCAN_COMPLETED',
+            executedAt: new Date().toISOString(),
+            report: cronReport
+        });
+    }
+
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     // 1. Validate Tier Authentication
