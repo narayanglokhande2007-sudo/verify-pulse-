@@ -22,7 +22,7 @@
     "pipeline/brand_protection.py":  "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
     "api/brand_protection_api.js":  "6bc964ffe72450172abfbfc27f0d33cf03c5d1a516295f948716131b35206732",
     "lib/url_forensics.js":  "9e5cddb30c814b240dd4f0615279141f7b391e81e6ca16c73f1477c274f37f2b",
-    "package.json":  "172a0b4e08057d7f7bbf83d4c50e97f8bef56ecc7df9df47a04a836779650463",
+    "package.json":  "d94f5e0b3134354a70a37578d0e38252e453dd59517e62b63f9c1788f41cef13",
     "pipeline/check_historical_reputation_index.py":  "83a12b7d08c4668982c0a338df918ee8d58798b418630927904cc4da63002418",
     "lib/shadow_evaluation.js":  "1baab9c8b4011910dce85556db7ab7f1894be474d5b4c506a4accb17ca89ffef",
     "pipeline/threat_intelligence_report.py":  "d8c54c33d59dae8269559a8a20413e84bc15811b6d33567c948945f59d89e77b",
