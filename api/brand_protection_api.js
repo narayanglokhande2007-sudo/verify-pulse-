@@ -501,14 +501,23 @@ export default async function handler(req, res) {
     const queryAction = req.query?.action;
     const path = url.split('?')[0].toLowerCase();
 
-    if (queryAction === 'metrics' || path.includes('/metrics') || path.endsWith('metrics')) {
+    if (req.method === 'GET' && (queryAction === 'metrics' || queryAction === 'dashboard' || path.includes('/metrics') || path.endsWith('metrics') || path.includes('/dashboard'))) {
         return getThreatMetrics(req, res);
     }
-    if (queryAction === 'takedown' || queryAction === 'request-takedown' || path.includes('/takedown') || (req.method === 'POST' && !path.includes('/export'))) {
+    if (req.method === 'GET' && (queryAction === 'threats' || path.includes('/threats') || (!queryAction && req.query?.bank_id))) {
+        return getBrandThreats(req, res);
+    }
+    if (req.method === 'POST' && (queryAction === 'takedown' || queryAction === 'request-takedown' || path.includes('/takedown'))) {
         return requestTakedown(req, res);
     }
-    if (queryAction === 'export' || queryAction === 'export-report' || path.includes('/export')) {
+    if (req.method === 'POST' && (queryAction === 'report-threat' || path.includes('/report-threat'))) {
+        return reportThreat(req, res);
+    }
+    if (req.method === 'GET' && (queryAction === 'export' || queryAction === 'export-report' || path.includes('/export'))) {
         return exportReport(req, res);
     }
-    return getBrandThreats(req, res);
+    return res.status(405).json({
+        error: 'METHOD_NOT_ALLOWED',
+        message: 'Use the documented HTTP method for this brand-protection endpoint.'
+    });
 }

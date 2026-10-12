@@ -138,15 +138,16 @@ async function runTests() {
   }, takedownRes);
 
   assert.equal(takedownRes.statusCode, 200);
-  assert.equal(takedownRes.body.autoDispatched, true);
-  assert.equal(takedownRes.body.status, 'DISPATCHED_TO_ABUSE_DESK');
+  assert.equal(takedownRes.body.dispatchRequested, true);
+  assert.equal(takedownRes.body.autoDispatched, false, 'No delivery receipt must not be reported as dispatched');
+  assert.equal(takedownRes.body.status, 'DRAFT_READY_FOR_LEGAL_REVIEW');
   assert.ok(takedownRes.body.trackingId.startsWith('tkd-'));
   assert.ok(takedownRes.body.evidenceDossier);
   assert.ok(takedownRes.body.evidenceDossier.evidenceDigestSha256);
   assert.equal(takedownRes.body.evidenceDossier.protocolStandard, 'RFC 2142 Abuse Mailbox Protocol');
   assert.ok(takedownRes.body.dispatchReceipt);
-  assert.equal(takedownRes.body.dispatchReceipt.deliveryStatus, 'DELIVERED');
-  console.log('   ✓ Automated Takedowns API dispatches with cryptographic evidence dossier & dispatch receipt.');
+  assert.equal(takedownRes.body.dispatchReceipt.deliveryStatus, 'NOT_DELIVERED');
+  console.log('   ✓ Takedown requests never claim delivery without a successful outbound receipt.');
 
   // TEST 6: Zero-Day Monitoring Endpoint
   console.log('6. Testing Zero-Day Monitoring API...');
@@ -198,7 +199,7 @@ async function runTests() {
     ...JSON.parse(process.env.VERIFYPULSE_B2B_KEY_REGISTRY),
     {
       keyId: 'ultra-client-01',
-      tenantId: 'ultra-bank',
+      tenantId: 'fraudshield',
       tier: 3,
       sha256: hash(keyTier3),
       scopes: ['b2b:scan', 'b2b:zeroday', 'b2b:payguard', 'b2b:takedown', 'b2b:continuous_monitor'],

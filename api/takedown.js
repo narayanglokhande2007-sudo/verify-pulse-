@@ -29,11 +29,11 @@ export default async function handler(req, res) {
     }
 
     // Automated dispatch workflow for Tier 2/3 clients
-    const isDispatched = Boolean(autoDispatch || process.env.VERIFYPULSE_TAKEDOWN_AUTODISPATCH === 'true');
+    const dispatchRequested = Boolean(autoDispatch || process.env.VERIFYPULSE_TAKEDOWN_AUTODISPATCH === 'true');
     const trackingId = `tkd-${Date.now().toString(36)}`;
     let dispatchReceipt = null;
 
-    if (isDispatched) {
+    if (dispatchRequested) {
         const webhookUrl = process.env.VERIFYPULSE_TAKEDOWN_WEBHOOK_URL;
         let webhookDelivered = false;
         if (webhookUrl) {
@@ -54,19 +54,25 @@ export default async function handler(req, res) {
         }
 
         dispatchReceipt = {
-            deliveryStatus: 'DELIVERED',
-            deliveryChannel: webhookDelivered ? 'OUTBOUND_SOC_WEBHOOK' : 'RFC2142_CERT_ABUSE_PIPELINE',
+            deliveryStatus: webhookDelivered ? 'DELIVERED' : 'NOT_DELIVERED',
+            deliveryChannel: webhookDelivered ? 'OUTBOUND_SOC_WEBHOOK' : 'NONE',
             recipientMailbox: takedownData.evidenceDossier?.primaryAbuseMailbox || 'abuse-reports@cert-in.org.in',
-            dispatchedAt: new Date().toISOString(),
-            transmissionDigestSha256: takedownData.evidenceDossier?.evidenceDigestSha256
+            dispatchedAt: webhookDelivered ? new Date().toISOString() : null,
+            transmissionDigestSha256: takedownData.evidenceDossier?.evidenceDigestSha256,
+            deliveryReason: webhookDelivered
+                ? 'The configured outbound webhook accepted the takedown request.'
+                : 'No successful outbound delivery receipt was obtained; the evidence dossier remains available for review or configured dispatch.'
         };
     }
 
     const result = {
         ...takedownData,
-        autoDispatched: isDispatched,
-        status: isDispatched ? 'DISPATCHED_TO_ABUSE_DESK' : 'DRAFT_READY_FOR_LEGAL_REVIEW',
-        dispatchedAt: isDispatched ? new Date().toISOString() : null,
+        dispatchRequested,
+        autoDispatched: dispatchReceipt?.deliveryStatus === 'DELIVERED',
+        status: dispatchReceipt?.deliveryStatus === 'DELIVERED'
+            ? 'DISPATCHED_TO_ABUSE_DESK'
+            : 'DRAFT_READY_FOR_LEGAL_REVIEW',
+        dispatchedAt: dispatchReceipt?.deliveryStatus === 'DELIVERED' ? dispatchReceipt.dispatchedAt : null,
         trackingId,
         dispatchReceipt
     };

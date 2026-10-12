@@ -63,18 +63,37 @@ export default async function handler(req, res) {
   let shadowIntentForensics = null;
   let shadowUrlForensics = null;
 
-  // Resolve B2B Tenant Identity & Tier (Forwarded from /api/v1/scan or direct B2B header)
-  let b2bTenantId = req.headers?.['x-verifypulse-tenant-id'] || req.body?.b2bContext?.tenantId || null;
-  let b2bTier = Number(req.headers?.['x-verifypulse-tier'] || req.body?.b2bContext?.tier || 0);
+  // Resolve B2B Tenant Identity only from a validated API key. Forwarded
+  // headers are accepted for the internal /api/v1/scan hop, which already
+  // authenticated the request and reserved its total quota unit.
+  let b2bTenantId = null;
+  let b2bTier = 0;
+  const forwardedTenantId = req.headers?.['x-verifypulse-tenant-id'] || req.body?.b2bContext?.tenantId || null;
+  const forwardedTier = Number(req.headers?.['x-verifypulse-tier'] || req.body?.b2bContext?.tier || 0);
+  try {
+    const directAuth = validateB2bApiKey(req);
+    if (directAuth && directAuth.allowed) {
+      b2bTenantId = directAuth.identity?.tenantId || forwardedTenantId;
+      b2bTier = directAuth.tier || directAuth.identity?.tier || forwardedTier || 1;
+    } else if (req.headers?.['x-verifypulse-quota-metered'] === '1' && forwardedTenantId) {
+      // This marker is set only by the authenticated internal B2B scan hop.
+      b2bTenantId = forwardedTenantId;
+      b2bTier = forwardedTier || 1;
+    }
+  } catch {}
 
-  if (!b2bTenantId && (req.headers?.['x-api-key'] || req.headers?.authorization)) {
-    try {
-      const directAuth = validateB2bApiKey(req);
-      if (directAuth && directAuth.allowed) {
-        b2bTenantId = directAuth.identity?.tenantId || null;
-        b2bTier = directAuth.tier || directAuth.identity?.tier || 1;
-      }
-    } catch {}
+  const quotaAlreadyMetered = req.headers?.['x-verifypulse-quota-metered'] === '1';
+  if (b2bTenantId && !quotaAlreadyMetered) {
+    const quota = await checkB2BQuota(b2bTenantId, b2bTier);
+    if (!quota.allowed) {
+      return res.status(429).json({
+        error: 'QUOTA_EXCEEDED',
+        message: `Monthly API scan quota of ${quota.limit.toLocaleString()} exceeded for Tier ${quota.tier}.`,
+        tier: quota.tier,
+        used: quota.used,
+        limit: quota.limit
+      });
+    }
   }
 
   function meterAiScanUsage(provider) {
