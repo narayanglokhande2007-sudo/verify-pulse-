@@ -123,7 +123,10 @@ export default async function handler(req, res) {
         'x-api-key': req.headers?.['x-api-key'] || req.headers?.authorization || '',
         'x-verifypulse-tier': String(tier),
         'x-verifypulse-tenant-id': String(identity.tenantId),
-        'x-verifypulse-key-id': String(identity.keyId || '')
+        'x-verifypulse-key-id': String(identity.keyId || ''),
+        // The outer B2B endpoint has already reserved one total scan quota unit.
+        // The master engine must not count the same request a second time.
+        'x-verifypulse-quota-metered': '1'
       },
       body: JSON.stringify({
         text: normalizedUrl,

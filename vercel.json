@@ -65,7 +65,7 @@
   "rewrites": [
     {
       "source": "/api/brand-protection/dashboard",
-      "destination": "/api/brand_protection_api?action=threats"
+      "destination": "/api/brand_protection_api?action=dashboard"
     },
     {
       "source": "/api/brand-protection/threats",

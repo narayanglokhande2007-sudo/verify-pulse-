@@ -29,13 +29,15 @@
     "test:daily-workflow-safety": "node tests/run_daily_workflow_safety.mjs",
     "test:seo-canonical": "node tests/run_seo_canonical_config.mjs",
     "test:enterprise": "node tests/run_enterprise_tiers_verification.mjs",
-    "test": "npm run test:daily-workflow-safety && npm run test:seo-canonical && npm run test:india-regression && npm run test:url-forensics && npm run test:intent-forensics && npm run test:decision-calibration && npm run test:shadow-evaluation && npm run test:b2b-access-controls && npm run test:threat-intelligence && npm run test:historical-reputation && npm run test:historical-index-full && npm run test:request-budget && npm run test:provider-router-config && npm run test:google-reputation && npm run test:input-controls && npm run test:verdict-contract && npm run test:inline-scripts && npm run test:scan-journey-ui && npm run test:pulsecore-reliability && npm run test:pulsecore-ui-resilience && npm run test:trust-center-pages && npm run test:status-endpoint && npm run test:scan-reliability && npm run test:enterprise"
+    "test:deployment-readiness": "node tests/run_deployment_readiness.mjs",
+    "test": "npm run test:daily-workflow-safety && npm run test:seo-canonical && npm run test:india-regression && npm run test:url-forensics && npm run test:intent-forensics && npm run test:decision-calibration && npm run test:shadow-evaluation && npm run test:b2b-access-controls && npm run test:threat-intelligence && npm run test:historical-reputation && npm run test:historical-index-full && npm run test:request-budget && npm run test:provider-router-config && npm run test:google-reputation && npm run test:input-controls && npm run test:verdict-contract && npm run test:inline-scripts && npm run test:scan-journey-ui && npm run test:pulsecore-reliability && npm run test:pulsecore-ui-resilience && npm run test:trust-center-pages && npm run test:status-endpoint && npm run test:scan-reliability && npm run test:enterprise && npm run test:deployment-readiness"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
     "node-fetch": "^2.7.0",
-    "puppeteer-core": "^25.8.0"
+    "puppeteer-core": "^25.8.0",
+    "redis": "^4.7.1"
   }
 }
