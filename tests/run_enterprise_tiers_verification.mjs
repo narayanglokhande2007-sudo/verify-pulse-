@@ -16,6 +16,7 @@ import zerodayHandler from '../api/zeroday.js';
 import brandProtectionHandler from '../api/brand_protection_api.js';
 import verifyHandler from '../api/verify.js';
 import billingHandler from '../api/billing.js';
+import { analyzeFinancialThreats } from '../lib/financial_forensics.js';
 
 function hash(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -276,6 +277,13 @@ async function runTests() {
   assert.equal(orderRes.body.amount, 2500000);
   assert.equal(orderRes.body.tierName, 'Tier 1: Standard');
   console.log('   ✓ Unified Billing Gateway handles subscription checkout safely.');
+
+  // TEST 14: Tier 2 Financial Forensics Null-Safety & Extraction
+  console.log('14. Testing Tier 2 Financial Forensics Engine...');
+  const nullTextThreat = analyzeFinancialThreats(null, ['https://bank-fake.com/rewards.apk']);
+  assert.equal(nullTextThreat.hasApkDrop, true);
+  assert.deepEqual(nullTextThreat.upiIds, []);
+  console.log('   ✓ Financial Forensics handles null text and extracts APK threats safely.');
 
   console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
 }
