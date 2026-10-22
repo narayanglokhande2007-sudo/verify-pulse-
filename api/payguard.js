@@ -2,28 +2,70 @@
 // VerifyPulse Tier 3: Real-Time Transaction Firewall (PayGuard)
 // Deep Integration API for NBFCs and Payment Gateways to intercept payments to scammers.
 
-import { validateB2bApiKey } from '../lib/security_controls.js';
+import { validateB2bApiKey, authorizeB2bScope, enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
 import { querySyndicateGraph } from '../lib/syndicate_graph.js';
+import { checkB2BQuota } from '../lib/quota_manager.js';
 import crypto from 'node:crypto';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    // 1. Validate Tier Authentication (Tier 2 Pro & Tier 3 Ultra feature)
+    // 1. Rate Limiting Protection (Prevent automated DoS or graph exhaustion attacks)
+    const rateLimit = enforceRateLimit(req, { scope: 'b2b:payguard', limit: 120, windowMs: 60000 });
+    if (typeof setRateLimitHeaders === 'function' && typeof res.setHeader === 'function') {
+        setRateLimitHeaders(res, rateLimit);
+    }
+    if (!rateLimit.allowed) {
+        return res.status(429).json({
+            error: 'RATE_LIMITED',
+            message: 'Too many transaction screening requests. Please slow down.'
+        });
+    }
+
+    // 2. Validate Tier Authentication (Tier 2 Pro & Tier 3 Ultra feature)
     const authResult = validateB2bApiKey(req);
-    if (!authResult.valid) {
+    if (!authResult || !authResult.valid) {
         return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Valid B2B API key required.' });
+    }
+
+    // Authorize Scope: Must have 'b2b:payguard', 'b2b:scan', or wildcard '*'
+    const hasScope = authorizeB2bScope(authResult, 'b2b:payguard') || authorizeB2bScope(authResult, 'b2b:scan');
+    if (!hasScope) {
+        return res.status(403).json({
+            error: 'INSUFFICIENT_SCOPE',
+            message: 'API key does not have the required b2b:payguard scope.'
+        });
     }
     
     // Tier check: Available to Pro (Tier 2) and Ultra (Tier 3)
-    if (authResult.tier < 2) {
+    const tier = authResult.tier || authResult.identity?.tier || 1;
+    if (tier < 2) {
         return res.status(403).json({ 
             error: 'UPGRADE_REQUIRED', 
             message: 'VerifyPulse PayGuard & Scam Syndicate Graph is available on Tier 2 (Pro) or higher.' 
         });
     }
 
-    const { transactionId, amount, receiverUpi, receiverPhone, receiverIfsc } = req.body;
+    // 3. Enforce B2B Quota Metering (Loophole 15 Hardening)
+    const tenantId = authResult.identity?.tenantId || 'anonymous_tenant';
+    const quota = await checkB2BQuota(tenantId, tier);
+    if (!quota.allowed) {
+        return res.status(429).json({
+            error: 'QUOTA_EXCEEDED',
+            message: 'Monthly B2B transaction screening quota exhausted. Please upgrade or contact support.'
+        });
+    }
+
+    // 4. Safe Payload Extraction & Null-Safety Guard (Loophole 14 Hardening)
+    const body = typeof req.body === 'string'
+        ? (() => { try { return JSON.parse(req.body); } catch { return {}; } })()
+        : (req.body || {});
+
+    const transactionId = body.transactionId ? String(body.transactionId).trim().slice(0, 100) : null;
+    const amount = body.amount !== undefined && body.amount !== null ? Number(body.amount) : null;
+    const receiverUpi = body.receiverUpi ? String(body.receiverUpi).trim().slice(0, 100) : null;
+    const receiverPhone = body.receiverPhone ? String(body.receiverPhone).trim().slice(0, 30) : null;
+    const receiverIfsc = body.receiverIfsc ? String(body.receiverIfsc).trim().toUpperCase().slice(0, 20) : null;
     
     if (!transactionId || (!receiverUpi && !receiverPhone && !receiverIfsc)) {
         return res.status(400).json({ 
@@ -32,7 +74,7 @@ export default async function handler(req, res) {
         });
     }
 
-    // 2. Real-Time Risk Scoring Engine
+    // 5. Real-Time Risk Scoring Engine
     let riskScore = 0;
     let flags = [];
     let syndicateDetails = null;
@@ -86,7 +128,7 @@ export default async function handler(req, res) {
         };
     }
 
-    // 3. Verdict Calculation
+    // 6. Verdict Calculation
     riskScore = Math.min(riskScore, 100);
     let action = 'ALLOW';
     
@@ -96,7 +138,7 @@ export default async function handler(req, res) {
         action = 'REVIEW';
     }
 
-    // 4. Respond in milliseconds to the NBFC Payment Gateway
+    // 7. Respond in milliseconds to the NBFC Payment Gateway
     return res.status(200).json({
         transactionId,
         evaluatedAt: new Date().toISOString(),
