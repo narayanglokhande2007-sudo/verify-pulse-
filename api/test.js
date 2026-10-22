@@ -1,13 +1,31 @@
+import crypto from 'node:crypto';
 import { sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+import { enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
+
+function verifyMetaSignature(rawBody, headerSignature, secret) {
+  if (!secret) return true;
+  if (!headerSignature || typeof headerSignature !== 'string') return false;
+  const parts = headerSignature.split('=');
+  if (parts.length !== 2 || parts[0] !== 'sha256') return false;
+  try {
+    const expectedHash = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+    const expectedBuf = Buffer.from(parts[1], 'hex');
+    const actualBuf = Buffer.from(expectedHash, 'hex');
+    if (expectedBuf.length !== actualBuf.length) return false;
+    return crypto.timingSafeEqual(expectedBuf, actualBuf);
+  } catch {
+    return false;
+  }
+}
 
 export default async function handler(req, res) {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
   const MY_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER || '';
 
   if (req.method === 'GET') {
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
+    const mode = req.query?.['hub.mode'];
+    const token = req.query?.['hub.verify_token'];
+    const challenge = req.query?.['hub.challenge'];
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
       return res.status(200).send(challenge);
     }
@@ -15,6 +33,25 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
+    // Rate Limiting Protection (Prevent automated DoS / Groq quota drain)
+    const rateLimit = enforceRateLimit(req, { scope: 'whatsapp_bot', limit: 30, windowMs: 60000 });
+    if (typeof setRateLimitHeaders === 'function' && typeof res.setHeader === 'function') {
+      setRateLimitHeaders(res, rateLimit);
+    }
+    if (!rateLimit.allowed) {
+      return res.status(429).json({ error: 'RATE_LIMITED', message: 'Too many requests. Please slow down.' });
+    }
+
+    // Meta Webhook Signature Verification (Prevent unauthorized fake message injection)
+    const appSecret = process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
+    if (appSecret) {
+      const rawPayload = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+      const sigHeader = req.headers?.['x-hub-signature-256'];
+      if (!sigHeader || !verifyMetaSignature(rawPayload, sigHeader, appSecret)) {
+        return res.status(401).json({ error: 'UNAUTHORIZED_WEBHOOK', message: 'Invalid or missing Meta WhatsApp signature.' });
+      }
+    }
+
     let from;
     try {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -25,6 +62,11 @@ export default async function handler(req, res) {
       }
 
       from = message.from;
+      // Sender Phone Number Validation (digits only, valid length)
+      if (typeof from !== 'string' || !/^\+?[0-9]{7,20}$/.test(from.trim())) {
+        return res.status(200).send('ok');
+      }
+
       let userText = '';
       if (message.type === 'text') {
         userText = message.text?.body || '';
@@ -33,6 +75,12 @@ export default async function handler(req, res) {
       }
 
       if (!userText) return res.status(200).send('ok');
+
+      // Input length protection against ReDoS / excessive token consumption
+      if (userText.length > 4000) {
+        await sendWhatsAppMessage(from, '⚠️ Message too long. Please send text under 4,000 characters.');
+        return res.status(200).send('ok');
+      }
 
       // Commands handle karna
       if (userText.startsWith('/start')) {
