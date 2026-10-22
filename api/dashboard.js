@@ -12,13 +12,27 @@ export default async function handler(req, res) {
     setRateLimitHeaders(res, rateLimit);
     if (!rateLimit.allowed) return res.status(429).json({ error: 'RATE_LIMITED' });
 
+    // Parse keyId if passed combined in x-api-key or Authorization header (e.g. "keyId:apiKey" or "keyId.apiKey")
+    if (req.headers && !req.headers['x-verifypulse-key-id']) {
+        const rawApiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace(/^Bearer\s+/i, '') || '';
+        if (rawApiKey.includes(':')) {
+            const [kId, ...secretParts] = rawApiKey.split(':');
+            req.headers['x-verifypulse-key-id'] = kId.trim();
+            req.headers['x-api-key'] = secretParts.join(':').trim();
+        } else if (rawApiKey.includes('.') && rawApiKey.startsWith('key_')) {
+            const [kId, ...secretParts] = rawApiKey.split('.');
+            req.headers['x-verifypulse-key-id'] = kId.trim();
+            req.headers['x-api-key'] = secretParts.join('.').trim();
+        }
+    }
+
     // Authenticate the Client
     const authResult = validateB2bApiKey(req);
     if (!authResult || !authResult.allowed) {
-        return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Invalid or missing API Key.' });
+        return res.status(401).json({ error: 'UNAUTHORIZED', message: authResult?.message || 'Invalid or missing API Key.' });
     }
 
-    const tenantId = authResult.identity.tenantId;
+    const tenantId = authResult.identity?.tenantId || 'enterprise';
     const tier = authResult.tier || authResult.identity?.tier || 1;
     
     // Fetch live usage & telemetry (peek mode: does not increment quota)

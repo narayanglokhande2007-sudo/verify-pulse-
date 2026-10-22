@@ -80,9 +80,10 @@
             <h1 class="text-2xl font-bold text-vptext">VerifyPulse Business</h1>
             <p class="text-vpmuted mt-1 text-sm font-medium">Enterprise Intelligence Hub</p>
         </div>
-        <div class="space-y-5">
+        <div class="space-y-4">
             <div>
-                <input type="password" id="api-key-input" placeholder="Enter Secure Access Key..." class="w-full px-5 py-4 glass-input rounded-xl focus:outline-none text-vptext font-medium text-center tracking-widest placeholder-gray-400">
+                <input type="text" id="key-id-input" placeholder="Key ID (e.g., key_...) - optional" class="w-full px-5 py-3 glass-input rounded-xl focus:outline-none text-vptext font-medium text-center text-sm placeholder-gray-400 mb-2">
+                <input type="password" id="api-key-input" placeholder="Enter API Key or keyId:secret..." class="w-full px-5 py-4 glass-input rounded-xl focus:outline-none text-vptext font-medium text-center tracking-widest placeholder-gray-400">
             </div>
             <button onclick="login()" class="w-full vp-gradient-bg hover:opacity-90 text-white font-semibold py-4 px-4 rounded-xl transition-all shadow-lg shadow-blue-500/30">
                 Authenticate Securely
@@ -182,22 +183,31 @@
         // Check Auth on Load
         window.onload = () => {
             const token = localStorage.getItem('vp_api_key');
+            const keyId = localStorage.getItem('vp_key_id') || '';
             if (token) {
-                loadDashboard(token);
+                loadDashboard(token, keyId);
             }
+            // Enter key shortcut
+            const bindEnter = (id) => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+            };
+            bindEnter('api-key-input');
+            bindEnter('key-id-input');
         };
 
         async function login() {
-            const input = document.getElementById('api-key-input').value.trim();
+            const rawKey = document.getElementById('api-key-input').value.trim();
+            const keyIdInput = document.getElementById('key-id-input')?.value.trim() || '';
             const err = document.getElementById('auth-error');
-            if(!input) { err.textContent = "Please enter your Access Key"; err.classList.remove('hidden'); return; }
+            if(!rawKey) { err.textContent = "Please enter your Access Key"; err.classList.remove('hidden'); return; }
             
-            const btn = document.querySelector('button');
+            const btn = document.querySelector('#auth-screen button');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
             btn.classList.add('opacity-80');
             
-            await loadDashboard(input);
+            await loadDashboard(rawKey, keyIdInput);
             
             btn.innerHTML = originalText;
             btn.classList.remove('opacity-80');
@@ -205,23 +215,43 @@
 
         function logout() {
             localStorage.removeItem('vp_api_key');
+            localStorage.removeItem('vp_key_id');
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('auth-screen').classList.remove('hidden');
             document.body.classList.replace('items-start', 'items-center');
             document.getElementById('api-key-input').value = '';
+            if (document.getElementById('key-id-input')) document.getElementById('key-id-input').value = '';
         }
 
-        async function loadDashboard(token) {
+        async function loadDashboard(token, optionalKeyId = '') {
             const err = document.getElementById('auth-error');
             try {
-                const res = await fetch('/api/dashboard', {
-                    headers: { 'x-api-key': token }
-                });
+                let keyId = optionalKeyId || localStorage.getItem('vp_key_id') || '';
+                let apiKey = token.trim();
+
+                // Intelligently parse combined "keyId:secret" or "keyId.secret"
+                if (apiKey.includes(':')) {
+                    const parts = apiKey.split(':');
+                    keyId = parts[0].trim();
+                    apiKey = parts.slice(1).join(':').trim();
+                } else if (apiKey.includes('.') && apiKey.startsWith('key_')) {
+                    const parts = apiKey.split('.');
+                    keyId = parts[0].trim();
+                    apiKey = parts.slice(1).join('.').trim();
+                }
+
+                const headers = { 'x-api-key': apiKey };
+                if (keyId) {
+                    headers['x-verifypulse-key-id'] = keyId;
+                }
+
+                const res = await fetch('/api/dashboard', { headers });
                 const data = await res.json();
 
                 if(res.status === 401) {
                     localStorage.removeItem('vp_api_key');
-                    err.textContent = "Invalid or Expired Security Key.";
+                    localStorage.removeItem('vp_key_id');
+                    err.textContent = data.message || "Invalid or Expired Security Key.";
                     err.classList.remove('hidden');
                     document.getElementById('dashboard-screen').classList.add('hidden');
                     document.getElementById('auth-screen').classList.remove('hidden');
@@ -231,7 +261,8 @@
                 if(!res.ok) throw new Error(data.message || 'Server error');
 
                 // Success! Save token and show dashboard
-                localStorage.setItem('vp_api_key', token);
+                localStorage.setItem('vp_api_key', apiKey);
+                if (keyId) localStorage.setItem('vp_key_id', keyId);
                 err.classList.add('hidden');
                 
                 // Switch screens smoothly
