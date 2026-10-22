@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import crypto, { randomUUID } from 'crypto';
 import {
   authorizeB2bScope,
   enforceRateLimit,
@@ -126,7 +126,11 @@ export default async function handler(req, res) {
         'x-verifypulse-key-id': String(identity.keyId || ''),
         // The outer B2B endpoint has already reserved one total scan quota unit.
         // The master engine must not count the same request a second time.
-        'x-verifypulse-quota-metered': '1'
+        'x-verifypulse-quota-metered': '1',
+        'x-verifypulse-internal-hop-signature': crypto
+          .createHmac('sha256', process.env.INTERNAL_HOP_SECRET || 'vp_internal_bridge_secret_deterministic')
+          .update(`${identity.tenantId}:${correlationId}`)
+          .digest('hex')
       },
       body: JSON.stringify({
         text: normalizedUrl,
