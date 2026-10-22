@@ -146,6 +146,50 @@ async function runTests() {
     assert.equal(res7.body.error, 'SSRF_BLOCKED');
     console.log('   ✓ Test 7: Cloud metadata target blocked by SSRF guard (400)');
 
+    // Test 7b: SSRF Protection - Decimal IP Blocked (e.g. 2130706433 -> 127.0.0.1)
+    const res7b = mockRes();
+    await takedownHandler({
+        method: 'POST',
+        headers: proHeaders,
+        body: { url: 'http://2130706433/admin-portal' }
+    }, res7b);
+    assert.equal(res7b.statusCode, 400);
+    assert.equal(res7b.body.error, 'SSRF_BLOCKED');
+    console.log('   ✓ Test 7b: Decimal IP target blocked by SSRF guard (400)');
+
+    // Test 7c: SSRF Protection - Hex IP Blocked (e.g. 0x7f000001 -> 127.0.0.1)
+    const res7c = mockRes();
+    await takedownHandler({
+        method: 'POST',
+        headers: proHeaders,
+        body: { url: 'http://0x7f000001/status' }
+    }, res7c);
+    assert.equal(res7c.statusCode, 400);
+    assert.equal(res7c.body.error, 'SSRF_BLOCKED');
+    console.log('   ✓ Test 7c: Hex IP target blocked by SSRF guard (400)');
+
+    // Test 7d: SSRF Protection - Rebinding Domain Blocked (e.g. localtest.me)
+    const res7d = mockRes();
+    await takedownHandler({
+        method: 'POST',
+        headers: proHeaders,
+        body: { url: 'http://localtest.me/sensitive-data' }
+    }, res7d);
+    assert.equal(res7d.statusCode, 400);
+    assert.equal(res7d.body.error, 'SSRF_BLOCKED');
+    console.log('   ✓ Test 7d: Rebinding domain target blocked by SSRF guard (400)');
+
+    // Test 7e: SSRF Protection - IPv6 Loopback Blocked ([::1])
+    const res7e = mockRes();
+    await takedownHandler({
+        method: 'POST',
+        headers: proHeaders,
+        body: { url: 'http://[::1]:8080/metrics' }
+    }, res7e);
+    assert.equal(res7e.statusCode, 400);
+    assert.equal(res7e.body.error, 'SSRF_BLOCKED');
+    console.log('   ✓ Test 7e: IPv6 loopback target blocked by SSRF guard (400)');
+
     // Test 8: Protocol Validation - Non-HTTP blocked (Loophole 17)
     const res8 = mockRes();
     await takedownHandler({
