@@ -1,4 +1,14 @@
+import crypto from 'node:crypto';
 import { sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+import { enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
+
+function timingSafeMatch(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -7,6 +17,24 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Rate Limiting Protection (Prevent automated DoS / Groq quota drain)
+  const rateLimit = enforceRateLimit(req, { scope: 'telegram_bot', limit: 30, windowMs: 60000 });
+  if (typeof setRateLimitHeaders === 'function' && typeof res.setHeader === 'function') {
+    setRateLimitHeaders(res, rateLimit);
+  }
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'RATE_LIMITED', message: 'Too many requests. Please slow down.' });
+  }
+
+  // Webhook Secret Token Verification (Prevent unauthorized requests & forged updates)
+  const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (webhookSecret) {
+    const incomingToken = req.headers?.['x-telegram-bot-api-secret-token'];
+    if (!incomingToken || !timingSafeMatch(incomingToken, webhookSecret)) {
+      return res.status(401).json({ error: 'UNAUTHORIZED_WEBHOOK', message: 'Invalid or missing Telegram webhook secret token.' });
+    }
   }
 
   let body;
@@ -23,6 +51,13 @@ export default async function handler(req, res) {
 
   const chatId = message.chat.id;
   const userText = message.text.trim();
+
+  // Input length protection against ReDoS / excessive token consumption
+  if (userText.length > 4000) {
+    await sendTelegramMessage(chatId, '⚠️ Message too long. Please send text under 4,000 characters.');
+    return res.status(200).send('ok');
+  }
+
   const BOT_TOKEN = process.env.VERIFYPULSE_BOT_TOKEN;
   const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 

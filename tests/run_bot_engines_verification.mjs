@@ -75,6 +75,49 @@ async function runTests() {
     assert.equal(tgScanRes.sentText, 'ok');
     console.log('   ✓ Telegram scam scan completed cleanly without unhandled exception (200 ok)');
 
+    console.log('5b. Testing Telegram Webhook secret token enforcement...');
+    process.env.TELEGRAM_WEBHOOK_SECRET = 'tg_super_secret_webhook_token_999';
+    const tgNoAuthRes = mockRes();
+    await telegramHandler({
+        method: 'POST',
+        headers: {},
+        body: { message: { chat: { id: 12345 }, text: 'hello' } }
+    }, tgNoAuthRes);
+    assert.equal(tgNoAuthRes.statusCode, 401);
+    assert.equal(tgNoAuthRes.body.error, 'UNAUTHORIZED_WEBHOOK');
+
+    const tgWrongAuthRes = mockRes();
+    await telegramHandler({
+        method: 'POST',
+        headers: { 'x-telegram-bot-api-secret-token': 'wrong-token' },
+        body: { message: { chat: { id: 12345 }, text: 'hello' } }
+    }, tgWrongAuthRes);
+    assert.equal(tgWrongAuthRes.statusCode, 401);
+
+    const tgValidAuthRes = mockRes();
+    await telegramHandler({
+        method: 'POST',
+        headers: { 'x-telegram-bot-api-secret-token': 'tg_super_secret_webhook_token_999' },
+        body: { message: { chat: { id: 12345 }, text: '/start' } }
+    }, tgValidAuthRes);
+    assert.equal(tgValidAuthRes.statusCode, 200);
+    delete process.env.TELEGRAM_WEBHOOK_SECRET;
+    console.log('   ✓ Telegram webhook secret token validation enforced safely (401 on missing/wrong, 200 on valid)');
+
+    console.log('5c. Testing Telegram long input safety guard (> 4000 chars)...');
+    const tgLongRes = mockRes();
+    await telegramHandler({
+        method: 'POST',
+        body: {
+            message: {
+                chat: { id: 12345 },
+                text: 'A'.repeat(4500)
+            }
+        }
+    }, tgLongRes);
+    assert.equal(tgLongRes.statusCode, 200);
+    console.log('   ✓ Telegram over-long input safely guarded without crash (200 ok)');
+
     // ==========================================
     // 2. WhatsApp Bot Verification Tests (api/test.js)
     // ==========================================
