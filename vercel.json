@@ -64,6 +64,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/create_order",
+      "destination": "/api/billing?action=create_order"
+    },
+    {
+      "source": "/api/webhook",
+      "destination": "/api/billing?action=webhook"
+    },
+    {
       "source": "/api/brand-protection/dashboard",
       "destination": "/api/brand_protection_api?action=dashboard"
     },

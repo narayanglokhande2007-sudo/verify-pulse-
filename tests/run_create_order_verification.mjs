@@ -1,6 +1,6 @@
 // tests/run_create_order_verification.mjs
 import assert from 'node:assert/strict';
-import handler from '../api/create_order.js';
+import handler from '../api/billing.js';
 
 function mockRes() {
     return {

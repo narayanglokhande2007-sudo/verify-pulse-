@@ -15,7 +15,7 @@ import takedownHandler from '../api/takedown.js';
 import zerodayHandler from '../api/zeroday.js';
 import brandProtectionHandler from '../api/brand_protection_api.js';
 import verifyHandler from '../api/verify.js';
-import createOrderHandler from '../api/create_order.js';
+import billingHandler from '../api/billing.js';
 
 function hash(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -263,18 +263,19 @@ async function runTests() {
   assert.equal(verifyRes.body.tenantCustomRulesApplied, true);
   console.log('   ✓ Master verification engine applies Tier 3 tenant custom whitelist.');
 
-  // TEST 13: SaaS Order Creation (/api/create_order)
-  console.log('13. Testing SaaS Subscription Order Creation (/api/create_order)...');
+  // TEST 13: SaaS Order Creation & Unified Billing Gateway (/api/billing)
+  console.log('13. Testing SaaS Subscription Order Creation & Billing Gateway (/api/billing)...');
   const orderRes = mockResponse();
-  await createOrderHandler({
+  await billingHandler({
     method: 'POST',
+    query: { action: 'create_order' },
     headers: { 'x-forwarded-for': '127.0.0.1' },
     body: { tierId: 'standard', email: 'enterprise@corp.in', company: 'Corp' }
   }, orderRes);
   assert.equal(orderRes.statusCode, 200);
   assert.equal(orderRes.body.amount, 2500000);
   assert.equal(orderRes.body.tierName, 'Tier 1: Standard');
-  console.log('   ✓ SaaS Order Creation handles subscription checkout safely.');
+  console.log('   ✓ Unified Billing Gateway handles subscription checkout safely.');
 
   console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
 }
