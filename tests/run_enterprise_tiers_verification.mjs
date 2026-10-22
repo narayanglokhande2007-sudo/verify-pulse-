@@ -15,6 +15,7 @@ import takedownHandler from '../api/takedown.js';
 import zerodayHandler from '../api/zeroday.js';
 import brandProtectionHandler from '../api/brand_protection_api.js';
 import verifyHandler from '../api/verify.js';
+import createOrderHandler from '../api/create_order.js';
 
 function hash(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -261,6 +262,19 @@ async function runTests() {
   assert.equal(verifyRes.body.verdict, 'SAFE', 'Master /api/verify engine must apply Tier 3 tenant custom whitelist');
   assert.equal(verifyRes.body.tenantCustomRulesApplied, true);
   console.log('   ✓ Master verification engine applies Tier 3 tenant custom whitelist.');
+
+  // TEST 13: SaaS Order Creation (/api/create_order)
+  console.log('13. Testing SaaS Subscription Order Creation (/api/create_order)...');
+  const orderRes = mockResponse();
+  await createOrderHandler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '127.0.0.1' },
+    body: { tierId: 'standard', email: 'enterprise@corp.in', company: 'Corp' }
+  }, orderRes);
+  assert.equal(orderRes.statusCode, 200);
+  assert.equal(orderRes.body.amount, 2500000);
+  assert.equal(orderRes.body.tierName, 'Tier 1: Standard');
+  console.log('   ✓ SaaS Order Creation handles subscription checkout safely.');
 
   console.log('--- ALL ENTERPRISE TIERS VERIFIED AND PASSED SUCCESSFULLY ---');
 }
