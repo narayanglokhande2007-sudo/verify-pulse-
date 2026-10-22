@@ -6,7 +6,7 @@
     "lib/request_budget.js": "c9169e84da116f19ec2156f208e7d132a99215f76b852a735fc6aec9f070154a",
     "lib/historical_reputation.js": "f805fc779830df3cd62b50c51b8a3ed79d8b6b6a603cb1b0c7827075d4e48629",
     "pipeline/daily_fetcher_report.py": "6424bee7bc4b92a3a9cba564892556227d91febe2cba47ae8449e7e024b0879c",
-    "lib/security_controls.js": "2485b01e7842b9b2f4e330669971f8a95a152cf29c3a70c0e02c91cd5a2cad53",
+    "lib/security_controls.js": "02a6f15f4a7b654f34930fa6527642549dac93b5d91b135890fe7c1dfffdddfd",
     "pipeline/build_historical_reputation_index.py": "64f0396bdd56448c71a446077adc6617af1cc88f24cfc1504f4f9c3b4c3b63d2",
     "lib/decision_calibration.js": "19515cc45896eba61a72e280ed36be9328977b03fb67dd9da8704b4a78fc07f0",
     "pipeline/fetch_indian_bulk_scams.py": "c53cbe7c0000df4031b3fb64a9fb8c5192366272a7b735a461d071bbddc8b734",
