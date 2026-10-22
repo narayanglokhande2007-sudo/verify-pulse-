@@ -12,7 +12,7 @@
     "pipeline/fetch_indian_bulk_scams.py":  "c53cbe7c0000df4031b3fb64a9fb8c5192366272a7b735a461d071bbddc8b734",
     "pipeline/refresh_historical_reputation.py":  "eb822a445fe4d34e96ad2bd9ad9f7b118a9b493866599ca4b4fbcbea6f538e3e",
     "lib/intent_forensics.js":  "81d4c78959c07c61bba6dd1a5ffe9176a20912dfbee0e3560d546d9a774518c3",
-    "lib/db_helper.js":  "5a4779b5527eba0831215c139aa1f731b37cb0a28a54f613e130a6b57bbd41fa",
+    "lib/db_helper.js":  "892e2e9b0ef89b2a7fab9106a2a672452b7d32364052eff0af371f50dbdb0bd5",
     "api/v1/scan.js":  "79c987fe745de7e3a4576d2a461dc890bae07833ddd163b8bfa6d333938e51dd",
     "lib/threat_intelligence.js":  "5f1b7a6969d6619f54b3af6c9ad700e8e7c772ef4b5f8ebc1b0096840a30f630",
     "lib/ghost_agent.js":  "6d3ddd0ac073fd9e01b9984e9de5c467adf06b0a4a76a9f76c6678f6ca418043",
