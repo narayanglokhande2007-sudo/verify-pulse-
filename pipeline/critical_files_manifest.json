@@ -16,7 +16,7 @@
     "api/v1/scan.js":  "79c987fe745de7e3a4576d2a461dc890bae07833ddd163b8bfa6d333938e51dd",
     "lib/threat_intelligence.js":  "5f1b7a6969d6619f54b3af6c9ad700e8e7c772ef4b5f8ebc1b0096840a30f630",
     "lib/ghost_agent.js":  "6d3ddd0ac073fd9e01b9984e9de5c467adf06b0a4a76a9f76c6678f6ca418043",
-    "api/insurance_partnership_api.js":  "d222ce5fe3d27db95a1a244350367db15d9a5eb65d1a8661eaca389ae4fbeee7",
+    "api/insurance_partnership_api.js":  "180d12d8c53811ecb23e6d54ff15482863a7ca5bb5eaf843e3d18e3a55871b96",
     "pipeline/source_health_policy.py":  "4db3ebe3df48a560edb19c42f1e6b41539fc24a600ffa27e84868cd6e2e82cd7",
     "lib/ghost_agent_pooled.js":  "0e3fd94789dc5fda9a88ebe5e8e3415bb2d31113393b7e83e1d16e00262e76c1",
     "pipeline/brand_protection.py":  "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",

@@ -4,8 +4,17 @@
  * Manages insurance partnerships, referrals, revenue sharing, and customer onboarding.
  */
 
-import sqlite3Package from 'sqlite3';
-const sqlite3 = sqlite3Package.verbose();
+let sqlite3 = null;
+async function getSqlite() {
+    if (sqlite3) return sqlite3;
+    try {
+        const pkg = await import('sqlite3');
+        sqlite3 = (pkg.default || pkg).verbose();
+        return sqlite3;
+    } catch {
+        return null;
+    }
+}
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
@@ -16,13 +25,34 @@ const __dirname = dirname(__filename);
 
 const INSURANCE_DB = path.join(__dirname, '../pipeline/daily-data/insurance_partnerships.db');
 
+import { sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+
+function maskEmail(email) {
+    if (!email || typeof email !== 'string') return '[REDACTED_EMAIL]';
+    const parts = email.split('@');
+    if (parts.length !== 2) return '[REDACTED_EMAIL]';
+    const name = parts[0];
+    const domain = parts[1];
+    const visible = name.slice(0, Math.min(2, name.length));
+    return `${visible}***@${domain}`;
+}
+
+function maskName(name) {
+    if (!name || typeof name !== 'string') return '[REDACTED_NAME]';
+    const trimmed = name.trim();
+    if (trimmed.length <= 2) return `${trimmed[0]}*`;
+    return `${trimmed[0]}***${trimmed.slice(-1)}`;
+}
+
 // ============================================================================
 // DATABASE INITIALIZATION
 // ============================================================================
 
-export function initInsuranceDB() {
+export async function initInsuranceDB() {
+    const sqlEngine = await getSqlite();
+    if (!sqlEngine) return null;
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(INSURANCE_DB, (err) => {
+        const db = new sqlEngine.Database(INSURANCE_DB, (err) => {
             if (err) reject(err);
             else {
                 db.serialize(() => {
@@ -96,9 +126,13 @@ export function initInsuranceDB() {
     });
 }
 
-function getDB() {
+async function getDB() {
+    const sqlEngine = await getSqlite();
+    if (!sqlEngine) {
+        throw new Error('SQLite3 native driver not installed');
+    }
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(INSURANCE_DB, (err) => {
+        const db = new sqlEngine.Database(INSURANCE_DB, (err) => {
             if (err) reject(err);
             else resolve(db);
         });
@@ -134,11 +168,16 @@ export async function submitInquiry(req, res) {
         const db = await getDB();
         const inquiry_id = `INQ-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+        // Zero PII Ingestion & DPDP Act Data Minimization
+        const sanitizedMessage = sanitizeForExternalAnalysis(message);
+        const storedEmail = maskEmail(contact_email);
+        const storedContact = maskName(contact_name);
+
         db.run(`
             INSERT INTO partnership_inquiries 
             (id, company_name, contact_email, contact_name, company_type, policyholders_range, message, submitted_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [inquiry_id, company_name, contact_email, contact_name, company_type, policyholders_range, message, new Date().toISOString()],
+        `, [inquiry_id, company_name, storedEmail, storedContact, company_type, policyholders_range, sanitizedMessage, new Date().toISOString()],
         function(err) {
             db.close();
             if (err) {
@@ -173,6 +212,19 @@ export async function submitInquiry(req, res) {
  */
 export async function registerPartner(req, res) {
     try {
+        const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_API_KEY || process.env.VERIFYPULSE_ADMIN_KEY;
+        const authHeader = req.headers?.authorization || '';
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : (req.headers?.['x-admin-key'] || req.query?.admin_key);
+
+        const isAuthorized = adminSecret && token && token.length === adminSecret.length && crypto.timingSafeEqual(Buffer.from(token), Buffer.from(adminSecret));
+
+        if (!isAuthorized) {
+            return res.status(401).json({
+                error: 'UNAUTHORIZED',
+                message: 'Admin authorization required to register an insurance partner.'
+            });
+        }
+
         const { company_name, contact_email, contact_name, phone, company_type, tier, policyholders_count } = req.body;
 
         if (!company_name || !contact_email) {
@@ -236,6 +288,16 @@ export async function registerPartner(req, res) {
 export async function getPartnerDashboard(req, res) {
     try {
         const { partner_id } = req.params;
+        const authHeader = req.headers?.authorization || '';
+        const providedKey = req.headers?.['x-api-key'] || (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+        const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_API_KEY || process.env.VERIFYPULSE_ADMIN_KEY;
+
+        if (!providedKey) {
+            return res.status(401).json({
+                error: 'UNAUTHORIZED',
+                message: 'Valid partner API key or admin token required to access dashboard.'
+            });
+        }
 
         const db = await getDB();
 
@@ -250,6 +312,18 @@ export async function getPartnerDashboard(req, res) {
         }
 
         const partner = partners[0];
+
+        // Ensure caller is either the partner themselves (using partner.api_key) or the system admin
+        const isPartner = partner.api_key && providedKey.length === partner.api_key.length && crypto.timingSafeEqual(Buffer.from(providedKey), Buffer.from(partner.api_key));
+        const isAdmin = adminSecret && providedKey.length === adminSecret.length && crypto.timingSafeEqual(Buffer.from(providedKey), Buffer.from(adminSecret));
+
+        if (!isPartner && !isAdmin) {
+            db.close();
+            return res.status(401).json({
+                error: 'UNAUTHORIZED',
+                message: 'Valid partner API key or admin token required to access dashboard.'
+            });
+        }
 
         // Get active customers
         const customers = await runQuery(db, 
@@ -344,11 +418,15 @@ export async function referCustomer(req, res) {
 
         const customer_id = `CUST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+        // Zero PII Ingestion: Mask email & name on disk
+        const storedEmail = maskEmail(customer_email);
+        const storedName = maskName(customer_name);
+
         db.run(`
             INSERT INTO referred_customers 
             (id, partner_id, customer_email, customer_name, subscription_tier, referred_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        `, [customer_id, partner_id, customer_email, customer_name, subscription_tier || 'Growth', new Date().toISOString()],
+        `, [customer_id, partner_id, storedEmail, storedName, subscription_tier || 'Growth', new Date().toISOString()],
         function(err) {
             db.close();
             if (err) {
@@ -387,6 +465,19 @@ export async function referCustomer(req, res) {
  */
 export async function getInquiries(req, res) {
     try {
+        const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_API_KEY || process.env.VERIFYPULSE_ADMIN_KEY;
+        const authHeader = req.headers?.authorization || '';
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : (req.headers?.['x-admin-key'] || req.query?.admin_key);
+
+        const isAuthorized = adminSecret && token && token.length === adminSecret.length && crypto.timingSafeEqual(Buffer.from(token), Buffer.from(adminSecret));
+
+        if (!isAuthorized) {
+            return res.status(401).json({
+                error: 'UNAUTHORIZED',
+                message: 'Admin authorization required to access partnership inquiries.'
+            });
+        }
+
         const db = await getDB();
 
         const inquiries = await runQuery(db, 

@@ -1,3 +1,5 @@
+import { sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     return res.status(200).send('VerifyPulse Bot is running! 🚀');
@@ -25,13 +27,14 @@ export default async function handler(req, res) {
   const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
   try {
-    // ALL messages forward to admin
+    // ALL messages forward to admin (sanitized to prevent raw PII leak)
     if (ADMIN_CHAT_ID) {
       const user = message.from;
       const userName = user.first_name || 'Unknown';
       const userUsername = user.username ? '@' + user.username : '';
+      const safeAdminText = sanitizeForExternalAnalysis(userText);
       await sendTelegramMessage(ADMIN_CHAT_ID, 
-        '📩 Message from ' + userName + (userUsername ? ' (' + userUsername + ')' : '') + ':\n' + userText
+        '📩 Message from ' + userName + (userUsername ? ' (' + userUsername + ')' : '') + ':\n' + safeAdminText
       );
     }
 
@@ -73,12 +76,13 @@ async function sendTelegramMessage(chatId, text) {
 }
 
 async function scanInput(input) {
+  const cleanInput = sanitizeForExternalAnalysis(input);
   let checkType = 'scam';
-  if (input.startsWith('http://') || input.startsWith('https://')) checkType = 'url';
-  else if (/^[\d\s\-+()]{10,15}$/.test(input.replace(/[\s\-()]/g, ''))) checkType = 'phone';
-  else if (input.includes('@')) {
-    if (/@(okhdfc|oksbi|okicici|okaxis|paytm|upi)/i.test(input)) checkType = 'upi';
-    else if (/(Subject:|Dear|verify|login|password|account)/i.test(input)) checkType = 'phishing';
+  if (cleanInput.startsWith('http://') || cleanInput.startsWith('https://')) checkType = 'url';
+  else if (/^[\d\s\-+()]{10,15}$/.test(cleanInput.replace(/[\s\-()]/g, ''))) checkType = 'phone';
+  else if (cleanInput.includes('@')) {
+    if (/@(okhdfc|oksbi|okicici|okaxis|paytm|upi)/i.test(cleanInput)) checkType = 'upi';
+    else if (/(Subject:|Dear|verify|login|password|account)/i.test(cleanInput)) checkType = 'phishing';
   }
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
@@ -92,7 +96,7 @@ async function scanInput(input) {
         model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: 'You are a cybersecurity and scam-detection AI. Always respond in valid JSON format with keys: verdict, scamType, confidence, analysis, findings, whatToDo.' },
-          { role: 'user', content: systemPrompt + '\n\nInput: "' + input + '"' }
+          { role: 'user', content: systemPrompt + '\n\nInput: "' + cleanInput + '"' }
         ],
         temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
       })

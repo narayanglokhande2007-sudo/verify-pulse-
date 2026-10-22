@@ -1,6 +1,8 @@
+import { sanitizeForExternalAnalysis } from '../lib/privacy_guard.js';
+
 export default async function handler(req, res) {
-  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'verifypulse_webhook_2024';
-  const MY_NUMBER = '+919373568817'; // अपना व्हाट्सएप नंबर
+  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
+  const MY_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER || '';
 
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
@@ -83,12 +85,13 @@ async function sendWhatsAppMessage(to, text) {
 }
 
 async function scanText(input) {
+  const cleanInput = sanitizeForExternalAnalysis(input);
   let checkType = 'scam';
-  if (input.startsWith('http')) checkType = 'url';
-  else if (/^[\d\s\-+()]{10,15}$/.test(input.replace(/[\s\-()]/g, ''))) checkType = 'phone';
-  else if (input.includes('@')) {
-    if (/@(okhdfc|oksbi|okicici|okaxis|paytm|upi)/i.test(input)) checkType = 'upi';
-    else if (/(verify|login|password|account|subject:|dear)/i.test(input)) checkType = 'phishing';
+  if (cleanInput.startsWith('http')) checkType = 'url';
+  else if (/^[\d\s\-+()]{10,15}$/.test(cleanInput.replace(/[\s\-()]/g, ''))) checkType = 'phone';
+  else if (cleanInput.includes('@')) {
+    if (/@(okhdfc|oksbi|okicici|okaxis|paytm|upi)/i.test(cleanInput)) checkType = 'upi';
+    else if (/(verify|login|password|account|subject:|dear)/i.test(cleanInput)) checkType = 'phishing';
   }
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
@@ -104,7 +107,7 @@ async function scanText(input) {
       model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: 'You are a cybersecurity AI. Always respond in valid JSON. Format: {"verdict":"SCAM/SAFE","scamType":"...","confidence":85,"analysis":"...","findings":["point1","point2"],"whatToDo":["step1","step2"]}' },
-        { role: 'user', content: systemPrompt + '\n\nInput: "' + input + '"' }
+        { role: 'user', content: systemPrompt + '\n\nInput: "' + cleanInput + '"' }
       ],
       temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
     })

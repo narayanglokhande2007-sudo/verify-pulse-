@@ -9,8 +9,14 @@ const zeroDayCache = new Map();
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 export default async function handler(req, res) {
-    // 0. Handle Automated Continuous Cron Schedule Trigger (Vercel Cron / CI Scheduler)
-    const isCron = req.headers?.['x-vercel-cron'] || req.query?.cron === 'continuous_brand_scan';
+    // 0. Handle Automated Continuous Cron Schedule Trigger (Vercel Cron / Secure Authorization / Test Suite)
+    const cronSecret = process.env.CRON_SECRET;
+    const isVercelCron = Boolean(req.headers?.['x-vercel-cron']);
+    const isAuthorizedSecret = Boolean(cronSecret && req.headers?.['authorization'] === `Bearer ${cronSecret}`);
+    const isAllowedQueryCron = req.query?.cron === 'continuous_brand_scan' && (
+        process.env.NODE_ENV !== 'production' || isVercelCron || isAuthorizedSecret
+    );
+    const isCron = isVercelCron || isAuthorizedSecret || isAllowedQueryCron;
     if (isCron) {
         const cronReport = await executeContinuousBrandScan({
             tenantId: 'automated_cron_system',
