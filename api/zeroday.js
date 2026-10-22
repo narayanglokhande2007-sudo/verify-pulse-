@@ -2,7 +2,8 @@
 // VerifyPulse Tier 2: Zero-Day Keyword Monitoring Endpoint
 // Searches Certificate Transparency (CT) logs in real-time to find freshly registered scam domains.
 
-import { validateB2bApiKey } from '../lib/security_controls.js';
+import { validateB2bApiKey, authorizeB2bScope, enforceRateLimit, setRateLimitHeaders } from '../lib/security_controls.js';
+import { checkB2BQuota } from '../lib/quota_manager.js';
 import { executeContinuousBrandScan } from '../lib/continuous_brand_monitor.js';
 
 const zeroDayCache = new Map();
@@ -32,31 +33,73 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    // 1. Validate Tier Authentication
+    // 1. Rate Limiting Protection (Prevent automated DoS against upstream CT logs)
+    const rateLimit = enforceRateLimit(req, { scope: 'b2b:zeroday', limit: 30, windowMs: 60000 });
+    if (typeof setRateLimitHeaders === 'function' && typeof res.setHeader === 'function') {
+        setRateLimitHeaders(res, rateLimit);
+    }
+    if (!rateLimit.allowed) {
+        return res.status(429).json({
+            error: 'RATE_LIMITED',
+            message: 'Too many zero-day monitoring requests. Please slow down.'
+        });
+    }
+
+    // 2. Validate Tier Authentication
     const authResult = validateB2bApiKey(req);
-    if (!authResult.valid) {
+    if (!authResult || !authResult.valid) {
         return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Valid B2B API key required for Zero-Day Monitor.' });
     }
 
+    // Authorize Scope: Must have 'b2b:zeroday', 'b2b:scan', or wildcard '*'
+    const hasScope = authorizeB2bScope(authResult, 'b2b:zeroday') || authorizeB2bScope(authResult, 'b2b:scan');
+    if (!hasScope) {
+        return res.status(403).json({
+            error: 'INSUFFICIENT_SCOPE',
+            message: 'API key does not have the required b2b:zeroday scope.'
+        });
+    }
+
     // Ensure only Tier 2 or Tier 3 clients can use this feature
-    if (authResult.tier < 2) {
+    const tier = authResult.tier || authResult.identity?.tier || 1;
+    if (tier < 2) {
         return res.status(403).json({ error: 'UPGRADE_REQUIRED', message: 'Zero-Day Monitoring is only available on Tier 2 (Pro) or higher.' });
     }
 
-    const { keyword, keywords, officialDomain, officialDomains } = req.body;
+    // 3. Enforce B2B Quota Metering
+    const tenantId = authResult.identity?.tenantId || 'anonymous_tenant';
+    const quota = await checkB2BQuota(tenantId, tier);
+    if (!quota.allowed) {
+        return res.status(429).json({
+            error: 'QUOTA_EXCEEDED',
+            message: 'Monthly B2B zero-day monitoring quota exhausted. Please upgrade or contact support.'
+        });
+    }
+
+    // 4. Defensive Payload Parsing & Null Safety (Loophole 18)
+    const body = typeof req.body === 'string'
+        ? (() => { try { return JSON.parse(req.body); } catch { return {}; } })()
+        : (req.body || {});
+
+    const keyword = body.keyword ? String(body.keyword).trim() : '';
+    const keywords = Array.isArray(body.keywords) ? body.keywords : [];
+    const officialDomain = body.officialDomain ? String(body.officialDomain).trim() : '';
+    const officialDomains = Array.isArray(body.officialDomains)
+        ? body.officialDomains
+        : (officialDomain ? [officialDomain] : []);
 
     // Tier 3 Feature: Multi-Keyword Continuous Brand Portfolio Monitoring
-    if (Array.isArray(keywords) && keywords.length > 0) {
-        if (authResult.tier < 3) {
+    if (keywords.length > 0) {
+        if (tier < 3) {
             return res.status(403).json({
                 error: 'UPGRADE_REQUIRED',
                 message: 'Multi-keyword continuous brand portfolio monitoring is exclusive to Tier 3 (Ultra).'
             });
         }
         const batchReport = await executeContinuousBrandScan({
-            tenantId: authResult.identity?.tenantId,
+            tenantId,
             keywords,
-            officialDomains: officialDomains || (officialDomain ? [officialDomain] : [])
+            officialDomains
         });
         return res.status(200).json(batchReport);
     }
@@ -71,9 +114,10 @@ export default async function handler(req, res) {
         return res.status(200).json({ ...cached.data, cached: true });
     }
 
+    let timeoutId = null;
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout for serverless
+        timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout for serverless
         
         const crtRes = await fetch(`https://crt.sh/?q=%25${encodeURIComponent(keyword)}%25&output=json`, {
             signal: controller.signal,
@@ -83,7 +127,12 @@ export default async function handler(req, res) {
 
         if (!crtRes.ok) throw new Error('CT Log fetch failed');
         
-        const data = await crtRes.json();
+        let data = null;
+        try {
+            data = await crtRes.json();
+        } catch {
+            data = null;
+        }
         
         const suspiciousDomains = new Set();
         const now = new Date();
@@ -152,5 +201,7 @@ export default async function handler(req, res) {
             monitoredAt: new Date().toISOString()
         };
         return res.status(200).json(fallbackResult);
+    } finally {
+        if (timeoutId) clearTimeout(timeoutId);
     }
 }
