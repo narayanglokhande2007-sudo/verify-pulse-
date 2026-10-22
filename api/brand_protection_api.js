@@ -6,8 +6,10 @@
  */
 
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { validateB2bApiKey } from '../lib/security_controls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -497,6 +499,26 @@ export const getThreatMetrics = getBrandDashboard;
 // VERCEL SERVERLESS DEFAULT EXPORT ROUTER
 // ============================================================================
 export default async function handler(req, res) {
+    // 0. B2B / Admin Security Authentication
+    const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_API_KEY || process.env.VERIFYPULSE_ADMIN_KEY;
+    const authHeader = req.headers?.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : (req.headers?.['x-admin-key'] || req.query?.admin_key);
+    const isAdmin = Boolean(adminSecret && token && token.length === adminSecret.length && crypto.timingSafeEqual(Buffer.from(token), Buffer.from(adminSecret)));
+
+    const authResult = validateB2bApiKey(req);
+    const isProd = process.env.NODE_ENV === 'production';
+
+    // If an API key header or auth header is provided, it must be valid
+    const hasAuthAttempt = Boolean(req.headers?.['x-api-key'] || (authHeader && !isAdmin));
+    if (hasAuthAttempt && (!authResult || !authResult.valid)) {
+        return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Valid B2B API key required for Brand Protection.' });
+    }
+
+    // In production, authentication is strictly required
+    if (isProd && !isAdmin && (!authResult || !authResult.valid)) {
+        return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Authentication required for Brand Protection API.' });
+    }
+
     const url = req.url || '';
     const queryAction = req.query?.action;
     const path = url.split('?')[0].toLowerCase();
