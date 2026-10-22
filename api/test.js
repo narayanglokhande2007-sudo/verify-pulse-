@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
     } catch (error) {
       if (from) {
-        try { await sendWhatsAppMessage(from, '❌ Error: ' + error.message); } catch (e) {}
+        try { await sendWhatsAppMessage(from, '⚠️ Service temporarily busy. Please try again shortly or visit https://verify-pulse.vercel.app'); } catch (e) {}
       }
       return res.status(200).send('ok');
     }
@@ -69,19 +69,26 @@ export default async function handler(req, res) {
 async function sendWhatsAppMessage(to, text) {
   const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
   const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  await fetch(`https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${ACCESS_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      messaging_product: 'whatsapp',
-      to,
-      type: 'text',
-      text: { body: text }
-    })
-  });
+  if (!ACCESS_TOKEN || !PHONE_NUMBER_ID || !to) return;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    await fetch(`https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to,
+        type: 'text',
+        text: { body: text }
+      })
+    });
+    clearTimeout(timeoutId);
+  } catch {}
 }
 
 async function scanText(input) {
@@ -95,34 +102,66 @@ async function scanText(input) {
   }
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
+  const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+
+  if (!GROQ_KEY) {
+    return {
+      verdict: 'UNCERTAIN',
+      scamType: 'Scan Pending',
+      confidence: 50,
+      analysis: 'AI scan engine pending configuration. Please visit https://verify-pulse.vercel.app for real-time verification.',
+      findings: ['AI credentials pending configuration'],
+      whatToDo: ['Visit verify-pulse.vercel.app to check suspicious messages']
+    };
+  }
+
   const systemPrompt = getScanPrompt(checkType);
-
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${GROQ_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: 'You are a cybersecurity AI. Always respond in valid JSON. Format: {"verdict":"SCAM/SAFE","scamType":"...","confidence":85,"analysis":"...","findings":["point1","point2"],"whatToDo":["step1","step2"]}' },
-        { role: 'user', content: systemPrompt + '\n\nInput: "' + cleanInput + '"' }
-      ],
-      temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
-    })
-  });
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Empty AI response');
+  let timeoutId = null;
 
   try {
-    return JSON.parse(content);
-  } catch {
-    const match = content.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]);
-    throw new Error('Invalid JSON from AI');
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${GROQ_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a cybersecurity AI. Always respond in valid JSON. Format: {"verdict":"SCAM/SAFE","scamType":"...","confidence":85,"analysis":"...","findings":["point1","point2"],"whatToDo":["step1","step2"]}' },
+          { role: 'user', content: systemPrompt + '\n\nInput: "' + cleanInput + '"' }
+        ],
+        temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
+      })
+    });
+    clearTimeout(timeoutId);
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error('Empty AI response');
+
+    try {
+      return JSON.parse(content);
+    } catch {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+      throw new Error('Invalid JSON from AI');
+    }
+  } catch (error) {
+    return {
+      verdict: 'UNCERTAIN',
+      scamType: 'Service Interruption',
+      confidence: 50,
+      analysis: 'Scan temporarily unavailable. Please try again or visit https://verify-pulse.vercel.app',
+      findings: ['Service interruption'],
+      whatToDo: ['Wait a moment and try again', 'Visit verify-pulse.vercel.app']
+    };
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 

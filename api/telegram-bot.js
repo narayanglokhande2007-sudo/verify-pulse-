@@ -68,11 +68,18 @@ export default async function handler(req, res) {
 
 async function sendTelegramMessage(chatId, text) {
   const BOT_TOKEN = process.env.VERIFYPULSE_BOT_TOKEN;
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true })
-  });
+  if (!BOT_TOKEN || !chatId) return;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true })
+    });
+    clearTimeout(timeoutId);
+  } catch {}
 }
 
 async function scanInput(input) {
@@ -86,14 +93,32 @@ async function scanInput(input) {
   }
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
+  const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+
+  if (!GROQ_KEY) {
+    return {
+      verdict: 'UNCERTAIN',
+      scamType: 'Scan Pending',
+      confidence: 50,
+      analysis: 'AI scan engine pending configuration. Please visit https://verify-pulse.vercel.app for full verification.',
+      findings: ['AI credentials pending configuration'],
+      whatToDo: ['Visit verify-pulse.vercel.app to check suspicious messages']
+    };
+  }
+
   const systemPrompt = getPrompt(checkType);
+  let timeoutId = null;
 
   try {
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
+      signal: controller.signal,
       headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: GROQ_MODEL,
         messages: [
           { role: 'system', content: 'You are a cybersecurity and scam-detection AI. Always respond in valid JSON format with keys: verdict, scamType, confidence, analysis, findings, whatToDo.' },
           { role: 'user', content: systemPrompt + '\n\nInput: "' + cleanInput + '"' }
@@ -101,6 +126,7 @@ async function scanInput(input) {
         temperature: 0.2, max_tokens: 500, response_format: { type: "json_object" }
       })
     });
+    clearTimeout(timeoutId);
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
@@ -126,6 +152,8 @@ async function scanInput(input) {
       findings: ['Service interruption'],
       whatToDo: ['Wait a moment and try again']
     };
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 
