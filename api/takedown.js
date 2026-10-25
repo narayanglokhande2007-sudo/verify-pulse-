@@ -189,6 +189,8 @@ export default async function handler(req, res) {
     const rawUrl = body.url ? String(body.url).trim() : '';
     const brandName = body.brandName ? String(body.brandName).trim().slice(0, 100) : 'our protected client';
     const autoDispatch = Boolean(body.autoDispatch);
+    const apkDetails = (body.apkDetails && typeof body.apkDetails === 'object') ? body.apkDetails : null;
+    const threatType = body.threatType ? String(body.threatType).trim() : (rawUrl.toLowerCase().includes('.apk') ? 'ROGUE_APK' : null);
 
     if (!rawUrl) {
         return res.status(400).json({ error: 'MISSING_DATA', message: 'URL is required.' });
@@ -215,7 +217,7 @@ export default async function handler(req, res) {
     }
 
     // 6. Generate Cryptographic Evidence Dossier
-    const takedownData = await generateTakedownNotice(rawUrl, brandName);
+    const takedownData = await generateTakedownNotice(rawUrl, brandName, { apkDetails, threatType });
 
     if (!takedownData.success) {
         return res.status(500).json(takedownData);
