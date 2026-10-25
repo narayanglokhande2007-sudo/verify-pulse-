@@ -79,37 +79,73 @@ export default async function handler(req, res) {
     let flags = [];
     let syndicateDetails = null;
     
-    // A. UPI Handle Heuristics
+    // A. UPI Handle Heuristics & Social Engineering Detection
     if (receiverUpi) {
         const upi = receiverUpi.toLowerCase();
-        if (upi.includes('kyc') || upi.includes('update') || upi.includes('refund') || upi.includes('cashback') || upi.includes('support')) {
-            riskScore += 70;
-            flags.push('SUSPICIOUS_MULE_UPI_PATTERN');
-        }
-        if (/[a-z]{2,4}\d{5,8}@[a-z]+/.test(upi)) {
-            riskScore += 30;
-            flags.push('ALGORITHMIC_GENERATED_UPI');
+        const parts = upi.split('@');
+        if (parts.length !== 2 || !parts[0] || !parts[1]) {
+            riskScore += 40;
+            flags.push('MALFORMED_UPI_FORMAT');
+        } else {
+            const userPrefix = parts[0];
+            const muleKeywords = [
+                'kyc', 'update', 'refund', 'cashback', 'support', 'disbursal',
+                'processing', 'approval', 'lottery', 'winner', 'customs', 'cbi',
+                'police', 'task', 'telegram', 'parttime', 'crypto', 'binance',
+                'usdt', 'doublemoney', 'bonus', 'settlement', 'fastloan', 'instantloan',
+                'loan', 'quickloan'
+            ];
+            if (muleKeywords.some(kw => userPrefix.includes(kw))) {
+                riskScore += 70;
+                flags.push('SUSPICIOUS_MULE_UPI_PATTERN');
+            }
+            if (/[a-z]{2,4}\d{5,8}$/.test(userPrefix)) {
+                riskScore += 30;
+                flags.push('ALGORITHMIC_GENERATED_UPI');
+            }
         }
     }
 
-    // B. Phone Number Telecom Heuristics (SIM Check Simulation)
+    // B. Phone Number Telecom Heuristics (SIM Check & Format Validation)
     if (receiverPhone) {
-        if (receiverPhone.startsWith('+9170') || receiverPhone.startsWith('+9160')) {
+        const cleanPhone = String(receiverPhone).replace(/\D/g, '');
+        const core10 = cleanPhone.slice(-10);
+        if (core10.length !== 10 || !/^[6-9]\d{9}$/.test(core10)) {
+            riskScore += 35;
+            flags.push('INVALID_PHONE_FORMAT');
+        } else if (core10.startsWith('70') || core10.startsWith('60')) {
             riskScore += 15;
             flags.push('NEW_SIM_BLOCK_DETECTED');
         }
     }
 
-    // C. Psychological Fraud Amount Velocity
-    if (amount) {
+    // C. Bank Account IFSC Routing Code Validation
+    if (receiverIfsc) {
+        const cleanIfsc = receiverIfsc.toUpperCase().trim();
+        const ifscFormatRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        // Note: In India, Axis Bank is UTIB. Any IFSC starting with non-existent AXIS or failing regex is invalid format.
+        if (!ifscFormatRegex.test(cleanIfsc) || cleanIfsc.startsWith('AXIS')) {
+            riskScore += 35;
+            flags.push('INVALID_IFSC_FORMAT');
+        } else if (cleanIfsc.includes('MULE') || cleanIfsc.startsWith('FAKE') || cleanIfsc === 'PYTM0123456') {
+            riskScore += 45;
+            flags.push('HIGH_RISK_MULE_IFSC');
+        }
+    }
+
+    // D. Psychological Fraud Amount Velocity
+    if (amount !== undefined && amount !== null) {
         const numAmount = Number(amount);
-        if (numAmount === 9999 || numAmount === 19999 || numAmount === 4999 || numAmount === 999) {
+        if (numAmount < 0) {
+            riskScore += 50;
+            flags.push('INVALID_NEGATIVE_AMOUNT');
+        } else if ([999, 1999, 4999, 9999, 19999, 49999].includes(numAmount)) {
             riskScore += 25;
             flags.push('PSYCHOLOGICAL_SCAM_AMOUNT');
         }
     }
 
-    // D. Cross-Reference with Scam Syndicate Graph (Threat Intelligence)
+    // E. Cross-Reference with Scam Syndicate Graph (Threat Intelligence)
     const graphMatch = await querySyndicateGraph({
         upi: receiverUpi,
         phone: receiverPhone,
