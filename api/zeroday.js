@@ -140,13 +140,18 @@ export default async function handler(req, res) {
         if (Array.isArray(data)) {
             for (const entry of data) {
                 const entryDate = new Date(entry.not_before);
-                const hoursDiff = (now - entryDate) / (1000 * 60 * 60);
+                const hoursDiff = isNaN(entryDate.getTime()) ? 9999 : (now - entryDate) / (1000 * 60 * 60);
                 
-                if (hoursDiff <= 72) { // 72-hour fresh certificate window
-                    const domainNames = String(entry.name_value).split('\n');
+                if (hoursDiff >= -2 && hoursDiff <= 72) { // 72-hour fresh certificate window (clock-skew safe)
+                    const domainNames = String(entry.name_value).split(/[\n\r,]+/);
                     for (let d of domainNames) {
-                        d = d.trim().toLowerCase().replace('*.', '');
-                        if (officialDomain && d === officialDomain.toLowerCase()) continue; 
+                        d = d.trim().toLowerCase().replace(/^\*\./, '');
+                        if (!d) continue;
+                        const isOfficial = officialDomains.some((od) => {
+                            const normOd = String(od || '').trim().toLowerCase();
+                            return normOd && (d === normOd || d.endsWith(`.${normOd}`));
+                        });
+                        if (isOfficial) continue;
                         suspiciousDomains.add(d);
                     }
                 }
