@@ -4,7 +4,9 @@ import brandProtectionHandler, {
   sanitizeBrandId,
   discoverRealBrandThreats,
   isBrandMatch,
-  classifyVectorType
+  classifyVectorType,
+  extractBrandRoots,
+  findDidYouMean
 } from '../api/brand_protection_api.js';
 
 function hash(value) {
@@ -57,6 +59,25 @@ async function runTests() {
   assert.equal(classifyVectorType('https://sbi-loans.com'), 'PHISHING_DOMAIN');
   console.log('   ✓ Input sanitization and zero-false-positive brand boundary matching verified.');
 
+  // TEST 1.5: Entity Disambiguation, Auto-Correction & Corporate Suffix Pruning
+  console.log('1.5. Testing Entity Disambiguation, Auto-Correction & Suffix Pruning...');
+  const bajajRoots = extractBrandRoots('Bajaj Finance Limited');
+  assert.ok(bajajRoots.includes('bajaj'), 'Must prune corporate suffixes and include root bajaj');
+  const naviRoots = extractBrandRoots('Navi Finserv');
+  assert.ok(naviRoots.includes('navi'), 'Must include root navi');
+  const mpokketRoots = extractBrandRoots('mPokket Financial Services Private Limited');
+  assert.ok(mpokketRoots.includes('mpokket'), 'Must include root mpokket');
+
+  const typoCorrection = findDidYouMean('kredtbee');
+  assert.ok(typoCorrection, 'Must suggest Did You Mean for typo kredtbee');
+  assert.equal(typoCorrection.slug, 'kreditbee');
+  assert.equal(findDidYouMean('kreditbee'), null, 'Exact match must return null');
+
+  // Verify multi-word query discovers root brand threats
+  const bajajThreats = await discoverRealBrandThreats('Bajaj Finance Limited');
+  assert.ok(bajajThreats.some(t => t.domain.includes('bajajloan.com')), 'Must discover bajajloan.com via root resolution');
+  console.log('   ✓ Entity resolution, suffix pruning, Did You Mean, and multi-word threat discovery verified.');
+
   // TEST 2: Real Universal Threat Recon (Zero Synthetic/Fake Data)
   console.log('2. Testing Real Universal Threat Telemetry (Zero Synthetic/Fake Data)...');
   const kbThreats = await discoverRealBrandThreats('kreditbee');
@@ -87,7 +108,18 @@ async function runTests() {
   assert.equal(typeof dashRes.body.data.statistics.phishing_domains, 'number');
   assert.equal(typeof dashRes.body.data.statistics.rogue_apks, 'number');
   assert.ok(Array.isArray(dashRes.body.data.recent_threats));
-  console.log('   ✓ Public Preview dashboard returns rich threat signals without 401 UNAUTHORIZED.');
+  assert.equal(dashRes.body.data.resolved_brand, 'kreditbee');
+
+  const typoRes = mockResponse();
+  await brandProtectionHandler({
+    method: 'GET',
+    url: '/api/brand-protection/dashboard?bank_id=kredtbee',
+    query: { bank_id: 'kredtbee', action: 'dashboard' },
+    headers: { 'x-forwarded-for': '203.0.113.10' }
+  }, typoRes);
+  assert.equal(typoRes.statusCode, 200);
+  assert.equal(typoRes.body.data.did_you_mean?.slug, 'kreditbee');
+  console.log('   ✓ Public Preview dashboard returns rich threat signals, resolved_brand, and did_you_mean suggestions without 401 UNAUTHORIZED.');
 
   // TEST 4: Export Report (CSV & JSON)
   console.log('4. Testing Export Report Functionality...');

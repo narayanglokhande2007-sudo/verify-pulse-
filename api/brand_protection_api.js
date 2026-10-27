@@ -31,6 +31,149 @@ export function sanitizeBrandId(raw) {
 }
 
 // ============================================================================
+// GOOGLE-GRADE ENTITY RESOLUTION & FUZZY MATCHING HELPERS
+// ============================================================================
+
+export function extractBrandRoots(raw) {
+    if (!raw || typeof raw !== 'string') return [];
+    const trimmed = raw.trim().toLowerCase();
+    const cleanFull = trimmed.replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').slice(0, 50);
+    if (!cleanFull || cleanFull.length < 2) return [];
+
+    const roots = new Set();
+    roots.add(cleanFull);
+
+    // Map common multi-word Indian BFSI aliases & legal entities
+    if (/state\s*bank|sbi|yono/i.test(trimmed)) {
+        roots.add('sbi');
+    }
+    if (/krazy\s*bee|kredit\s*bee/i.test(trimmed)) {
+        roots.add('kreditbee');
+        roots.add('krazybee');
+    }
+    if (/bhanix|cashe/i.test(trimmed)) {
+        roots.add('cashe');
+        roots.add('bhanix');
+    }
+    if (/finc\s*friends|rupee\s*redee/i.test(trimmed)) {
+        roots.add('rupeeredee');
+    }
+    if (/fed\s*fina|fed\s*bank/i.test(trimmed)) {
+        roots.add('fedbank');
+        roots.add('fedfina');
+    }
+    if (/capri/i.test(trimmed)) {
+        roots.add('capri');
+        roots.add('capri-global');
+    }
+
+    // Universal corporate suffix & entity designator pruning
+    // Covers Indian MCA/ROC terms, global corporate forms, and BFSI industry suffixes
+    const corporateSuffixRegex = /\b(pvt|private|ltd|limited|llp|holdings?|corporation|corp|capital|securities|finserv|finances?|financial|services?|service|banks?|banking|payments?|microfinance|credit|loans?|tech|technolog(y|ies)|group|co|company|enterprises?|india)\b/gi;
+
+    const normalizedWords = trimmed.replace(/[-_.]+/g, ' ');
+    const pruned = normalizedWords.replace(corporateSuffixRegex, ' ').replace(/\s+/g, ' ').trim();
+    if (pruned.length >= 2) {
+        const prunedSlug = pruned.replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
+        if (prunedSlug.length >= 2) {
+            roots.add(prunedSlug);
+        }
+        const firstToken = pruned.split(' ')[0].replace(/[^a-z0-9_-]/g, '');
+        if (firstToken.length >= 2) {
+            roots.add(firstToken);
+        }
+    }
+
+    return Array.from(roots);
+}
+
+export function computeLevenshteinDistance(a, b) {
+    if (!a || !b) return (a || b || '').length;
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost
+            );
+        }
+    }
+    return dp[m][n];
+}
+
+export const KNOWN_BFSI_CANONICALS = [
+    { slug: 'kreditbee', name: 'KreditBee (KrazyBee Services)', aliases: ['kreditbee', 'krazybee', 'kredit bee'] },
+    { slug: 'bajaj', name: 'Bajaj Finance / Finserv', aliases: ['bajaj', 'bajajfinserv', 'bajaj finance'] },
+    { slug: 'navi', name: 'Navi Finserv', aliases: ['navi', 'navi finserv', 'naviloan'] },
+    { slug: 'cashe', name: 'CASHe (Bhanix Finance)', aliases: ['cashe', 'bhanix'] },
+    { slug: 'mpokket', name: 'mPokket Financial Services', aliases: ['mpokket', 'm pokket', 'pocket'] },
+    { slug: 'dmi', name: 'DMI Finance', aliases: ['dmi', 'dmifinance'] },
+    { slug: 'fibe', name: 'Fibe (EarlySalary)', aliases: ['fibe', 'earlysalary'] },
+    { slug: 'qubik', name: 'Qubik Finserv', aliases: ['qubik'] },
+    { slug: 'rupeeredee', name: 'RupeeRedee (FincFriends)', aliases: ['rupeeredee', 'fincfriends'] },
+    { slug: 'kissht', name: 'Kissht / Ring Pay', aliases: ['kissht', 'ring', 'ringpay'] },
+    { slug: 'capri-global', name: 'Capri Global Capital', aliases: ['capri', 'capri global'] },
+    { slug: 'incred', name: 'InCred Financial Services', aliases: ['incred'] },
+    { slug: 'sbi', name: 'State Bank of India (YONO)', aliases: ['sbi', 'state bank', 'yono', 'sbin'] },
+    { slug: 'hdfc', name: 'HDFC Bank', aliases: ['hdfc', 'hdfcbank'] },
+    { slug: 'icici', name: 'ICICI Bank', aliases: ['icici', 'icicibank'] },
+    { slug: 'axis', name: 'Axis Bank', aliases: ['axis', 'axisbank'] },
+    { slug: 'paytm', name: 'Paytm Payments Bank / UPI', aliases: ['paytm'] },
+    { slug: 'fedbank', name: 'Fedbank Financial Services (Fedfina)', aliases: ['fedbank', 'fedfina', 'federal bank'] }
+];
+
+export function findDidYouMean(rawInput) {
+    if (!rawInput || typeof rawInput !== 'string') return null;
+    const clean = rawInput.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (clean.length < 3) return null;
+
+    let bestMatch = null;
+    let minDistance = 999;
+
+    for (const item of KNOWN_BFSI_CANONICALS) {
+        for (const alias of item.aliases) {
+            const cleanAlias = alias.replace(/[^a-z0-9]/g, '');
+            if (clean === cleanAlias) return null; // Exact match, no did-you-mean required
+
+            const dist = computeLevenshteinDistance(clean, cleanAlias);
+            const threshold = Math.max(1, Math.floor(cleanAlias.length * 0.35));
+            if (dist <= threshold && dist < minDistance) {
+                minDistance = dist;
+                bestMatch = item;
+            }
+        }
+    }
+
+    return bestMatch ? { slug: bestMatch.slug, name: bestMatch.name, distance: minDistance } : null;
+}
+
+export function resolveCanonicalBrand(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    const clean = sanitizeBrandId(raw);
+    if (!clean) return null;
+
+    const known = KNOWN_BFSI_CANONICALS.find(k => k.slug === clean || k.aliases.includes(clean));
+    if (known) return known.slug;
+
+    const roots = extractBrandRoots(raw);
+    for (const r of roots) {
+        if (r !== clean && KNOWN_BFSI_CANONICALS.some(k => k.slug === r)) {
+            return r;
+        }
+    }
+    if (roots.length > 1) {
+        const sorted = [...roots].sort((a, b) => a.length - b.length);
+        return sorted[0];
+    }
+    return clean;
+}
+
+// ============================================================================
 // PRECISION BRAND THREAT INTELLIGENCE & CLASSIFICATION HELPERS
 // ============================================================================
 
@@ -42,12 +185,10 @@ export function isBrandMatch(url, slug) {
     const path = lower.replace(/^https?:\/\/[^/?#]+/i, '');
 
     const escaped = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // Ensure slug is not a false substring inside an unrelated word (e.g. bitcoins, lesbian)
     const domainRegex = new RegExp(`(^|[-._])${escaped}([-._0-9]|loan|loans|bank|banking|card|pay|app|apk|instant|kyc|care|online|portal|login|verify|yono|finserv|finance|cash|credit|safe|alert|$)`, 'i');
 
     if (domainRegex.test(domain)) return true;
 
-    // Standalone token in path or .apk filename
     const pathRegex = new RegExp(`[/_.-]${escaped}([/_.-0-9]|apk|app|download|kyc|loan|yono|login|$)`, 'i');
     if (pathRegex.test(path)) return true;
 
@@ -68,20 +209,22 @@ export function classifyVectorType(urlOrDomain, path = '') {
 
 /**
  * Perform real-time universal threat reconnaissance for ANY given bank or NBFC brand.
- * 1. Scans daily verified scam intelligence feed (pipeline/daily-data/india_scams.jsonl).
- * 2. Queries live DNS (Google DoH) for active resolving lookalike / typosquatted domains.
- * 3. Queries public Certificate Transparency logs (crt.sh) with a strict bounded timeout.
- * 4. Returns 100% genuine findings. If clean, truthfully returns 0 threats (Perimeter Clean).
+ * 1. Resolves candidate root slugs via extractBrandRoots (e.g. 'Bajaj Finance Ltd' -> 'bajaj').
+ * 2. Scans daily verified scam intelligence feed across all candidate slugs.
+ * 3. Queries live DNS (Google DoH) for active resolving lookalike / typosquatted domains.
+ * 4. Queries public Certificate Transparency logs (crt.sh) with a strict bounded timeout.
+ * 5. Returns 100% genuine findings. If clean, truthfully returns 0 threats (Perimeter Clean).
  */
 export async function discoverRealBrandThreats(brandId) {
-    const slug = sanitizeBrandId(brandId);
-    if (!slug) return [];
+    const candidateSlugs = extractBrandRoots(brandId);
+    if (!candidateSlugs || candidateSlugs.length === 0) return [];
 
     const now = new Date();
     const results = [];
     const seenDomains = new Set();
+    const primarySlug = candidateSlugs[candidateSlugs.length - 1] || candidateSlugs[0];
 
-    // 1. Check local verified scam intelligence feed with precision brand boundary matching
+    // 1. Check local verified scam intelligence feed across all candidate slugs
     try {
         if (fs.existsSync(INDIA_SCAMS_FILE)) {
             const lines = fs.readFileSync(INDIA_SCAMS_FILE, 'utf8').split('\n');
@@ -90,7 +233,8 @@ export async function discoverRealBrandThreats(brandId) {
                 try {
                     const record = JSON.parse(line);
                     const url = record.url || '';
-                    if (isBrandMatch(url, slug)) {
+                    const matchedSlug = candidateSlugs.find(s => isBrandMatch(url, s));
+                    if (matchedSlug) {
                         const domain = url.replace(/^https?:\/\//i, '').split('/')[0].toLowerCase();
                         if (!seenDomains.has(domain)) {
                             seenDomains.add(domain);
@@ -98,7 +242,7 @@ export async function discoverRealBrandThreats(brandId) {
                             results.push({
                                 id: results.length + 1,
                                 domain: url.replace(/^https?:\/\//i, ''),
-                                bank_brand: slug,
+                                bank_brand: matchedSlug,
                                 vector_type: vectorType,
                                 detection_date: record.date_added || now.toISOString(),
                                 status: 'detected',
@@ -116,25 +260,28 @@ export async function discoverRealBrandThreats(brandId) {
                 } catch {}
             }
         }
-    } catch (err) {
-        // Continue to live DNS recon safely
+    } catch (err) {}
+
+    // 2. Perform live DNS-over-HTTPS resolution on high-probability typosquatted variants for all candidate slugs
+    const highRiskVariants = [];
+    for (const slug of candidateSlugs) {
+        highRiskVariants.push(
+            `${slug}loan.in`,
+            `${slug}loan.com`,
+            `${slug}-loan.in`,
+            `${slug}-loans.com`,
+            `${slug}-instant.com`,
+            `${slug}finance.in`,
+            `${slug}app.in`,
+            `${slug}-kyc.online`,
+            `${slug}-approval.online`,
+            `${slug}-instant-loan.xyz`
+        );
     }
 
-    // 2. Perform live DNS-over-HTTPS resolution on high-probability typosquatted variants
-    const highRiskVariants = [
-        `${slug}loan.in`,
-        `${slug}loan.com`,
-        `${slug}-loan.in`,
-        `${slug}-loans.com`,
-        `${slug}-instant.com`,
-        `${slug}finance.in`,
-        `${slug}app.in`,
-        `${slug}-kyc.online`,
-        `${slug}-approval.online`,
-        `${slug}-instant-loan.xyz`
-    ];
+    const uniqueVariants = Array.from(new Set(highRiskVariants)).slice(0, 16);
 
-    await Promise.all(highRiskVariants.map(async (domain) => {
+    await Promise.all(uniqueVariants.map(async (domain) => {
         if (seenDomains.has(domain)) return;
         try {
             const controller = new AbortController();
@@ -155,7 +302,7 @@ export async function discoverRealBrandThreats(brandId) {
                         results.push({
                             id: results.length + 1,
                             domain: domain,
-                            bank_brand: slug,
+                            bank_brand: primarySlug,
                             vector_type: vectorType,
                             detection_date: now.toISOString(),
                             status: 'detected',
@@ -174,12 +321,12 @@ export async function discoverRealBrandThreats(brandId) {
         } catch {}
     }));
 
-    // 3. Query Certificate Transparency (crt.sh) for zero-day certificates issued in last 72h
+    // 3. Query Certificate Transparency (crt.sh) for zero-day certificates on primary root slug
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-        const crtUrl = `https://crt.sh/?q=%25${encodeURIComponent(slug)}%25&output=json`;
+        const crtUrl = `https://crt.sh/?q=%25${encodeURIComponent(primarySlug)}%25&output=json`;
         const crtRes = await fetch(crtUrl, {
             signal: controller.signal,
             headers: { 'User-Agent': 'VerifyPulse-BrandDefense/2.0' }
@@ -202,14 +349,14 @@ export async function discoverRealBrandThreats(brandId) {
                             if (!name || seenDomains.has(name)) continue;
 
                             // Skip official domains of the entity and require true brand token match
-                            const isOfficial = name.endsWith(`.${slug}.com`) || name.endsWith(`.${slug}.in`) || name === `${slug}.com` || name === `${slug}.in`;
-                            if (!isOfficial && isBrandMatch(name, slug)) {
+                            const isOfficial = name.endsWith(`.${primarySlug}.com`) || name.endsWith(`.${primarySlug}.in`) || name === `${primarySlug}.com` || name === `${primarySlug}.in`;
+                            if (!isOfficial && isBrandMatch(name, primarySlug)) {
                                 seenDomains.add(name);
                                 const vectorType = classifyVectorType(name, '');
                                 results.push({
                                     id: results.length + 1,
                                     domain: name,
-                                    bank_brand: slug,
+                                    bank_brand: primarySlug,
                                     vector_type: vectorType,
                                     detection_date: cert.not_before || now.toISOString(),
                                     status: 'detected',
@@ -415,6 +562,10 @@ export async function getBrandDashboard(req, res) {
             });
         }
 
+        const didYouMean = findDidYouMean(rawBankId || bank_id);
+        const candidateRoots = extractBrandRoots(rawBankId || bank_id);
+        const resolvedBrand = resolveCanonicalBrand(rawBankId || bank_id);
+
         const db = await getDB();
 
         const stats = await runQuery(db, `
@@ -467,6 +618,10 @@ export async function getBrandDashboard(req, res) {
                 audit_mode: true,
                 data: {
                     bank_id,
+                    resolved_brand: resolvedBrand,
+                    original_query: rawBankId || bank_id,
+                    candidate_roots: candidateRoots,
+                    did_you_mean: didYouMean,
                     timestamp: new Date().toISOString(),
                     perimeter_clean: totalThreats === 0,
                     status_message: totalThreats === 0
@@ -540,6 +695,10 @@ export async function getBrandDashboard(req, res) {
             access_tier: req.b2bAccessTier || 'PUBLIC_PREVIEW',
             data: {
                 bank_id,
+                resolved_brand: resolvedBrand,
+                original_query: rawBankId || bank_id,
+                candidate_roots: candidateRoots,
+                did_you_mean: didYouMean,
                 timestamp: new Date().toISOString(),
                 perimeter_clean: dbTotal === 0,
                 statistics: {

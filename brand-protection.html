@@ -230,6 +230,12 @@
                     </button>
                 </div>
 
+                <!-- Google-style Did You Mean & Entity Disambiguation Alert -->
+                <div id="didYouMeanBox" style="display: none; margin-top: 14px; margin-bottom: 6px; padding: 12px 18px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; font-size: 13px; color: #1e40af; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span id="didYouMeanContent"></span>
+                </div>
+
                 <div class="chip-label">Quick Scans for Indian BFSI & Digital Lenders:</div>
                 <div class="brand-chips-wrap" id="brandChipsWrap">
                     <div class="brand-chip active" data-brand="kreditbee" onclick="selectChip('kreditbee')">KreditBee <span class="chip-tag-nbfc">NBFC</span></div>
@@ -473,6 +479,10 @@
             const scanBtnText = document.getElementById('scanBtnText');
             scanBtnText.innerHTML = '<span class="spinner"></span> Scanning...';
 
+            const didYouMeanBox = document.getElementById('didYouMeanBox');
+            const didYouMeanContent = document.getElementById('didYouMeanContent');
+            if (didYouMeanBox) didYouMeanBox.style.display = 'none';
+
             try {
                 const response = await fetch(`/api/brand-protection/dashboard?bank_id=${encodeURIComponent(brandId)}`);
                 const result = await response.json();
@@ -485,6 +495,33 @@
 
                 const data = result.data;
                 currentThreats = data.recent_threats || [];
+
+                // Display Did You Mean or Entity Disambiguation intelligence
+                if (didYouMeanBox && didYouMeanContent) {
+                    if (data.did_you_mean) {
+                        didYouMeanBox.style.display = 'flex';
+                        didYouMeanBox.style.background = 'rgba(239, 68, 68, 0.08)';
+                        didYouMeanBox.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                        didYouMeanBox.style.color = '#991b1b';
+                        didYouMeanContent.innerHTML = `
+                            <strong>Did you mean:</strong> 
+                            <a href="javascript:void(0)" onclick="selectChip('${data.did_you_mean.slug}')" style="font-weight: 700; color: #dc2626; text-decoration: underline; margin-left: 4px;">
+                                ${data.did_you_mean.name}
+                            </a>? Click to switch to verified entity.
+                        `;
+                    } else if (data.resolved_brand && data.resolved_brand !== data.bank_id) {
+                        didYouMeanBox.style.display = 'flex';
+                        didYouMeanBox.style.background = 'rgba(59, 130, 246, 0.08)';
+                        didYouMeanBox.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+                        didYouMeanBox.style.color = '#1e40af';
+                        didYouMeanContent.innerHTML = `
+                            <strong>Entity Intelligence:</strong> Pruned corporate suffixes & resolved threat radar across root 
+                            <strong>"${data.resolved_brand}"</strong> for query "${displayName || data.bank_id}".
+                        `;
+                    } else {
+                        didYouMeanBox.style.display = 'none';
+                    }
+                }
 
                 const phishingCount = (data.statistics && data.statistics.phishing_domains !== undefined)
                     ? data.statistics.phishing_domains
