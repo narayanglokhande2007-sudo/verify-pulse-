@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "node-fetch": "^2.7.0",
-    "puppeteer-core": "^25.8.0",
+    "puppeteer-core": "^25.16.0",
     "redis": "^4.7.1"
   },
   "overrides": {
