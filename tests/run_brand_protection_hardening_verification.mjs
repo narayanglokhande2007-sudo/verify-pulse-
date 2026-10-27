@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import brandProtectionHandler, {
   sanitizeBrandId,
-  discoverRealBrandThreats
+  discoverRealBrandThreats,
+  isBrandMatch,
+  classifyVectorType
 } from '../api/brand_protection_api.js';
 
 function hash(value) {
@@ -36,15 +38,24 @@ function mockResponse() {
 async function runTests() {
   console.log('--- Starting Brand Protection Hardening & Security Verification ---');
 
-  // TEST 1: Brand Sanitization Helper
-  console.log('1. Testing Brand Identifier Sanitization...');
+  // TEST 1: Brand Sanitization & Precision Brand Matcher
+  console.log('1. Testing Brand Identifier Sanitization & Precision Matcher...');
   assert.equal(sanitizeBrandId('  KreditBee  '), 'kreditbee');
   assert.equal(sanitizeBrandId('Qubik Finserv'), 'qubik-finserv');
   assert.equal(sanitizeBrandId('HDFC_Bank!@#'), 'hdfc_bank');
   assert.equal(sanitizeBrandId(''), null);
   assert.equal(sanitizeBrandId('a'), null, 'Single char should be rejected (min 2)');
   assert.equal(sanitizeBrandId(null), null);
-  console.log('   ✓ Input sanitization enforces clean alphanumeric slugs.');
+
+  // Verify false-positive prevention on short brand slugs (e.g. sbi in bitcoins/lesbian)
+  assert.equal(isBrandMatch('https://100timesbitcoins.com', 'sbi'), false, 'Must reject sbi inside bitcoins');
+  assert.equal(isBrandMatch('https://ads.lesbianpersonals.com', 'sbi'), false, 'Must reject sbi inside lesbian');
+  assert.equal(isBrandMatch('https://sbi-loans.com', 'sbi'), true, 'Must match genuine sbi-loans lookalike');
+  assert.equal(isBrandMatch('https://sbiloan.com', 'sbi'), true, 'Must match genuine sbiloan typosquat');
+  assert.equal(isBrandMatch('https://storage.xyz/sbi_rewards.apk', 'sbi'), true, 'Must match rogue sbi apk drop');
+  assert.equal(classifyVectorType('https://storage.xyz/sbi_rewards.apk'), 'ROGUE_APK');
+  assert.equal(classifyVectorType('https://sbi-loans.com'), 'PHISHING_DOMAIN');
+  console.log('   ✓ Input sanitization and zero-false-positive brand boundary matching verified.');
 
   // TEST 2: Real Universal Threat Recon (Zero Synthetic/Fake Data)
   console.log('2. Testing Real Universal Threat Telemetry (Zero Synthetic/Fake Data)...');
@@ -73,6 +84,8 @@ async function runTests() {
   assert.equal(dashRes.body.success, true);
   assert.equal(dashRes.body.access_tier, 'PUBLIC_PREVIEW');
   assert.ok(dashRes.body.data.statistics.active_threats >= 0);
+  assert.equal(typeof dashRes.body.data.statistics.phishing_domains, 'number');
+  assert.equal(typeof dashRes.body.data.statistics.rogue_apks, 'number');
   assert.ok(Array.isArray(dashRes.body.data.recent_threats));
   console.log('   ✓ Public Preview dashboard returns rich threat signals without 401 UNAUTHORIZED.');
 

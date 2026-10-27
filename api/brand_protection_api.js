@@ -31,6 +31,38 @@ export function sanitizeBrandId(raw) {
 }
 
 // ============================================================================
+// PRECISION BRAND THREAT INTELLIGENCE & CLASSIFICATION HELPERS
+// ============================================================================
+
+export function isBrandMatch(url, slug) {
+    if (!url || !slug) return false;
+    const lower = url.toLowerCase();
+    const domainMatch = lower.match(/^https?:\/\/([^/?#]+)/i);
+    const domain = domainMatch ? domainMatch[1] : lower.split('/')[0];
+    const path = lower.replace(/^https?:\/\/[^/?#]+/i, '');
+
+    const escaped = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Ensure slug is not a false substring inside an unrelated word (e.g. bitcoins, lesbian)
+    const domainRegex = new RegExp(`(^|[-._])${escaped}([-._0-9]|loan|loans|bank|banking|card|pay|app|apk|instant|kyc|care|online|portal|login|verify|yono|finserv|finance|cash|credit|safe|alert|$)`, 'i');
+
+    if (domainRegex.test(domain)) return true;
+
+    // Standalone token in path or .apk filename
+    const pathRegex = new RegExp(`[/_.-]${escaped}([/_.-0-9]|apk|app|download|kyc|loan|yono|login|$)`, 'i');
+    if (pathRegex.test(path)) return true;
+
+    return false;
+}
+
+export function classifyVectorType(urlOrDomain, path = '') {
+    const combined = `${urlOrDomain || ''} ${path || ''}`.toLowerCase();
+    if (combined.includes('.apk') || combined.includes('/apk') || combined.includes('download.apk') || combined.includes('app.apk') || combined.includes('-app.xyz') || combined.includes('mobile-app')) {
+        return 'ROGUE_APK';
+    }
+    return 'PHISHING_DOMAIN';
+}
+
+// ============================================================================
 // REAL UNIVERSAL THREAT RECONNAISSANCE ENGINE (Zero Dummy Data)
 // ============================================================================
 
@@ -49,7 +81,7 @@ export async function discoverRealBrandThreats(brandId) {
     const results = [];
     const seenDomains = new Set();
 
-    // 1. Check local verified scam intelligence feed for this brand keyword
+    // 1. Check local verified scam intelligence feed with precision brand boundary matching
     try {
         if (fs.existsSync(INDIA_SCAMS_FILE)) {
             const lines = fs.readFileSync(INDIA_SCAMS_FILE, 'utf8').split('\n');
@@ -58,19 +90,21 @@ export async function discoverRealBrandThreats(brandId) {
                 try {
                     const record = JSON.parse(line);
                     const url = record.url || '';
-                    if (url.toLowerCase().includes(slug)) {
+                    if (isBrandMatch(url, slug)) {
                         const domain = url.replace(/^https?:\/\//i, '').split('/')[0].toLowerCase();
                         if (!seenDomains.has(domain)) {
                             seenDomains.add(domain);
+                            const vectorType = classifyVectorType(url, '');
                             results.push({
                                 id: results.length + 1,
                                 domain: url.replace(/^https?:\/\//i, ''),
                                 bank_brand: slug,
+                                vector_type: vectorType,
                                 detection_date: record.date_added || now.toISOString(),
                                 status: 'detected',
                                 confidence_score: 0.92,
                                 visual_match: 1,
-                                behavioral_risk: 'Verified Feed Incident (Phishing / Impersonation)',
+                                behavioral_risk: vectorType === 'ROGUE_APK' ? 'Rogue Android Package (.APK Dropper)' : 'Verified Feed Phishing Portal',
                                 ip_address: '104.21.48.91',
                                 hosting_provider: 'Cloudflare Inc. / CDN',
                                 alert_sent: 1,
@@ -117,10 +151,12 @@ export async function discoverRealBrandThreats(brandId) {
                     if (aRecord && aRecord.data) {
                         seenDomains.add(domain);
                         const isApk = domain.includes('app') || domain.includes('.apk');
+                        const vectorType = isApk ? 'ROGUE_APK' : 'PHISHING_DOMAIN';
                         results.push({
                             id: results.length + 1,
                             domain: domain,
                             bank_brand: slug,
+                            vector_type: vectorType,
                             detection_date: now.toISOString(),
                             status: 'detected',
                             confidence_score: 0.88,
@@ -165,19 +201,21 @@ export async function discoverRealBrandThreats(brandId) {
                             const name = rawName.trim().toLowerCase().replace(/^\*\./, '');
                             if (!name || seenDomains.has(name)) continue;
 
-                            // Skip official domains of the entity
+                            // Skip official domains of the entity and require true brand token match
                             const isOfficial = name.endsWith(`.${slug}.com`) || name.endsWith(`.${slug}.in`) || name === `${slug}.com` || name === `${slug}.in`;
-                            if (!isOfficial) {
+                            if (!isOfficial && isBrandMatch(name, slug)) {
                                 seenDomains.add(name);
+                                const vectorType = classifyVectorType(name, '');
                                 results.push({
                                     id: results.length + 1,
                                     domain: name,
                                     bank_brand: slug,
+                                    vector_type: vectorType,
                                     detection_date: cert.not_before || now.toISOString(),
                                     status: 'detected',
                                     confidence_score: 0.85,
                                     visual_match: 0,
-                                    behavioral_risk: 'Zero-Day Certificate Registered (CT Logs)',
+                                    behavioral_risk: vectorType === 'ROGUE_APK' ? 'Zero-Day Mobile Dropper Cert (CT Logs)' : 'Zero-Day Certificate Registered (CT Logs)',
                                     ip_address: '104.21.48.91',
                                     hosting_provider: cert.issuer_name || "Let's Encrypt / Public CA",
                                     alert_sent: 1,
@@ -398,6 +436,8 @@ export async function getBrandDashboard(req, res) {
             const liveThreats = await discoverRealBrandThreats(bank_id);
             const totalThreats = liveThreats.length;
             const activeThreats = liveThreats.filter(t => t.status === 'detected').length;
+            const phishingDomains = liveThreats.filter(t => t.vector_type !== 'ROGUE_APK').length;
+            const rogueApks = liveThreats.filter(t => t.vector_type === 'ROGUE_APK').length;
             const takedowns = liveThreats.filter(t => t.takedown_requested === 1).length;
             const visualMatches = liveThreats.filter(t => t.visual_match === 1).length;
             const avgConfidence = totalThreats > 0
@@ -431,10 +471,12 @@ export async function getBrandDashboard(req, res) {
                     perimeter_clean: totalThreats === 0,
                     status_message: totalThreats === 0
                         ? '0 Active Zero-Day Threats Detected. Perimeter verified against live Certificate Transparency logs & DNS rails.'
-                        : `${totalThreats} real threat vectors discovered actively resolving on the public internet.`,
+                        : `${totalThreats} real threat vectors discovered actively resolving on the public internet (${phishingDomains} Phishing Domains, ${rogueApks} Rogue APKs).`,
                     statistics: {
                         total_threats: totalThreats,
                         active_threats: activeThreats,
+                        phishing_domains: phishingDomains,
+                        rogue_apks: rogueApks,
                         takedowns_initiated: takedowns,
                         average_confidence: `${(avgConfidence * 100).toFixed(2)}%`,
                         visual_imitations_detected: visualMatches
@@ -443,6 +485,7 @@ export async function getBrandDashboard(req, res) {
                     recent_threats: liveThreats.map(t => ({
                         id: t.id,
                         domain: t.domain,
+                        vector_type: t.vector_type || (t.domain.includes('.apk') || (t.behavioral_risk && t.behavioral_risk.includes('APK')) ? 'ROGUE_APK' : 'PHISHING_DOMAIN'),
                         detected: t.detection_date,
                         confidence: `${(t.confidence_score * 100).toFixed(2)}%`,
                         visual_imitation: t.visual_match === 1,

@@ -139,6 +139,9 @@
         .btn-action-notice:hover { background: var(--accent-blue-soft); border-color: #bfdbfe; }
         .btn-action-takedown { padding: 6px 12px; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .btn-action-takedown:hover { background: #ef4444; color: #ffffff; border-color: #ef4444; }
+        .table-tab { padding: 6px 14px; border-radius: 980px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        .table-tab:hover { color: var(--text-main); }
+        .table-tab.active { background: #ffffff; color: var(--accent-blue); box-shadow: var(--shadow-sm); font-weight: 700; }
 
         /* Clean Reassuring Empty State */
         .clean-state-card { text-align: center; padding: 48px 24px; background: #ffffff; border-radius: 16px; }
@@ -257,6 +260,10 @@
                     <span class="stat-badge">Live Vectors</span>
                 </div>
                 <div class="stat-value" id="valActiveThreats">--</div>
+                <div style="display: flex; gap: 6px; margin: 6px 0 6px 0; flex-wrap: wrap;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 9999px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-size: 11px; font-weight: 700;">🌐 <span id="valPhishingDomains">0</span> Phishing Domains</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 9999px; background: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; font-size: 11px; font-weight: 700;">📱 <span id="valRogueApks">0</span> Rogue APKs</span>
+                </div>
                 <div class="stat-subtext">Resolving lookalikes & zero-days</div>
             </div>
             <div class="stat-card warning">
@@ -314,7 +321,12 @@
                     Detected Threat Vectors & Rogue Assets
                     <span class="count-badge" id="threatCountBadge">0</span>
                 </div>
-                <div class="table-actions">
+                <div class="table-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; background: var(--bg-muted); border: 1px solid var(--border-light); border-radius: 980px; padding: 3px; gap: 2px;">
+                        <button id="filterTabAll" class="table-tab active" onclick="filterThreatCategory('ALL')">All (<span id="tabCountAll">0</span>)</button>
+                        <button id="filterTabWeb" class="table-tab" onclick="filterThreatCategory('WEB')">🌐 Phishing (<span id="tabCountWeb">0</span>)</button>
+                        <button id="filterTabApk" class="table-tab" onclick="filterThreatCategory('APK')">📱 Rogue APKs (<span id="tabCountApk">0</span>)</button>
+                    </div>
                     <button class="btn-secondary" onclick="exportDossierCsv()">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Export CSV
@@ -392,6 +404,8 @@
     <script>
         let currentBank = 'kreditbee';
         let currentThreats = [];
+        let currentCategoryFilter = 'ALL';
+        let currentShownName = 'KreditBee';
         let severityChartInstance = null;
         let activityChartInstance = null;
         let activeNoticeThreat = null;
@@ -453,8 +467,8 @@
 
         async function loadBrandDashboard(brandId, displayName) {
             currentBank = brandId;
-            const shownName = displayName || BRAND_NAMES[brandId] || brandId.toUpperCase();
-            document.getElementById('activeBrandName').textContent = shownName;
+            currentShownName = displayName || BRAND_NAMES[brandId] || brandId.toUpperCase();
+            document.getElementById('activeBrandName').textContent = currentShownName;
 
             const scanBtnText = document.getElementById('scanBtnText');
             scanBtnText.innerHTML = '<span class="spinner"></span> Scanning...';
@@ -472,21 +486,64 @@
                 const data = result.data;
                 currentThreats = data.recent_threats || [];
 
+                const phishingCount = (data.statistics && data.statistics.phishing_domains !== undefined)
+                    ? data.statistics.phishing_domains
+                    : currentThreats.filter(t => t.vector_type !== 'ROGUE_APK').length;
+                const apkCount = (data.statistics && data.statistics.rogue_apks !== undefined)
+                    ? data.statistics.rogue_apks
+                    : currentThreats.filter(t => t.vector_type === 'ROGUE_APK').length;
+
                 document.getElementById('valActiveThreats').textContent = data.statistics.active_threats;
+                document.getElementById('valPhishingDomains').textContent = phishingCount;
+                document.getElementById('valRogueApks').textContent = apkCount;
                 document.getElementById('valAvgConfidence').textContent = data.statistics.average_confidence;
                 document.getElementById('valTakedowns').textContent = data.statistics.takedowns_initiated;
                 document.getElementById('valVisualMatches').textContent = data.statistics.visual_imitations_detected;
                 document.getElementById('threatCountBadge').textContent = currentThreats.length;
 
+                document.getElementById('tabCountAll').textContent = currentThreats.length;
+                document.getElementById('tabCountWeb').textContent = phishingCount;
+                document.getElementById('tabCountApk').textContent = apkCount;
+
+                currentCategoryFilter = 'ALL';
+                updateFilterTabButtons();
+
                 renderSeverityChart(data.severity_breakdown || { CRITICAL: 0, HIGH: 0, MEDIUM: 0 });
                 renderActivityChart(data.alert_activity || []);
-                renderThreatsTable(currentThreats, shownName);
+                renderThreatsTable(currentThreats, currentShownName);
 
             } catch (err) {
                 console.error('Fetch error:', err);
             } finally {
                 scanBtnText.textContent = 'Scan External Threats';
             }
+        }
+
+        function filterThreatCategory(cat) {
+            currentCategoryFilter = cat;
+            updateFilterTabButtons();
+
+            let filtered = currentThreats;
+            if (cat === 'WEB') {
+                filtered = currentThreats.filter(t => t.vector_type !== 'ROGUE_APK');
+            } else if (cat === 'APK') {
+                filtered = currentThreats.filter(t => t.vector_type === 'ROGUE_APK');
+            }
+            renderThreatsTable(filtered, currentShownName);
+        }
+
+        function updateFilterTabButtons() {
+            const tabs = [
+                { id: 'filterTabAll', key: 'ALL' },
+                { id: 'filterTabWeb', key: 'WEB' },
+                { id: 'filterTabApk', key: 'APK' }
+            ];
+            tabs.forEach(t => {
+                const el = document.getElementById(t.id);
+                if (!el) return;
+                if (currentCategoryFilter === t.key) el.classList.add('active');
+                else el.classList.remove('active');
+            });
         }
 
         function renderSeverityChart(breakdown) {
@@ -604,7 +661,7 @@
                     </thead>
                     <tbody>
                         ${threats.map((t, idx) => {
-                            const isApk = t.domain.includes('.apk') || t.risk_type.toLowerCase().includes('apk');
+                            const isApk = t.vector_type === 'ROGUE_APK' || t.domain.includes('.apk') || (t.risk_type && t.risk_type.toLowerCase().includes('apk'));
                             const isCt = t.source && t.source.includes('Certificate');
                             const confScore = parseFloat(t.confidence);
                             let confClass = 'conf-med';
@@ -615,14 +672,19 @@
                                 <tr>
                                     <td>
                                         <div class="domain-cell">
-                                            ${isApk ? '<span class="tag-apk">ROGUE APK</span>' : (isCt ? '<span class="tag-ct">ZERO-DAY</span>' : '<span class="tag-web">PHISHING</span>')}
+                                            ${isApk 
+                                                ? '<span class="tag-apk" style="display:inline-flex; align-items:center; gap:4px; font-weight:800;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ROGUE APK DROP</span>' 
+                                                : (isCt 
+                                                    ? '<span class="tag-ct" style="display:inline-flex; align-items:center; gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ZERO-DAY SSL</span>' 
+                                                    : '<span class="tag-web" style="display:inline-flex; align-items:center; gap:4px; font-weight:700;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg> PHISHING PORTAL</span>'
+                                                )}
                                             <span>${escapeHtml(t.domain)}</span>
                                         </div>
                                         <div class="infra-text">Host IP: ${escapeHtml(t.ip || '104.21.48.91')} • ${escapeHtml(t.hosting || 'Cloudflare')}</div>
                                     </td>
                                     <td>
                                         <div style="font-weight: 600; color: #0f172a;">${escapeHtml(t.risk_type || 'Impersonation Vector')}</div>
-                                        <div class="risk-text">Source: ${escapeHtml(t.source || 'Live Recon')}</div>
+                                        <div class="risk-text">Type: <strong>${isApk ? '📱 Mobile App Package (.APK)' : '🌐 Web Phishing Domain'}</strong> • Source: ${escapeHtml(t.source || 'Live Recon')}</div>
                                     </td>
                                     <td>
                                         <span class="confidence-pill ${confClass}">${t.confidence}</span>
