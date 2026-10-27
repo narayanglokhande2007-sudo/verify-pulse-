@@ -84,6 +84,10 @@
       "destination": "/api/brand_protection_api?action=request-takedown"
     },
     {
+      "source": "/api/brand-protection/report-threat",
+      "destination": "/api/brand_protection_api?action=report-threat"
+    },
+    {
       "source": "/api/brand-protection/export-report",
       "destination": "/api/brand_protection_api?action=export-report"
     }
