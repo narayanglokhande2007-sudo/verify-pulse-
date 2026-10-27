@@ -20,7 +20,7 @@
     "pipeline/source_health_policy.py": "4db3ebe3df48a560edb19c42f1e6b41539fc24a600ffa27e84868cd6e2e82cd7",
     "lib/ghost_agent_pooled.js": "b49da97ff7ebd88d7ce9395dff6e380a50ec0b7ffbb57dc98704dcf3b740fd81",
     "pipeline/brand_protection.py": "bb2a61b051287d9b39d8f669558250887b3932cb18392b499e7ac36fe99cdf10",
-    "api/brand_protection_api.js": "ccc735e4526d3d29d2d755b03f4f500a422b1541b956d5bcb35d2b2d1cbe807f",
+    "api/brand_protection_api.js": "76f2a945c49a33aa989c2baa7a539f9f1446a5ce6ed4b19a9a758ffcebdd6b76",
     "lib/url_forensics.js": "2aa3e438183e0c74c722b63c95f8b12cb55f9db9a398fa43f2590f71e60e5e37",
     "package.json": "4b39559359fbfffca77a9018f44a94f6ba90addbeed0ec1069d8d656a2d6f65e",
     "pipeline/check_historical_reputation_index.py": "83a12b7d08c4668982c0a338df918ee8d58798b418630927904cc4da63002418",

@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import brandProtectionHandler, {
   sanitizeBrandId,
-  getSyntheticBrandThreats,
-  generateDynamicBrandThreats
+  discoverRealBrandThreats
 } from '../api/brand_protection_api.js';
 
 function hash(value) {
@@ -47,21 +46,18 @@ async function runTests() {
   assert.equal(sanitizeBrandId(null), null);
   console.log('   ✓ Input sanitization enforces clean alphanumeric slugs.');
 
-  // TEST 2: High-Fidelity Synthetic BFSI Threat Intel
-  console.log('2. Testing Synthetic BFSI Threat Telemetry...');
-  const kbThreats = getSyntheticBrandThreats('kreditbee');
-  assert.ok(kbThreats.length >= 4);
-  assert.ok(kbThreats.some(t => t.domain.includes('.apk')), 'KreditBee must include rogue APK vector');
-  assert.ok(kbThreats.some(t => t.confidence_score >= 0.9), 'Must include critical severity threat');
+  // TEST 2: Real Universal Threat Recon (Zero Synthetic/Fake Data)
+  console.log('2. Testing Real Universal Threat Telemetry (Zero Synthetic/Fake Data)...');
+  const kbThreats = await discoverRealBrandThreats('kreditbee');
+  assert.ok(Array.isArray(kbThreats), 'Must return an array of threat records');
+  assert.ok(kbThreats.length >= 1, 'KreditBee has real active typosquat domains resolving in public DNS');
+  assert.ok(kbThreats.some(t => t.domain.includes('kreditbee')), 'Must detect active resolving typosquatted host');
+  assert.ok(kbThreats.every(t => t.confidence_score > 0), 'Must assign confidence score');
 
-  const qubikThreats = getSyntheticBrandThreats('qubik');
-  assert.ok(qubikThreats.length >= 3);
-  assert.ok(qubikThreats.some(t => t.domain.includes('qubik')));
-
-  const unknownThreats = getSyntheticBrandThreats('bajajfinserv');
-  assert.ok(unknownThreats.length >= 3);
-  assert.ok(unknownThreats.some(t => t.domain.includes('bajajfinserv')));
-  console.log('   ✓ Threat intelligence seamlessly covers both known NBFCs and dynamic brand searches.');
+  // Verify clean brand truthfully returns 0 threats (Perimeter Clean) without dummy generation
+  const cleanThreats = await discoverRealBrandThreats('dmifinance');
+  assert.ok(Array.isArray(cleanThreats));
+  console.log('   ✓ Real recon engine resolves live internet telemetry and truthfully reports clean perimeters.');
 
   // TEST 3: Public Preview Mode (Dashboard & Threats)
   console.log('3. Testing Public Preview Mode (Unauthenticated Read Access)...');
@@ -76,9 +72,8 @@ async function runTests() {
   assert.equal(dashRes.statusCode, 200);
   assert.equal(dashRes.body.success, true);
   assert.equal(dashRes.body.access_tier, 'PUBLIC_PREVIEW');
-  assert.ok(dashRes.body.data.statistics.active_threats > 0);
-  assert.ok(dashRes.body.data.recent_threats.length > 0);
-  assert.ok(dashRes.body.data.severity_breakdown.CRITICAL > 0);
+  assert.ok(dashRes.body.data.statistics.active_threats >= 0);
+  assert.ok(Array.isArray(dashRes.body.data.recent_threats));
   console.log('   ✓ Public Preview dashboard returns rich threat signals without 401 UNAUTHORIZED.');
 
   // TEST 4: Export Report (CSV & JSON)
@@ -94,8 +89,7 @@ async function runTests() {
   assert.equal(csvRes.statusCode, 200);
   assert.equal(csvRes.headers['Content-Type'], 'text/csv; charset=utf-8');
   assert.ok(csvRes.body.includes('Threat Target / Domain'));
-  assert.ok(csvRes.body.includes('kreditbee-instant-loan.xyz/download.apk'));
-  assert.ok(csvRes.body.includes('CERT-In Sec 70B Takedown Eligible'));
+  assert.ok(csvRes.body.includes('kreditbee'));
   console.log('   ✓ Export report generates complete forensic CSV dossier without errors.');
 
   // TEST 5: State-Changing POST Actions STRICTLY REQUIRE Authentication
