@@ -432,25 +432,124 @@
             'sbi': 'State Bank of India (YONO)',
             'icici': 'ICICI Bank',
             'axis': 'Axis Bank',
-            'paytm': 'Paytm Payments Bank / UPI'
+            'paytm': 'Paytm Payments Bank / UPI',
+            'infosec': 'InfoSec (Information Security)',
+            'infosys': 'Infosys Technologies',
+            'cybersecurity': 'Cyber Security (CERT-In / I4C)',
+            'tcs': 'Tata Consultancy Services (TCS)',
+            'wipro': 'Wipro Enterprises',
+            'zomato': 'Zomato / Blinkit',
+            'swiggy': 'Swiggy / Instamart',
+            'reliance': 'Reliance Industries / Jio'
         };
+
+        const CANONICAL_DICTIONARY = [
+            { slug: 'infosec', name: 'InfoSec (Information Security)', aliases: ['infosec', 'info sec', 'infosecc', 'information security'] },
+            { slug: 'infosys', name: 'Infosys Technologies', aliases: ['infosys', 'infy', 'infosys tech', 'infosyss'] },
+            { slug: 'cybersecurity', name: 'Cyber Security (CERT-In / I4C)', aliases: ['cybersecurity', 'cyber security', 'cybersec'] },
+            { slug: 'tcs', name: 'Tata Consultancy Services (TCS)', aliases: ['tcs', 'tata consultancy'] },
+            { slug: 'wipro', name: 'Wipro Enterprises', aliases: ['wipro', 'wipro tech'] },
+            { slug: 'zomato', name: 'Zomato / Blinkit', aliases: ['zomato', 'blinkit'] },
+            { slug: 'swiggy', name: 'Swiggy / Instamart', aliases: ['swiggy', 'instamart'] },
+            { slug: 'reliance', name: 'Reliance Industries / Jio', aliases: ['reliance', 'jio'] },
+            { slug: 'tata', name: 'Tata Group', aliases: ['tata'] },
+            { slug: 'airtel', name: 'Bharti Airtel', aliases: ['airtel'] },
+            { slug: 'sbi', name: 'State Bank of India (YONO)', aliases: ['sbi', 'state bank', 'yono'] },
+            { slug: 'hdfc', name: 'HDFC Bank', aliases: ['hdfc', 'hdfcbank'] },
+            { slug: 'icici', name: 'ICICI Bank', aliases: ['icici', 'icicibank'] },
+            { slug: 'axis', name: 'Axis Bank', aliases: ['axis', 'axisbank'] },
+            { slug: 'kotak', name: 'Kotak Mahindra Bank', aliases: ['kotak'] },
+            { slug: 'kreditbee', name: 'KreditBee (KrazyBee Services)', aliases: ['kreditbee', 'krazybee'] },
+            { slug: 'bajaj', name: 'Bajaj Finance / Finserv', aliases: ['bajaj', 'bajaj finance', 'bajaj finserv'] },
+            { slug: 'navi', name: 'Navi Finserv', aliases: ['navi', 'navi finserv'] },
+            { slug: 'cashe', name: 'CASHe (Bhanix Finance)', aliases: ['cashe', 'bhanix'] },
+            { slug: 'mpokket', name: 'mPokket Financial Services', aliases: ['mpokket', 'm pokket'] },
+            { slug: 'dmi', name: 'DMI Finance', aliases: ['dmi', 'dmifinance'] },
+            { slug: 'fibe', name: 'Fibe (EarlySalary)', aliases: ['fibe', 'earlysalary'] },
+            { slug: 'qubik', name: 'Qubik Finserv', aliases: ['qubik'] },
+            { slug: 'rupeeredee', name: 'RupeeRedee (FincFriends)', aliases: ['rupeeredee', 'fincfriends'] },
+            { slug: 'kissht', name: 'Kissht / Ring Pay', aliases: ['kissht', 'ring'] },
+            { slug: 'capri-global', name: 'Capri Global Capital', aliases: ['capri', 'capri global'] },
+            { slug: 'incred', name: 'InCred Financial Services', aliases: ['incred'] },
+            { slug: 'fedbank', name: 'Fedbank Financial Services', aliases: ['fedbank', 'fedfina'] },
+            { slug: 'muthoot', name: 'Muthoot Finance', aliases: ['muthoot'] },
+            { slug: 'paytm', name: 'Paytm', aliases: ['paytm'] },
+            { slug: 'phonepe', name: 'PhonePe', aliases: ['phonepe'] },
+            { slug: 'razorpay', name: 'Razorpay', aliases: ['razorpay'] },
+            { slug: 'zerodha', name: 'Zerodha', aliases: ['zerodha'] }
+        ];
+
+        function computeLevenshtein(a, b) {
+            if (!a || !b) return (a || b || '').length;
+            const m = a.length, n = b.length;
+            const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+                }
+            }
+            return dp[m][n];
+        }
+
+        function checkTypoSuggestion(val) {
+            if (!val || val.length < 3) return null;
+            const clean = val.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+            for (const item of CANONICAL_DICTIONARY) {
+                for (const alias of item.aliases) {
+                    const cleanAlias = alias.replace(/[^a-z0-9]/g, '');
+                    if (clean === cleanAlias) return null;
+                    const dist = computeLevenshtein(clean, cleanAlias);
+                    const threshold = Math.max(1, Math.floor(cleanAlias.length * 0.35));
+                    if (dist <= threshold) return item;
+                }
+            }
+            return null;
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             loadBrandDashboard('kreditbee');
 
-            document.getElementById('brandSearchInput').addEventListener('keydown', (e) => {
+            const searchInput = document.getElementById('brandSearchInput');
+            let typingTimer;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    const val = e.target.value.trim();
+                    const didYouMean = checkTypoSuggestion(val);
+                    const didYouMeanBox = document.getElementById('didYouMeanBox');
+                    const didYouMeanContent = document.getElementById('didYouMeanContent');
+                    if (didYouMean && didYouMeanBox && didYouMeanContent) {
+                        didYouMeanBox.style.display = 'flex';
+                        didYouMeanBox.style.background = 'rgba(239, 68, 68, 0.08)';
+                        didYouMeanBox.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                        didYouMeanBox.style.color = '#991b1b';
+                        didYouMeanContent.innerHTML = `
+                            <strong>Did you mean:</strong> 
+                            <a href="javascript:void(0)" onclick="selectChip('${didYouMean.slug}', '${didYouMean.name.replace(/'/g, "\\'")}')" style="font-weight: 700; color: #dc2626; text-decoration: underline; margin-left: 4px;">
+                                ${didYouMean.name}
+                            </a>? Click to switch to verified institution.
+                        `;
+                    }
+                }, 150);
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') handleSearchScan();
             });
         });
 
-        function selectChip(brandId) {
+        function selectChip(brandId, customDisplayName) {
             document.querySelectorAll('.brand-chip').forEach(el => el.classList.remove('active'));
             const activeChip = document.querySelector(`.brand-chip[data-brand="${brandId}"]`);
             if (activeChip) activeChip.classList.add('active');
 
-            const readable = BRAND_NAMES[brandId] || brandId;
+            const readable = customDisplayName || BRAND_NAMES[brandId] || brandId;
             document.getElementById('brandSearchInput').value = readable;
-            loadBrandDashboard(brandId);
+            loadBrandDashboard(brandId, readable);
         }
 
         function handleSearchScan() {

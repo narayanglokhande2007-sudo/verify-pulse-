@@ -73,6 +73,11 @@ async function runTests() {
   assert.equal(typoCorrection.slug, 'kreditbee');
   assert.equal(findDidYouMean('kreditbee'), null, 'Exact match must return null');
 
+  const infosecCorrection = findDidYouMean('InFoSSc');
+  assert.ok(infosecCorrection, 'Must suggest Did You Mean for typo InFoSSc');
+  assert.equal(infosecCorrection.slug, 'infosec');
+  assert.equal(infosecCorrection.name, 'InfoSec (Information Security)');
+
   // Verify multi-word query discovers root brand threats
   const bajajThreats = await discoverRealBrandThreats('Bajaj Finance Limited');
   assert.ok(bajajThreats.some(t => t.domain.includes('bajajloan.com')), 'Must discover bajajloan.com via root resolution');
