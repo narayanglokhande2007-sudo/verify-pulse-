@@ -25,7 +25,8 @@ const INDIA_SCAMS_FILE = path.join(__dirname, '../pipeline/daily-data/india_scam
 
 export function sanitizeBrandId(raw) {
     if (!raw || typeof raw !== 'string') return null;
-    const trimmed = raw.trim().toLowerCase();
+    const stripped = raw.trim().replace(/^([0-9]+|[#*])\s*[-.)]\s*/, '');
+    const trimmed = stripped.toLowerCase();
     const cleaned = trimmed.replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').slice(0, 50);
     return cleaned.length >= 2 ? cleaned : null;
 }
@@ -36,54 +37,44 @@ export function sanitizeBrandId(raw) {
 
 export function extractBrandRoots(raw) {
     if (!raw || typeof raw !== 'string') return [];
-    const trimmed = raw.trim().toLowerCase();
+    const stripped = raw.trim().replace(/^([0-9]+|[#*])\s*[-.)]\s*/, '');
+    const trimmed = stripped.toLowerCase();
     const cleanFull = trimmed.replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').slice(0, 50);
     if (!cleanFull || cleanFull.length < 2) return [];
 
     const roots = new Set();
-    roots.add(cleanFull);
 
     // Map common multi-word Indian BFSI aliases & legal entities
-    if (/state\s*bank|sbi|yono/i.test(trimmed)) {
-        roots.add('sbi');
-    }
-    if (/krazy\s*bee|kredit\s*bee/i.test(trimmed)) {
-        roots.add('kreditbee');
-        roots.add('krazybee');
-    }
-    if (/bhanix|cashe/i.test(trimmed)) {
-        roots.add('cashe');
-        roots.add('bhanix');
-    }
-    if (/finc\s*friends|rupee\s*redee/i.test(trimmed)) {
-        roots.add('rupeeredee');
-    }
-    if (/fed\s*fina|fed\s*bank/i.test(trimmed)) {
-        roots.add('fedbank');
-        roots.add('fedfina');
-    }
-    if (/capri/i.test(trimmed)) {
-        roots.add('capri');
-        roots.add('capri-global');
-    }
+    if (/state\s*bank|sbi|yono/i.test(trimmed)) roots.add('sbi');
+    if (/krazy\s*bee|kredit\s*bee/i.test(trimmed)) { roots.add('kreditbee'); roots.add('krazybee'); }
+    if (/bhanix|cashe/i.test(trimmed)) { roots.add('cashe'); roots.add('bhanix'); }
+    if (/finc\s*friends|rupee\s*redee/i.test(trimmed)) roots.add('rupeeredee');
+    if (/fed\s*fina|fed\s*bank/i.test(trimmed)) { roots.add('fedbank'); roots.add('fedfina'); }
+    if (/capri/i.test(trimmed)) { roots.add('capri'); roots.add('capri-global'); }
+    if (/bajaj/i.test(trimmed)) roots.add('bajaj');
+    if (/navi/i.test(trimmed)) roots.add('navi');
+    if (/mpokket|pocket/i.test(trimmed)) roots.add('mpokket');
+    if (/onemi|kissht|ring\s*pay/i.test(trimmed)) roots.add('kissht');
+    if (/dmi/i.test(trimmed)) roots.add('dmi');
+    if (/rbl/i.test(trimmed)) roots.add('rbl');
+    if (/hdfc/i.test(trimmed)) roots.add('hdfc');
+    if (/icici/i.test(trimmed)) roots.add('icici');
+    if (/axis/i.test(trimmed)) roots.add('axis');
+    if (/paytm/i.test(trimmed)) roots.add('paytm');
 
     // Universal corporate suffix & entity designator pruning
-    // Covers Indian MCA/ROC terms, global corporate forms, and BFSI industry suffixes
-    const corporateSuffixRegex = /\b(pvt|private|ltd|limited|llp|holdings?|corporation|corp|capital|securities|finserv|finances?|financial|services?|service|banks?|banking|payments?|microfinance|credit|loans?|tech|technolog(y|ies)|group|co|company|enterprises?|india)\b/gi;
+    const corporateSuffixRegex = /\b(pvt|private|ltd|limited|llp|holdings?|corporation|corp|capital|securities|finserv|finances?|financial|services?|service|banks?|banking|payments?|microfinance|credit|loans?|tech|technolog(y|ies)|group|co|company|enterprises?|india|division|solutions?|sachin|bansal|ki)\b/gi;
 
-    const normalizedWords = trimmed.replace(/[-_.]+/g, ' ');
+    const normalizedWords = trimmed.replace(/[-_./()\[\]{}&+,:;'"\\|]+/g, ' ');
     const pruned = normalizedWords.replace(corporateSuffixRegex, ' ').replace(/\s+/g, ' ').trim();
     if (pruned.length >= 2) {
         const prunedSlug = pruned.replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
-        if (prunedSlug.length >= 2) {
-            roots.add(prunedSlug);
-        }
+        if (prunedSlug.length >= 2) roots.add(prunedSlug);
         const firstToken = pruned.split(' ')[0].replace(/[^a-z0-9_-]/g, '');
-        if (firstToken.length >= 2) {
-            roots.add(firstToken);
-        }
+        if (firstToken.length >= 2) roots.add(firstToken);
     }
 
+    roots.add(cleanFull);
     return Array.from(roots);
 }
 
@@ -154,21 +145,21 @@ export function findDidYouMean(rawInput) {
 
 export function resolveCanonicalBrand(raw) {
     if (!raw || typeof raw !== 'string') return null;
-    const clean = sanitizeBrandId(raw);
+    const stripped = raw.trim().replace(/^([0-9]+|[#*])\s*[-.)]\s*/, '');
+    const clean = sanitizeBrandId(stripped);
     if (!clean) return null;
 
     const known = KNOWN_BFSI_CANONICALS.find(k => k.slug === clean || k.aliases.includes(clean));
     if (known) return known.slug;
 
-    const roots = extractBrandRoots(raw);
+    const roots = extractBrandRoots(stripped);
     for (const r of roots) {
-        if (r !== clean && KNOWN_BFSI_CANONICALS.some(k => k.slug === r)) {
-            return r;
-        }
+        const found = KNOWN_BFSI_CANONICALS.find(k => k.slug === r || k.aliases.includes(r));
+        if (found) return found.slug;
     }
     if (roots.length > 1) {
-        const sorted = [...roots].sort((a, b) => a.length - b.length);
-        return sorted[0];
+        const sorted = [...roots].filter(r => r.length >= 2 && !r.includes('-')).sort((a, b) => a.length - b.length);
+        if (sorted.length > 0) return sorted[0];
     }
     return clean;
 }
@@ -216,13 +207,19 @@ export function classifyVectorType(urlOrDomain, path = '') {
  * 5. Returns 100% genuine findings. If clean, truthfully returns 0 threats (Perimeter Clean).
  */
 export async function discoverRealBrandThreats(brandId) {
-    const candidateSlugs = extractBrandRoots(brandId);
-    if (!candidateSlugs || candidateSlugs.length === 0) return [];
+    const rawCandidateSlugs = extractBrandRoots(brandId);
+    if (!rawCandidateSlugs || rawCandidateSlugs.length === 0) return [];
+
+    const canonical = resolveCanonicalBrand(brandId);
+    const candidateSlugs = Array.from(new Set([
+        ...(canonical ? [canonical] : []),
+        ...rawCandidateSlugs.filter(s => s !== canonical).sort((a, b) => a.length - b.length)
+    ]));
 
     const now = new Date();
     const results = [];
     const seenDomains = new Set();
-    const primarySlug = candidateSlugs[candidateSlugs.length - 1] || candidateSlugs[0];
+    const primarySlug = candidateSlugs[0] || 'brand';
 
     // 1. Check local verified scam intelligence feed across all candidate slugs
     try {
@@ -265,6 +262,7 @@ export async function discoverRealBrandThreats(brandId) {
     // 2. Perform live DNS-over-HTTPS resolution on high-probability typosquatted variants for all candidate slugs
     const highRiskVariants = [];
     for (const slug of candidateSlugs) {
+        if (!slug || slug.length < 2) continue;
         highRiskVariants.push(
             `${slug}loan.in`,
             `${slug}loan.com`,
@@ -279,7 +277,7 @@ export async function discoverRealBrandThreats(brandId) {
         );
     }
 
-    const uniqueVariants = Array.from(new Set(highRiskVariants)).slice(0, 16);
+    const uniqueVariants = Array.from(new Set(highRiskVariants)).slice(0, 24);
 
     await Promise.all(uniqueVariants.map(async (domain) => {
         if (seenDomains.has(domain)) return;
