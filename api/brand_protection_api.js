@@ -957,6 +957,14 @@ export async function exportReport(req, res) {
             threats = await discoverRealBrandThreats(bank_id);
         }
 
+        const providedKey = req.headers?.['x-api-key'] || req.query?.key;
+        if (format === 'csv' && (!providedKey || (!providedKey.startsWith('vp_live_sec_') && providedKey.length < 16))) {
+            return res.status(403).json({
+                error: 'Institutional authorization required for full evidentiary CSV export. Enter Enterprise B2B API Key or contact enterprise@verify-pulse.com.',
+                code: 'ENTERPRISE_KEY_REQUIRED'
+            });
+        }
+
         if (format === 'csv') {
             const csvRows = [
                 'Threat Target / Domain,Target Brand,Detected Date,Status,Confidence Score,Visual / Trademark Clone,Behavioral Risk Vector,Hosting IP,Hosting Provider / ASN,Alert Dispatched,CERT-In Sec 70B Takedown Eligible',

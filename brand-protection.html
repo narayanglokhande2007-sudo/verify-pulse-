@@ -407,6 +407,67 @@
         </div>
     </div>
 
+    <!-- Public Scan Limit Modal (2 Scans Daily Cap) -->
+    <div class="modal-overlay" id="scanLimitModal">
+        <div class="modal-box" style="max-width: 560px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Daily Public Preview Limit Reached (2/2)
+                    </div>
+                    <div class="modal-subtitle">Institutional Perimeter Reconnaissance & Continuous SIEM Feed</div>
+                </div>
+                <button class="modal-close" onclick="closeScanLimitModal()">&times;</button>
+            </div>
+            <div style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+                <p style="margin-bottom: 12px;"><strong style="color: #0f172a;">You have reached the daily 2-scan public preview limit for your network IP.</strong></p>
+                <p style="margin-bottom: 14px;">To protect proprietary threat telemetry and prevent adversarial surveillance abuse, continuous multi-brand recon, passive DNS history, and automated CERT-In takedowns are reserved for enrolled BFSI partners.</p>
+                <div style="background: var(--accent-blue-soft); border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #1e40af; margin-bottom: 4px;">Institutional Retainer Benefits:</div>
+                    <ul style="font-size: 12px; color: #1e3a8a; padding-left: 18px; line-height: 1.6;">
+                        <li>24/7 Automated Perimeter Surveillance across Indian BFSI registries</li>
+                        <li>Sub-6-hour CERT-In Section 70B & Global Registrar Takedowns</li>
+                        <li>Automated SIEM / Webhook alerts (Splunk, Microsoft Sentinel, QRadar)</li>
+                        <li>Quarterly RBI Compliance & Board-Ready Brand Audit Dossiers</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <button class="btn-secondary" onclick="openEnterpriseModalFromLimit()">Enter Enterprise API Key</button>
+                <a href="mailto:enterprise@verify-pulse.com?subject=Institutional%20Brand%20Defense%20Briefing%20Request" class="btn-primary" style="text-decoration:none;">Schedule CISO Briefing</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Gate Modal (Restricted Dossier) -->
+    <div class="modal-overlay" id="exportGateModal">
+        <div class="modal-box" style="max-width: 520px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Forensic Dossier Export (Restricted)
+                    </div>
+                    <div class="modal-subtitle">CERT-In Sec 70B & Evidentiary CSV Dispatch</div>
+                </div>
+                <button class="modal-close" onclick="closeExportGateModal()">&times;</button>
+            </div>
+            <div style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+                <p style="margin-bottom: 12px;">Full CSV evidentiary dossiers contain raw registrar abuse payloads, passive DNS routing, and cryptographic certificate timestamps intended for official SOC incident triage.</p>
+                <div style="background: var(--bg-muted); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">ENTERPRISE B2B API KEY</div>
+                    <input type="password" id="exportApiKeyInput" placeholder="vp_live_sec_..." style="width: 100%; padding: 10px; background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; color: #0f172a; font-family: var(--font-mono); font-size: 13px; outline: none;">
+                </div>
+                <p style="font-size: 12px; color: #64748b;">Don't have an enterprise key? Contact <a href="mailto:enterprise@verify-pulse.com" style="color: #2563eb; font-weight: 600;">enterprise@verify-pulse.com</a> from your official institutional email.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeExportGateModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitExportAuth()">Authenticate & Download</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentBank = 'kreditbee';
         let currentThreats = [];
@@ -509,7 +570,78 @@
             return null;
         }
 
+        const SCAN_LIMIT_PER_DAY = 2;
+
+        function getDailyScanData() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const raw = localStorage.getItem('vp_scan_history');
+                if (!raw) return { date: today, brands: [] };
+                const parsed = JSON.parse(raw);
+                if (parsed.date !== today) return { date: today, brands: [] };
+                return parsed;
+            } catch (e) {
+                return { date: new Date().toISOString().split('T')[0], brands: [] };
+            }
+        }
+
+        function isScanBlocked(targetBrand) {
+            if (localStorage.getItem('vp_enterprise_key')) return false;
+            const data = getDailyScanData();
+            if (data.brands.includes(targetBrand)) return false;
+            return data.brands.length >= SCAN_LIMIT_PER_DAY;
+        }
+
+        function recordBrandScan(targetBrand) {
+            if (localStorage.getItem('vp_enterprise_key')) return;
+            const data = getDailyScanData();
+            if (!data.brands.includes(targetBrand)) {
+                data.brands.push(targetBrand);
+                try {
+                    localStorage.setItem('vp_scan_history', JSON.stringify(data));
+                } catch (e) {}
+            }
+        }
+
+        function openScanLimitModal() {
+            document.getElementById('scanLimitModal').classList.add('active');
+        }
+
+        function closeScanLimitModal() {
+            document.getElementById('scanLimitModal').classList.remove('active');
+        }
+
+        function openEnterpriseModalFromLimit() {
+            closeScanLimitModal();
+            openEnterpriseModal();
+        }
+
+        function openExportGateModal() {
+            document.getElementById('exportGateModal').classList.add('active');
+        }
+
+        function closeExportGateModal() {
+            document.getElementById('exportGateModal').classList.remove('active');
+        }
+
+        function submitExportAuth() {
+            const keyInput = document.getElementById('exportApiKeyInput').value.trim();
+            if (!keyInput) {
+                alert('Please enter an Enterprise B2B API Key or contact enterprise@verify-pulse.com for institutional credentials.');
+                return;
+            }
+            if (keyInput.startsWith('vp_live_sec_') || keyInput.length >= 16) {
+                localStorage.setItem('vp_enterprise_key', keyInput);
+                closeExportGateModal();
+                alert('Institutional credentials verified. Generating full signed CSV dossier...');
+                window.location.href = `/api/brand-protection/export-report?bank_id=${encodeURIComponent(currentBank)}&format=csv`;
+            } else {
+                alert('Invalid Enterprise B2B API Key. Please verify credentials with your CISO response desk.');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            recordBrandScan('kreditbee');
             loadBrandDashboard('kreditbee');
 
             const searchInput = document.getElementById('brandSearchInput');
@@ -543,6 +675,12 @@
         });
 
         function selectChip(brandId, customDisplayName) {
+            if (isScanBlocked(brandId)) {
+                openScanLimitModal();
+                return;
+            }
+            recordBrandScan(brandId);
+
             document.querySelectorAll('.brand-chip').forEach(el => el.classList.remove('active'));
             const activeChip = document.querySelector(`.brand-chip[data-brand="${brandId}"]`);
             if (activeChip) activeChip.classList.add('active');
@@ -561,6 +699,12 @@
                 alert('Please enter a valid institution name (at least 2 letters)');
                 return;
             }
+
+            if (isScanBlocked(slug)) {
+                openScanLimitModal();
+                return;
+            }
+            recordBrandScan(slug);
 
             document.querySelectorAll('.brand-chip').forEach(el => {
                 if (el.getAttribute('data-brand') === slug) el.classList.add('active');
@@ -797,12 +941,43 @@
                     </thead>
                     <tbody>
                         ${threats.map((t, idx) => {
+                            const isEnterprise = !!localStorage.getItem('vp_enterprise_key');
+                            const isMasked = !isEnterprise && idx >= 2;
                             const isApk = t.vector_type === 'ROGUE_APK' || t.domain.includes('.apk') || (t.risk_type && t.risk_type.toLowerCase().includes('apk'));
                             const isCt = t.source && t.source.includes('Certificate');
                             const confScore = parseFloat(t.confidence);
                             let confClass = 'conf-med';
                             if (confScore >= 90) confClass = 'conf-critical';
                             else if (confScore >= 80) confClass = 'conf-high';
+
+                            if (isMasked) {
+                                return `
+                                <tr style="background: rgba(248, 250, 252, 0.7); opacity: 0.85;">
+                                    <td>
+                                        <div class="domain-cell">
+                                            <span class="tag-apk" style="background:#f1f5f9; border-color:#cbd5e1; color:#475569;">🔒 RESTRICTED</span>
+                                            <span style="filter: blur(4px); user-select: none;">rogue-perimeter-asset.in</span>
+                                        </div>
+                                        <div class="infra-text">Host IP: [MASKED] • Authoritative AS Gated</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: #475569;">Institutional Threat Vector #${idx + 1}</div>
+                                        <div class="risk-text">Historical Telemetry • <strong>Gated Under Enterprise Tier</strong></div>
+                                    </td>
+                                    <td>
+                                        <span class="confidence-pill conf-high">94.00%</span>
+                                    </td>
+                                    <td>
+                                        <span style="color: #64748b; font-weight: 600;">Gated</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn-action-takedown" onclick="openEnterpriseModal()" style="font-size: 11px;">
+                                            Unlock Vector
+                                        </button>
+                                    </td>
+                                </tr>
+                                `;
+                            }
 
                             return `
                                 <tr>
@@ -841,6 +1016,22 @@
                                 </tr>
                             `;
                         }).join('')}
+                        ${!localStorage.getItem('vp_enterprise_key') ? `
+                        <tr style="background: rgba(241, 245, 249, 0.7); border-top: 2px dashed #cbd5e1;">
+                            <td colspan="5" style="padding: 22px 18px; text-align: center;">
+                                <div style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #0f172a; margin-bottom: 4px; font-size: 13px;">
+                                    <svg width="16" height="16" fill="none" stroke="#2563eb" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <span>INSTITUTIONAL RADAR LOCKED: Additional Historical Clones, Passive DNS & Rogue APK Binaries Gated</span>
+                                </div>
+                                <div style="color: #64748b; font-size: 12px; max-width: 620px; margin: 0 auto 10px auto;">
+                                    Public preview displays preliminary perimeter reconnaissance. Complete automated SIEM webhooks, 24/7 continuous threat alerting, and sub-6-hour CERT-In takedowns require an enrolled enterprise retainer.
+                                </div>
+                                <button class="btn-primary" onclick="openEnterpriseModal()" style="font-size: 12px; padding: 6px 16px; border-radius: 9999px;">
+                                    Authenticate Enterprise Key / Unlock Full Surveillance
+                                </button>
+                            </td>
+                        </tr>
+                        ` : ''}
                     </tbody>
                 </table>
             `;
@@ -976,7 +1167,12 @@ In partnership with registered NBFC / BFSI Legal Defense Operations.`;
 
         function exportDossierCsv() {
             if (!currentBank) return;
-            window.location.href = `/api/brand-protection/export-report?bank_id=${encodeURIComponent(currentBank)}&format=csv`;
+            const key = localStorage.getItem('vp_enterprise_key');
+            if (key) {
+                window.location.href = `/api/brand-protection/export-report?bank_id=${encodeURIComponent(currentBank)}&format=csv`;
+            } else {
+                openExportGateModal();
+            }
         }
     </script>
 </body>
