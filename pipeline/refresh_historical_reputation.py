@@ -28,8 +28,8 @@ from build_historical_reputation_index import (
 MANIFEST_PATH = INDEX_DIR / "manifest.json"
 INTEGRITY_PATH = INDEX_DIR / "integrity.json"
 HEALTH_PATH = INDEX_DIR / "source_health.json"
-MAX_RESPONSE_BYTES = 2 * 1024 * 1024
-MAX_RECORDS_PER_SOURCE = 600
+MAX_RESPONSE_BYTES = 50 * 1024 * 1024
+MAX_RECORDS_PER_SOURCE = 50000
 REQUEST_TIMEOUT_SECONDS = 12
 
 SOURCE_CATALOG = (
