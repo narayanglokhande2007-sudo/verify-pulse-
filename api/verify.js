@@ -15,6 +15,7 @@ import { directLocalLookup } from '../lib/indexed_direct_lookup.js';
 import { validateB2bApiKey } from '../lib/security_controls.js';
 import { checkB2BQuota } from '../lib/quota_manager.js';
 import { applyTenantCustomRules } from '../lib/tenant_custom_rules.js';
+import { assessDisputeCalibratedDomains } from '../lib/dispute_registry.js';
 
 const threatFeedCache = { values: [], expiresAt: 0 };
 
@@ -377,6 +378,13 @@ export default async function handler(req, res) {
         detail: 'The parsed URL hostname matched the VerifyPulse trusted-domain registry.'
       });
     }
+    if (sources.includes('Domain dispute resolution registry')) {
+      evidence.push({
+        source: 'Domain dispute resolution registry',
+        type: 'formal-reputation-review',
+        detail: 'This domain was reviewed under an official VerifyPulse reputation dispute ticket. Phishing classification was removed and calibrated to NEEDS_VERIFICATION.'
+      });
+    }
     if (sources.includes('Local social-engineering rules')) {
       evidence.push({
         source: 'Local social-engineering rules',
@@ -632,6 +640,12 @@ CRITICAL GUARDRAILS:
     const ambiguousNotification = assessAmbiguousLegitimateNotification(text);
     if (ambiguousNotification && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
       return res.status(200).json(safeResult(ambiguousNotification));
+    }
+
+    const disputeCalibrated = assessDisputeCalibratedDomains(text);
+    if (disputeCalibrated && ['scam', 'phishing', 'gmail', 'url', 'unified'].includes(checkType)) {
+      logScanReliabilityEvent({ requestId, stage: 'dispute_calibrated_registry', provider: 'dispute_registry', outcome: 'success' });
+      return res.status(200).json(safeResult(disputeCalibrated));
     }
 
     // Deterministic high-confidence patterns run before external model calls.
