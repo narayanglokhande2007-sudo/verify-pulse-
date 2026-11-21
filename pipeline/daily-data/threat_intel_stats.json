@@ -1,12 +1,12 @@
 {
   "schemaVersion": "vp-threat-intel-1",
-  "generatedAt": "2026-11-20T05:56:28.219520+00:00",
-  "processedRecords": 9852,
+  "generatedAt": "2026-11-21T05:50:20.095484+00:00",
+  "processedRecords": 9851,
   "rejectedRecords": 0,
-  "activeUniqueIndicators": 9543,
+  "activeUniqueIndicators": 9520,
   "publishedIndicators": 5000,
   "sourceCounts": {
-    "Community Threat Feed": 8652,
+    "Community Threat Feed": 8651,
     "OpenPhish": 300,
     "Phishing Army": 600
   }
