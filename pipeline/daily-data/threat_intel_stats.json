@@ -1,9 +1,9 @@
 {
   "schemaVersion": "vp-threat-intel-1",
-  "generatedAt": "2026-11-24T08:40:34.864019+00:00",
+  "generatedAt": "2026-11-25T07:14:10.244967+00:00",
   "processedRecords": 9860,
   "rejectedRecords": 0,
-  "activeUniqueIndicators": 9558,
+  "activeUniqueIndicators": 9557,
   "publishedIndicators": 5000,
   "sourceCounts": {
     "Community Threat Feed": 8660,
